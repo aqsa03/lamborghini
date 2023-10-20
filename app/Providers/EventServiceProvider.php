@@ -7,6 +7,7 @@ use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 use App\Models\Category;
+use App\Models\CarModel;
 use App\Models\Episode;
 use App\Observers\CategoryFirebaseObserver;
 use App\Models\Video;
@@ -30,6 +31,7 @@ use App\Models\Page;
 use App\Models\PageSection;
 use App\Observers\NotificationFirebaseObserver;
 use App\Models\Setting;
+use App\Observers\CarModelFirebaseObserver;
 use App\Observers\CategoryTitleObserver;
 use App\Observers\EpisodeFirebaseObserver;
 use App\Observers\EpisodeNextObserver;
@@ -70,6 +72,7 @@ class EventServiceProvider extends ServiceProvider
         Season::observe(SeasonDeleteObserver::class);
         if(config('my_firebase.projectId')){
             Category::observe(CategoryFirebaseObserver::class);
+            CarModel::observe(CarModelFirebaseObserver::class);
             Program::observe(ProgramFirebaseObserver::class);
             Season::observe(SeasonFirebaseObserver::class);
             Episode::observe(EpisodeFirebaseObserver::class);

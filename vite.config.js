@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/welcome.css',
                 'resources/js/app.js',
                 'resources/js/programs/form.js',
+                'resources/js/models/form.js',
                 'resources/js/programs/show.js',
                 'resources/js/seasons/form.js',
                 'resources/js/seasons/show.js',
