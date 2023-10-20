@@ -14,6 +14,9 @@
         <div class="table_list__row__header_cell">
             {{ trans('general.title') }}
         </div>
+        <div class="table_list__row__header_cell">
+            {{ trans('general.description') }}
+        </div>
         <div class="table_list__row__header_cell_action">
             {{ trans('general.edit') }}
         </div>
@@ -26,6 +29,9 @@
     <li class="table_list__row hover:bg-slate-100">
         <div class="table_list__row__cell">
             {{ $category->title }}
+        </div>
+        <div class="table_list__row__cell">
+            {{ $category->description }}
         </div>
         <div class="table_list__row__cell">
             <a class="text-amber-700" href="{{ route('categories.edit', $category->id) }}" title="Edit {{ $category->title }}">

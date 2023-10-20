@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Image;
+use App\Http\Requests\StoreCategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -41,15 +43,18 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'title' => 'required|unique:categories|max:255',
-        ]);
+        $validatedFields=$request->validated();
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
+            $validatedFields['image_id'] = $image->id;
+        }
 
-        Category::create([
-            'title' => $request->title
-        ]);
+        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'category')){
+            $validatedFields['image_poster_id'] = $imagePoster->id;
+        }
+
+        Category::create($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category created successfully.');
     }
@@ -93,10 +98,19 @@ class CategoryController extends Controller
         $request->validate([
             'title' => 'required|max:255|unique:categories,title,'.$category->id,
         ]);
+        $validatedFields=[];
+        $validatedFields['title']=$request->title;
+        $validatedFields['description']=$request->description;
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
+            $validatedFields['image_id'] = $image->id;
+        }
 
-        $category->update([
-            'title' => $request->title
-        ]);
+        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'category')){
+            $validatedFields['image_poster_id'] = $imagePoster->id;
+        }
+
+
+        $category->update($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category updated successfully.');
     }

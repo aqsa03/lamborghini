@@ -7,6 +7,7 @@ return [
     'tags' => 'tags',
     'comma separated tags' => 'lista di tags separati dalla ,',
     'category' => 'categoria',
+    'parent_category' => 'categoria genitore',
     'section' => 'sezione',
     'type' => 'tipo',
     'status' => 'stato',
