@@ -1,0 +1,109 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Meride\Api;
+use App\Enums\VideoStatus;
+
+class Video extends Model
+{
+    use HasFactory;
+
+    protected $guarded = [];
+
+    public function isReady()
+    {
+        return $this->meride_status == VideoStatus::READY->value;
+    }
+
+    public function get_associated_entity()
+    {
+        $program = Program::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
+        if($program !== null){
+            return $program;
+        }
+
+        $season = Season::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
+        if($season !== null){
+            return $season;
+        }
+
+        $episode = Episode::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
+        if($episode !== null){
+            return $episode;
+        }
+
+        $news = News::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
+        if($news !== null){
+            return $news;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if video is available on Meride platform
+     *
+     * @return  bool
+     */
+    public function check_meride_availability(){
+        if(!$this->meride_video_id){
+            return false;
+        }
+        if($this->isReady()){
+            return true;
+        }
+        $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $videoResponse = $merideApi->get('video', $this->meride_video_id);
+        if($videoResponse->available_video){
+            $embed = $merideApi->create('embed', [
+                'video_id' => $this->meride_video_id,
+                'title' => $videoResponse->title
+            ]);
+            if (!$embed->hasErrors()){
+                $this->meride_embed_id = $embed->public_id ?? $embed->id;
+                $this->url = $videoResponse->url_video;
+                $this->url_mp4 = $videoResponse->url_video_mp4;
+                $this->image_preview_url = $videoResponse->preview_image;
+                $this->meride_status = VideoStatus::READY->value;
+                $this->save();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create Video object from form request
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Models\Image   $poster_image
+     * @param  boolean   $preview
+     * @param  boolean   $podcast
+     * @return \Illuminate\Http\Response
+     */
+    public static function createFromRequest($request, $poster_image, $preview, $podcast = false)
+    {
+        $video_input_name = $preview ? 'video_preview_upload_url' : 'video_upload_url';
+        $width_input_name = $preview ? 'video_preview_width' : 'video_width';
+        $height_input_name = $preview ? 'video_preview_height' : 'video_height';
+        $duration_input_name = $preview ? 'video_preview_duration' : 'video_duration';
+
+        if ($request->has($video_input_name) and $request->filled($video_input_name)) {
+            return Video::create([
+                'title' => $request->title,
+                'source_url' => $request->{$video_input_name},
+                'image_source_url' => $poster_image ? $poster_image->url : null,
+                'meride_status' => VideoStatus::SAVED->value,
+                'public' => $preview ? true : false,
+                'podcast' => $podcast ? true : false,
+                'source_width' => $request->{$width_input_name} ?? 16,
+                'source_height' => $request->{$height_input_name} ?? 9,
+                'duration' => $request->{$duration_input_name} ?? null,
+            ]);
+        }
+        return false;
+    }
+}

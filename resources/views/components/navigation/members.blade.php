@@ -1,0 +1,1 @@
+<a class="nav_item{{ Route::currentRouteName() == 'members.index' ? ' nav_item__selected': '' }}" href="{{ route('members.index') }}" title="{{ trans_choice('navigation.member', 2) }}">{{ trans_choice('navigation.member', 2) }}</a>

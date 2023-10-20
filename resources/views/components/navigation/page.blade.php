@@ -1,0 +1,1 @@
+<a class="nav_item{{ in_array(Route::currentRouteName(), ['pages.index', 'pages.show', 'pages.edit', 'pages.create']) ? ' nav_item__selected': '' }}" href="{{ route('pages.index') }}" title="{{ trans('pages.Pages') }}">{{ trans('pages.Pages') }}</a>

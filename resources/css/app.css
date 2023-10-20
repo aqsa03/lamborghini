@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: Inter,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Droid Sans,Helvetica Neue,sans-serif
+}
+
+[x-cloak] { display: none !important; }
+
+.body_section {
+    @apply px-4 md:px-12 pt-2 pb-8
+}
+
+a {
+    color: #3030ff;
+}
+
+.back_btn {
+    @apply block py-6 text-lg text-blue-800
+}
+
+.nav_item {
+    @apply block mt-4 text-stone-700 hover:text-stone-900 mr-4 capitalize
+}
+
+.nav_item__selected {
+    @apply font-bold
+}
+
+.desktop_menu {
+    min-height: 100vh;
+}
+
+/*textarea {
+    @apply shadow-sm focus:ring-stone-600 focus:border-stone-600 mt-1 block w-full sm:text-base border border-stone-600 rounded-md
+}
+
+input[type='text'] {
+    @apply mt-1 focus:ring-stone-600 focus:border-stone-600 block w-full shadow-sm sm:text-base border border-stone-600 rounded-md
+}*/
+
+.default_table {
+    @apply my-12 max-w-[calc(100vw-80px)] md:max-w-[calc(100vw-100px)] lg:max-w-[calc(100vw-400px)] overflow-auto;
+}
+
+.btn_new_entity {
+    @apply bg-zinc-800 hover:bg-red-700 text-white font-bold py-2 px-4 rounded;
+}
+
+.btn_save {
+    @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded capitalize;
+}
+
+.btn_add {
+    @apply bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded capitalize;
+}
+
+.btn_logout {
+    @apply inline-block text-sm px-4 py-2 leading-none border rounded text-stone-700 border-stone-700 hover:border-blue-300 hover:text-blue-500 hover:bg-white mt-4 lg:mt-0;
+}
+
+.table_list {
+    @apply table border-collapse w-full;
+}
+
+.table_list__row {
+    @apply table-row border-t border-b
+}
+
+.table_list__row__header_cell {
+    @apply table-cell align-middle font-semibold p-4 text-sm uppercase;
+}
+
+.table_list__row__header_cell_action {
+    @apply table-cell align-middle font-semibold p-4 text-sm capitalize;
+    width: 100px;
+}
+
+.table_list__row__cell {
+    @apply table-cell align-middle p-4;
+    max-width: 360px;
+}
+
+.table_list__row__cell__title {
+    @apply text-zinc-700 font-semibold;
+}
+
+.table_list__row__cell__title:hover {
+    @apply text-zinc-800;
+}
+
+.default_form {
+    @apply p-8;
+}
+
+.post_image {
+    max-width: 100%;
+    max-height: 600px;
+}
+
+.form_input {
+    @apply block w-full text-gray-800 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-zinc-50 focus:border-gray-500;
+}
+
+.form_select {
+    @apply block w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 rounded shadow leading-tight;
+}
+
+.form_input_title {
+    @apply border text-4xl p-4 outline-0 focus:outline-0
+}
+
+.form_textarea {
+    @apply border text-xl p-4 outline-0 focus:outline-0
+}
+
+.badge__post_draft {
+    @apply bg-pink-100 text-pink-800 text-base font-medium mr-2 px-2.5 py-0.5 text-center rounded-full dark:bg-pink-200 dark:text-pink-900;
+}
+
+.badge__post_published {
+    @apply bg-green-100 text-green-800 text-base font-medium mr-2 px-2.5 py-0.5 text-center rounded-full dark:bg-green-200 dark:text-green-900;
+}
+
+div[class^='badge__post'] {
+    max-width: 380px;
+}
+
+.delete_btn {
+    @apply bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded;
+}
+
+.editor_textarea {
+    @apply shadow p-12 prose lg:prose-xl rounded-lg;
+}
+
+button:disabled {
+    background-color: gray;
+    color: #333;
+}
+button:disabled:hover {
+    background-color: gray;
+    color: #333;
+}

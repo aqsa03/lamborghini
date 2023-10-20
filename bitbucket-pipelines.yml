@@ -1,0 +1,26 @@
+image: php:8.1
+
+pipelines:
+  branches:
+    dev:
+      - step:
+          name: Deployment to dev
+          deployment: test
+          script:
+            - apt-get update && apt-get install -y unzip openssh-client openssh-server
+            - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_INSTALL_PATH; git fetch; git checkout dev; git pull;"
+            - ssh $SERVER_USER@$SERVER_IP "docker exec tv2000_webserver bash -c 'composer install; npm i; npm run build; php artisan migrate; php artisan cache:clear; php artisan config:clear'"
+            - ssh $SERVER_USER@$SERVER_IP "docker cp $SERVER_INSTALL_PATH/docker/web/etc/supervisor/conf.d/lamborghini-worker.conf tv2000_webserver:/etc/supervisor/conf.d/lamborghini-worker.conf"
+            - ssh $SERVER_USER@$SERVER_IP "docker cp $SERVER_INSTALL_PATH/docker/web/crontab.txt tv2000_webserver:/var/crontab.txt"
+            - ssh $SERVER_USER@$SERVER_IP "docker exec tv2000_webserver bash -c 'crontab /var/crontab.txt'"
+            - ssh $SERVER_USER@$SERVER_IP "docker exec tv2000_webserver bash -c 'supervisorctl reread; supervisorctl update; supervisorctl restart lamborghini-worker:*'"
+            - ssh $SERVER_USER@$SERVER_IP "docker exec tv2000_webserver bash -c 'php artisan storage:link'"
+    # master:
+    #   - step:
+    #       name: Deployment to production
+    #       deployment: production
+    #       script:
+    #         - apt-get update && apt-get install -y unzip openssh-client openssh-server
+    #         - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_INSTALL_PATH; git fetch; git checkout master; git pull;"
+    #         - ssh $SERVER_USER@$SERVER_IP "cd $SERVER_INSTALL_PATH; /opt/plesk/php/8.1/bin/php /usr/lib/plesk-9.0/composer.phar install; npm i; npm run build; /opt/plesk/php/8.1/bin/php artisan migrate --force; /opt/plesk/php/8.1/bin/php artisan cache:clear; /opt/plesk/php/8.1/bin/php artisan config:clear"
+    #         - ssh $SERVER_USER_ADMIN@$SERVER_IP "supervisorctl reread; supervisorctl update; supervisorctl restart serviziopubblico-worker:*"
