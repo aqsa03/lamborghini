@@ -16,12 +16,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::latest();
-        return view('category.index',[
-                'total' => $categories->count(),
-                'categories' => $categories->paginate(20)
-            ])
-            ->with('i', (request()->input('page', 1) - 1) * 20);
+        $categories = Category::latest()
+        ->leftJoin('categories as parent', 'categories.parent_id', '=', 'parent.id')
+        ->select('categories.*', 'parent.title as parent_id')
+        ->paginate(20);
+    
+    return view('category.index', [
+        'total' => $categories->total(),
+        'categories' => $categories
+    ])->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
     /**
@@ -31,9 +34,11 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        $categories = Category::latest()->whereNull('parent_id')->get();
         return view('category.form', [
             'formType' => 'create',
-            'category' => null
+            'category' => null,
+            'categories'=>$categories,
         ]);
     }
 
@@ -49,11 +54,7 @@ class CategoryController extends Controller
         if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
             $validatedFields['image_id'] = $image->id;
         }
-
-        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'category')){
-            $validatedFields['image_poster_id'] = $imagePoster->id;
-        }
-
+        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
         Category::create($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category created successfully.');
@@ -80,9 +81,11 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        $categories = Category::latest()->whereNull('parent_id')->get();
         return view('category.form', [
             'category' => $category,
-            'formType' => 'edit'
+            'formType' => 'edit',
+            'categories'=>$categories,
         ]);
     }
 
@@ -101,15 +104,11 @@ class CategoryController extends Controller
         $validatedFields=[];
         $validatedFields['title']=$request->title;
         $validatedFields['description']=$request->description;
+        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
+
         if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
             $validatedFields['image_id'] = $image->id;
         }
-
-        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'category')){
-            $validatedFields['image_poster_id'] = $imagePoster->id;
-        }
-
-
         $category->update($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category updated successfully.');

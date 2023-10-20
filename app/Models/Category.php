@@ -11,7 +11,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title','description', 'image_id', 'image_poster_id',];
+    protected $fillable = ['title','description', 'image_id', 'parent_id',];
 
     /**
      * Get the seasons for the program.
@@ -36,10 +36,5 @@ class Category extends Model
     public function image()
     {
         return $this->belongsTo(Image::class, 'image_id');
-    }
-
-    public function imagePoster()
-    {
-        return $this->belongsTo(Image::class, 'image_poster_id');
     }
 }
