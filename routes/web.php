@@ -60,7 +60,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::resources([
         'categories' => CategoryController::class,
-        'model' => CarModelController::class,
+        'models' => CarModelController::class,
         'programs' => ProgramsController::class,
         'seasons' => SeasonsController::class,
         'episodes' => EpisodesController::class,

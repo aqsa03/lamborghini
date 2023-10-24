@@ -77,7 +77,6 @@ class ProgramsController extends Controller
     {
 
         $validatedFields = $request->validated();
-
         if($image = Image::createAndStoreFromRequest($request, 'image', 'program')){
             $validatedFields['image_id'] = $image->id;
         }

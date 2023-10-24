@@ -27,7 +27,6 @@ class StoreCarModelRequest extends FormRequest
                 'title' => 'required|unique:CarModel|max:255',
                 'description' => 'nullable|string',          
                 'image' => 'nullable|image',
-                'parent_id'=>'nullable|numeric',
                 'video_width' => 'nullable|numeric',
                 'video_height' => 'nullable|numeric',
                 'video_preview_width' => 'nullable|numeric',

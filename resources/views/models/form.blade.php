@@ -20,7 +20,7 @@
     <input type="hidden" id="tus_token" value="{{ $tusToken }}" />
     <input type="hidden" id="storage_upload_endpoint" value="{{ $storageUploadEndpoint }}" />
 
-    <form  id="model-form" class="p-12" action="{{ $formType == 'create' ? route('model.store') : route('model.update', $model->id) }}" method="POST" enctype="multipart/form-data">
+    <form  id="model-form" class="p-12" action="{{ $formType == 'create' ? route('models.store') : route('models.update', $model->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         {{ $formType == 'edit' ? method_field('PUT') : '' }}
 
@@ -37,19 +37,18 @@
         <input type="hidden" id="video_preview_height" name="video_preview_height" value="" />
         <input type="hidden" id="video_preview_duration" name="video_preview_duration" value="" />
         <div class="w-full md:w-1/2 px-3 mt-12">
-        @if ($model->parent_id===null)
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="category_id">
                 {{ trans("general.model") }}
             </label>
             <div class="inline-block relative w-64">
-                <select name="parent_id" class="form_select" required >
+                <select name="parent_id" class="form_select" >
+                <option disbaled value="null">{{ trans("general.choose model") }}</option>
                     @foreach ($models as $md)
-                    <option {{ old("model_id", $md->parent_id ?? '') == $md->id ? 'selected' : '' }} value="{{ $md->id }}">{{ $md->title }}</option>
+                    <option {{ old("model_id", $model->parent_id ?? '') == $md->id ? 'selected' : '' }} value="{{ $md->id }}">{{ $md->title }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
-        @endif
         <div class="w-full px-3 mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="title">
                 {{ trans("general.title") }}
@@ -62,17 +61,6 @@
             </label>
             <textarea rows="3" name="description" placeholder="{{ trans("general.description") }}" class="form_input">{{ old("description", $model->description ?? '') }}</textarea>
         </div>    
-        <div class="w-full md:w-1/2 px-3 mt-12">
-            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                {{ trans("general.image") }}
-            </label>
-            @if (isset($model) && !empty($model->image))
-                <img src="{{ $model->image->url }}" title="{{ $model->image->name }}" />
-            @endif
-            <input type="file" name="image" accept="image/png, image/jpeg, image/webp" />
-            <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
-        </div>
-
         <div class="w-full md:w-1/2 px-3 mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans("general.poster image") }}
@@ -95,7 +83,7 @@
             <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
         </div>
 
-        <!-- <div class="w-full md:w-1/2 px-3 mt-12">
+        <div class="w-full md:w-1/2 px-3 mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans("general.preview video") }}
             </label>
@@ -104,9 +92,9 @@
 
             <div id="drag-drop-area-preview"></div>
 
-        </div> -->
+        </div>
 
-        <!-- <div class="w-full md:w-1/2 px-3 mt-12">
+        <div class="w-full md:w-1/2 px-3 mt-12">
             <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans("general.main video") }}
             </label>
@@ -115,7 +103,7 @@
 
             <div id="drag-drop-area"></div>
 
-        </div> -->
+        </div>
 
         <div class="w-full px-3 mt-12">
             <div class="flex w-full">
@@ -128,4 +116,14 @@
 @push("scripts")
 @vite(['resources/js/models/form.js'])
 @endpush
+<script>
+    // {{-- const programEditForm = document.getElementById("program-edit-form");
+    // const publishButton = document.getElementById("publish-button");
+    // publishButton.addEventListener("click", ev => {
+    //     ev.preventDefault();
+    //     document.getElementById("status").value = "PUBLISHED";
+    //     programEditForm.submit();
+    //     return false;
+    // }); --}}
+</script>
 </x-layouts.panel_layout>

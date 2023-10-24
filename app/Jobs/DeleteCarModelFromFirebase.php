@@ -34,7 +34,7 @@ class DeleteCarModelFromFirebase implements ShouldQueue
      * @param  int  $model_id
      * @return void
      */
-    public function __construct(CarModel $model_id)
+    public function __construct(int $model_id)
     {
         $this->model_id=$model_id;
     }

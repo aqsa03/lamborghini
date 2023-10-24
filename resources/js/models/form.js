@@ -1,14 +1,14 @@
-import { CreateForm } from '../libs/form/createForm.js';
+import { CreateForm } from '../libs/form/createCarModelForm.js';
 import TusConfig from '../libs/tus/tusConfig.js';
 
 ; (() => {
-    // const modelCreateForm = new modelCreateForm({
-    //     form: document.getElementById("model-create-form"),
+    // const programCreateForm = new ProgramCreateForm({
+    //     form: document.getElementById("program-create-form"),
     //     editorHolderId: "description"
     // });
 
-    // modelCreateForm.setup();
-    // window.modelCreateForm = modelCreateForm;
+    // programCreateForm.setup();
+    // window.programCreateForm = programCreateForm;
     const tusToken = document.getElementById("tus_token").value;
     const tusEndpoint = document.getElementById("storage_upload_endpoint").value;
     const tusConfig = new TusConfig({
@@ -23,22 +23,28 @@ import TusConfig from '../libs/tus/tusConfig.js';
         tusConfig,
         dropAreaIdMain: "#drag-drop-area",
         dropAreaIdPreview: "#drag-drop-area-preview",
+        publishButton: document.getElementById("publish-button"),
         editorData,
     });
     tusCreateForm.uppyPreviewVideo && tusCreateForm.uppyPreviewVideo.on("file-added", () => {
         videos.add("preview");
+        form.querySelector("#publish-button").disabled = true;
     });
     tusCreateForm.uppyMainVideo && tusCreateForm.uppyMainVideo.on("file-added", () => {
         videos.add("main");
+        form.querySelector("#publish-button").disabled = true;
     });
     tusCreateForm.uppyPreviewVideo && tusCreateForm.uppyPreviewVideo.on("file-removed", () => {
         videos.delete("preview");
+        if (videos.size === 0) {
+            form.querySelector("#publish-button").disabled = false;
+        }
     });
     tusCreateForm.uppyMainVideo && tusCreateForm.uppyMainVideo.on("file-removed", () => {
         videos.delete("main");
-    });
-    tusCreateForm.uppyMainVideo.on("error", (error) => {
-        console.error("Video upload error:", error);
+        if (videos.size === 0) {
+            form.querySelector("#publish-button").disabled = false;
+        }
     });
     tusCreateForm.setup();
     window.tusCreateForm = tusCreateForm;

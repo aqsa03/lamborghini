@@ -21,6 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('image_poster_id')->nullable();
             $table->unsignedBigInteger('qr_scan_id')->nullable();
             $table->unsignedBigInteger('video_id')->nullable();
+            $table->unsignedBigInteger('video_preview_id')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
         });

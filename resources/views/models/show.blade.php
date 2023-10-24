@@ -2,7 +2,7 @@
 
 <div class="body_section">
 
-    <a href="{{ route('model.index') }}" title="Model list">&lsaquo; Back to all Models</a>
+    <a href="{{ route('models.index') }}" title="Model list">&lsaquo; Back to all Models</a>
 
     <div class="pr-4 flex gap-4 items-end place-content-end relative w-full">
 
