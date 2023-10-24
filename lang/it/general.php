@@ -7,6 +7,8 @@ return [
     'tags' => 'tags',
     'comma separated tags' => 'lista di tags separati dalla ,',
     'category' => 'categoria',
+    'choose model'=>'scegli modello',
+    'model'=>'modello',
     'parent category' => 'categoria genitore',
     'choose category'=>'scegli categoria',
     'parent'=>'genitore',

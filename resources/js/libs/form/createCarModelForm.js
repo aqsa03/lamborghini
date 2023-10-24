@@ -1,5 +1,5 @@
 import UppyVideo from "./uppyVideo.js";
-import { createEditor } from "../editor.js";
+// import { createEditor } from "../editor.js";
 import TusVideo from "../tus/tusVideo.js";
 
 class CreateForm {
@@ -9,14 +9,12 @@ class CreateForm {
         dropAreaIdMain,
         dropAreaIdPreview,
         publishButton,
-        editorHolderId,
         editorPlaceholder,
         editorData,
         uploadMaxSize,
     }) {
         this.form = form;
         this.editor = null;
-        this.editorHolderId = editorHolderId?editorHolderId:null;
         this.editorPlaceholder = editorPlaceholder;
         this.editorData = editorData || {};
         this.tusConfig = tusConfig;
@@ -156,9 +154,9 @@ class CreateForm {
                 this.enableSaveButton();
             }
         }
-        const outputData = await this.editor.save();
-        const descriptionInput = document.querySelector("input[name='description']");
-        descriptionInput.value = JSON.stringify(outputData.blocks);
+        // const outputData = await this.editor.save();
+        // const descriptionInput = document.querySelector("input[name='description']");
+        // descriptionInput.value = JSON.stringify(outputData.blocks);
         this.form.submit();
         this.enableSaveButton();
     }
@@ -172,11 +170,9 @@ class CreateForm {
     }
 
     setup() {
-        this.editor = createEditor({
-            holderId: this.editorHolderId,
-            placeholder: this.editorPlaceholder,
-            data: this.editorData
-        });
+        // this.editor = createEditor({
+        //     data: this.editorData
+        // });
         console.log(this.form);
         this.form.addEventListener("submit", this.submitForm.bind(this));
 

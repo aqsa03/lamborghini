@@ -1,2 +1,13 @@
 .env
 mysqldata
+# Ignore the vendor directory
+/vendor/
+
+# Ignore the node_modules directory
+/node_modules/
+#Make sure to commit the changes to your .gitignore file, and these directories will be excluded from version control. This is a common practice for PHP projects (ignoring vendor) and JavaScript/Node.js projects (ignoring node_modules) to prevent unnecessary library files from being included in your Git repository.
+
+
+
+
+
