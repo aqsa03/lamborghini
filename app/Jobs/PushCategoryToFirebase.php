@@ -57,7 +57,29 @@ class PushCategoryToFirebase implements ShouldQueue
         $db = $firestore->database();
 
         $db->collection('categories')->document($this->category->id)->set(
-            ['title' => $this->category->title]
+            ['title' => $this->category->title,
+            'description'=>$this->category->description,
+            'parent'=>$this->category->parent_id,
+            'image' => $this->category->image ? [
+                'source' => [
+                    'url' => $this->category->image->url
+                ],
+                'xs' => [
+                    'url' => $this->category->image->url.(($rule = config('image.imageManagerResizingQueryString.xs', false)) ? '?'.$rule : '')
+                ],
+                'sm' => [
+                    'url' => $this->category->image->url.(($rule = config('image.imageManagerResizingQueryString.sm', false)) ? '?'.$rule : '')
+                ],
+                'md' => [
+                    'url' => $this->category->image->url.(($rule = config('image.imageManagerResizingQueryString.md', false)) ? '?'.$rule : '')
+                ],
+                'lg' => [
+                    'url' => $this->category->image->url.(($rule = config('image.imageManagerResizingQueryString.lg', false)) ? '?'.$rule : '')
+                ],
+                'xl' => [
+                    'url' => $this->category->image->url.(($rule = config('image.imageManagerResizingQueryString.xl', false)) ? '?'.$rule : '')
+                ]
+            ] : null,]
         );
     }
 }

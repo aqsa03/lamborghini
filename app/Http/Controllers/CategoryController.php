@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Image;
+use App\Http\Requests\StoreCategoryRequest;
 
 class CategoryController extends Controller
 {
@@ -14,12 +16,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::latest();
-        return view('category.index',[
-                'total' => $categories->count(),
-                'categories' => $categories->paginate(20)
-            ])
-            ->with('i', (request()->input('page', 1) - 1) * 20);
+        $categories = Category::latest()
+        ->leftJoin('categories as parent', 'categories.parent_id', '=', 'parent.id')
+        ->select('categories.*', 'parent.title as parent_id')
+        ->paginate(20);
+    
+    return view('category.index', [
+        'total' => $categories->total(),
+        'categories' => $categories
+    ])->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
     /**
@@ -29,9 +34,11 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        $categories = Category::latest()->whereNull('parent_id')->get();
         return view('category.form', [
             'formType' => 'create',
-            'category' => null
+            'category' => null,
+            'categories'=>$categories,
         ]);
     }
 
@@ -41,15 +48,14 @@ class CategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'title' => 'required|unique:categories|max:255',
-        ]);
-
-        Category::create([
-            'title' => $request->title
-        ]);
+        $validatedFields=$request->validated();
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
+            $validatedFields['image_id'] = $image->id;
+        }
+        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
+        Category::create($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category created successfully.');
     }
@@ -75,9 +81,11 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        $categories = Category::latest()->whereNull('parent_id')->get();
         return view('category.form', [
             'category' => $category,
-            'formType' => 'edit'
+            'formType' => 'edit',
+            'categories'=>$categories,
         ]);
     }
 
@@ -93,10 +101,15 @@ class CategoryController extends Controller
         $request->validate([
             'title' => 'required|max:255|unique:categories,title,'.$category->id,
         ]);
+        $validatedFields=[];
+        $validatedFields['title']=$request->title;
+        $validatedFields['description']=$request->description;
+        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
 
-        $category->update([
-            'title' => $request->title
-        ]);
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
+            $validatedFields['image_id'] = $image->id;
+        }
+        $category->update($validatedFields);
 
         return redirect()->route('categories.index')->with('success','Category updated successfully.');
     }
