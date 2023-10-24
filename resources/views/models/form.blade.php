@@ -36,6 +36,7 @@
         <input type="hidden" id="video_preview_width" name="video_preview_width" value="" />
         <input type="hidden" id="video_preview_height" name="video_preview_height" value="" />
         <input type="hidden" id="video_preview_duration" name="video_preview_duration" value="" />
+        <input type="hidden" id="status" name="status" value="{{$model->status ?? 'DRAFT'}}" />
         <div class="w-full md:w-1/2 px-3 mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="category_id">
                 {{ trans("general.model") }}
@@ -79,7 +80,7 @@
             @if (isset($model) && !empty($model->QRScan))
                 <img src="{{ $model->QRScan->url }}" title="{{ $model->QRScan->name }}" />
             @endif
-            <input type="file" name="qr_scan" accept="image/png, image/jpeg, image/webp" />
+            <input type="file" name="qr_code" accept="image/png, image/jpeg, image/webp" />
             <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
         </div>
 
@@ -106,9 +107,16 @@
         </div>
 
         <div class="w-full px-3 mt-12">
-            <div class="flex w-full">
-                <button id="save-button" class="btn_save" type="submit">{{ trans("general.save") }}</button>
+            <div class="basis-1/2">
+                @if (!isset($model) or $model?->status != App\Enums\ModelStatus::PUBLISHED->value)
+                <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
+                @endif
             </div>
+            @if (isset($model) and $model->canPublish())
+            <div class="basis-1/2 text-right">
+                <button id="publish-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">{{ trans("general.Publish") }}</button>
+            </div>
+            @endif
         </div>
 
     </form>
@@ -117,13 +125,13 @@
 @vite(['resources/js/models/form.js'])
 @endpush
 <script>
-    // {{-- const programEditForm = document.getElementById("program-edit-form");
-    // const publishButton = document.getElementById("publish-button");
-    // publishButton.addEventListener("click", ev => {
-    //     ev.preventDefault();
-    //     document.getElementById("status").value = "PUBLISHED";
-    //     programEditForm.submit();
-    //     return false;
-    // }); --}}
+    const programEditForm = document.getElementById("model-edit-form");
+    const publishButton = document.getElementById("publish-button");
+    publishButton.addEventListener("click", ev => {
+        ev.preventDefault();
+        document.getElementById("status").value = "PUBLISHED";
+        programEditForm.submit();
+        return false;
+    });
 </script>
 </x-layouts.panel_layout>

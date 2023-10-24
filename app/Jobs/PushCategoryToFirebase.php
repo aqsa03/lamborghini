@@ -59,7 +59,8 @@ class PushCategoryToFirebase implements ShouldQueue
         $db->collection('categories')->document($this->category->id)->set(
             ['title' => $this->category->title,
             'description'=>$this->category->description,
-            'parent'=>$this->category->parent_id,
+            'parent_id'=>$this->category->parent_id,
+            'parent'=>$this->category->parent_id ? $db->collection('categories')->document($this->category->parent_id) : null,
             'image' => $this->category->image ? [
                 'source' => [
                     'url' => $this->category->image->url

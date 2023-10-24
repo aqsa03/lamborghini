@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ModelStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreCarModelRequest extends FormRequest
@@ -27,6 +28,9 @@ class StoreCarModelRequest extends FormRequest
                 'title' => 'required|unique:CarModel|max:255',
                 'description' => 'nullable|string',          
                 'image' => 'nullable|image',
+                'status' => 'in:'.implode(',', array_map(function($item) {
+                    return $item->value;
+                }, ModelStatus::cases())),
                 'video_width' => 'nullable|numeric',
                 'video_height' => 'nullable|numeric',
                 'video_preview_width' => 'nullable|numeric',
