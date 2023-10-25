@@ -68,7 +68,6 @@ class CarModelController extends Controller
         if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
-        dd($validatedFields);
         CarModel::create($validatedFields);
 
         return redirect()->route('models.index')->with('success','Model created successfully.');
