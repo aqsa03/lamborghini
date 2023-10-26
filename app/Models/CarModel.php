@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\VideoStatus;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CarModel extends Model
 {
@@ -54,5 +55,9 @@ class CarModel extends Model
     public function videosAreReady()
     {
         return $this->video?->isReady() AND $this->videoPreview?->isReady();
+    }
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ModelVideo::class);
     }
 }

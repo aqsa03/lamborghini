@@ -16,6 +16,7 @@ class StoreVideoRequest extends FormRequest
     {
         return true;
     }
+    
 
     /**
      * Get the validation rules that apply to the request.
@@ -31,6 +32,16 @@ class StoreVideoRequest extends FormRequest
                 return $item->value;
             }, VideosStatus::cases())),
             'model_id' => 'numeric',
+            'category_id' => 'numeric',
+            'image' => 'nullable|image',
+            'tags' => 'nullable|string',
+            'related' => 'nullable',
+            'vod' => 'boolean',
+            'is_360' => 'boolean', 
+            'video_width' => 'nullable|numeric',
+            'video_height' => 'nullable|numeric',
+            'video_preview_width' => 'nullable|numeric',
+            'video_preview_height' => 'nullable|numeric',
         ];
     }
 }

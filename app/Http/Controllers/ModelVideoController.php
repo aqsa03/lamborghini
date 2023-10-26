@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Meride\Storage\Tus\Token;
 use App\Models\CarModel;
 use App\Models\Video;
+use App\Models\Category;
+use App\Models\Image;
 class ModelVideoController extends Controller
 {
     /**
@@ -46,6 +48,7 @@ class ModelVideoController extends Controller
     public function create()
     {
         $models = CarModel::all();
+        $categories=Category::all();
         if ($models->isEmpty()) {
             return redirect()->route('videos.index')->with('error','No model is present. Please insert at least one.');
         }
@@ -61,6 +64,9 @@ class ModelVideoController extends Controller
         return view('video.form', [
             'formType' => 'create',
             'models' => $models,
+            'categories'=>$categories,
+            'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
+
             'tusToken' => $token,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
@@ -69,26 +75,29 @@ class ModelVideoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\StoreEpisodeRequest  $request
+     * @param  \Illuminate\Http\StoreVideoRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreVideoRequest $request)
     {
-
         $validatedFields = $request->validated();
-        $model = CarModel::find($validatedFields['model_id']);
-        if($video = Video::createFromRequest($request,null, preview: false)){
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+            $validatedFields['image_id'] = $image->id;
+        }
+        if($video = Video::createFromRequest($request,null, preview: true)){
             $validatedFields['video_id'] = $video->id;
         }
 
         if($video_preview = Video::createFromRequest($request, null, preview: true)){
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
+        $validatedFields['tags'] = json_encode(array_filter(array_map('trim', explode(',', $validatedFields['tags']))));
+        $validatedFields['related'] = json_encode($validatedFields['related'] ?? []);
         if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
-
         ModelVideo::create($validatedFields);
+        
 
         return redirect()->route('videos.index')->with('success','Video created successfully.');
     }
@@ -123,40 +132,45 @@ class ModelVideoController extends Controller
             // is important to catch the exception
             throw new \Exception("Some error occured with the video service");
         }
+        
+        $video->tags=json_decode($video->tags);
         return view('video.form', [
             'formType' => 'edit',
             'video' => $video,
             'models' => CarModel::all(),
+            'categories'=>Category::all(),
+            'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
             'tusToken' => $token,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
-
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\StoreEpisodeRequest  $request
-     * @param  \App\Models\Episode  $episode
+     * @param  \Illuminate\Http\StoreVideoRequest  $request
+     * @param  \App\Models\ModelVideo  $ModelVideo
      * @return \Illuminate\Http\Response
      */
-    public function update(StoreVideoRequest $request, ModelVideo $videos)
+    public function update(StoreVideoRequest $request, ModelVideo $video)
     {
         $validatedFields = $request->validated();
-        $model = CarModel::find($validatedFields['model_id']);
-        if($video = Video::createFromRequest($request, null, preview: false)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_id'] = $video->id;
+        if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+            $validatedFields['image_id'] = $image->id;
         }
-
+        if($main_video = Video::createFromRequest($request, null, preview: true)){
+            //TODO rimuovi vecchio video se c'è
+            $validatedFields['video_id'] = $main_video->id;
+        }
         if($video_preview = Video::createFromRequest($request, null, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
+        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+        $validatedFields['related'] = $validatedFields['related'] ?? [];
         if($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
-        $videos->update($validatedFields);
-        dd($validatedFields);
+        $video->update($validatedFields);
 
         return redirect()->route('videos.index')->with('success','Video updated successfully.');
     }
@@ -164,7 +178,7 @@ class ModelVideoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Episode  $episode
+     * @param  \App\Models\ModelVideo  $video
      * @return \Illuminate\Http\Response
      */
     public function destroy(ModelVideo $video)
@@ -181,7 +195,7 @@ class ModelVideoController extends Controller
     }
     
     /**
-     * Search episodes by their title
+     * Search videos by their title
      * @param Request The request where must be present the `title` query string attribute
      * @return \Illuminate\Http\Response
      */
@@ -193,7 +207,7 @@ class ModelVideoController extends Controller
     }
 
     /**
-     * Search episodes by their search_string
+     * Search videos by their search_string
      * @param Request The request where must be present the `search_string` query string attribute
      * @return \Illuminate\Http\Response
      */

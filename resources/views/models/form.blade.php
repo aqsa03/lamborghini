@@ -93,18 +93,6 @@
             <div id="drag-drop-area-preview"></div>
 
         </div>
-
-        <div class="w-full md:w-1/2 px-3 mt-12">
-            <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                {{ trans("general.main video") }}
-            </label>
-
-            @include('videos.render', ['entity' => $model ?? null, 'preview' => false])
-
-            <div id="drag-drop-area"></div>
-
-        </div>
-
         <div class="w-full px-3 mt-12">
             <div class="flex w-full">
                 <button id="save-button" class="btn_save" type="submit">{{ trans("general.save") }}</button>

@@ -6,4 +6,7 @@ return [
     'Videos' => 'Videos',
     'Video' => 'Video',
     'Model' => 'Model',
+    'related' => 'related',
+    'vod' => 'vod',
+    '360'=>'360',
 ];

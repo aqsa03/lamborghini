@@ -19,9 +19,17 @@ return new class extends Migration
             $table->string('status', 50);
             $table->longText('description')->nullable();
             $table->unsignedBigInteger('video_id')->nullable();
+            $table->unsignedBigInteger('image_id')->nullable();
             $table->unsignedBigInteger('video_preview_id')->nullable();
+            $table->json('tags')->nullable();
+            $table->json('related')->nullable();
+            $table->boolean('is_360')->default(false);
+            $table->boolean('vod')->default(false);
             $table->timestamp('published_at')->nullable();
-            $table->unsignedBigInteger('model_id');
+            $table->unsignedBigInteger('model_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
+            $table->foreign('model_id')->references('id')->on('CarModel');
+            $table->foreign('category_id')->references('id')->on('categories');
             $table->timestamps();
         });
     }

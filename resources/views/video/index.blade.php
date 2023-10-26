@@ -2,7 +2,7 @@
 
 <div class="body_section">
 
-<x-page_title>{{ trans('Videos.Videos') }} ({{ $total }})</x-page_title>
+<x-page_title>{{ trans('videos.Videos') }} ({{ $total }})</x-page_title>
 
 <div class="pr-4 flex flex-col items-end relative">
     <div>
@@ -12,6 +12,9 @@
 <div class="default_table">
     <ol class="table_list">
     <li class="table_list__row">
+    <div class="table_list__row__header_cell">
+            {{ trans("general.category") }}
+        </div>
         <div class="table_list__row__header_cell">
             {{ trans("model.Model") }}
         </div>
@@ -31,8 +34,11 @@
     </li>
     @foreach ($videos as $video)
     <li class="table_list__row hover:bg-slate-100">
+    <div class="table_list__row__cell">
+           {{ $video->category->title }}
+        </div>
         <div class="table_list__row__cell">
-           {{ $video->model }}
+           {{ $video->model->title }}
         </div>
         <div class="table_list__row__cell">
             <div class="flex gap-2">
