@@ -49,9 +49,13 @@ class ModelVideoController extends Controller
     {
         $models = CarModel::all();
         $categories=Category::all();
+        if ($categories->isEmpty()) {
+            return redirect()->route('videos.index')->with('error','No category is present. Please insert at least one.');
+        }
         if ($models->isEmpty()) {
             return redirect()->route('videos.index')->with('error','No model is present. Please insert at least one.');
         }
+       
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
