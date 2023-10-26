@@ -158,7 +158,7 @@
                 <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
                 @endif
             </div>
-            @if (isset($video))
+            @if (isset($video) and $video->canPublish())
             <div class="basis-1/2 text-right">
                 <button id="publish-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">{{ trans("general.Publish") }}</button>
             </div>
