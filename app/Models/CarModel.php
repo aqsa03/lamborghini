@@ -56,4 +56,8 @@ class CarModel extends Model
     {
         return $this->video?->isReady() AND $this->videoPreview?->isReady();
     }
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ModelVideo::class);
+    }
 }

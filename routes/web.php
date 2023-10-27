@@ -14,6 +14,7 @@ use \App\Http\Controllers\SettingController;
 use \App\Http\Controllers\associationMembershipController;
 use App\Http\Controllers\EpisodesController;
 use App\Http\Controllers\CarModelController;
+use App\Http\Controllers\ModelVideoController;
 use App\Http\Controllers\NewsCategoryController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PalimpsestItemsController;
@@ -61,6 +62,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resources([
         'categories' => CategoryController::class,
         'models' => CarModelController::class,
+        'videos' => ModelVideoController::class,
         'programs' => ProgramsController::class,
         'seasons' => SeasonsController::class,
         'episodes' => EpisodesController::class,

@@ -20,6 +20,10 @@ class Category extends Model
     {
         return $this->hasMany(Program::class);
     }
+    public function videos(): HasMany
+    {
+        return $this->hasMany(ModelVideo::class);
+    }
 
     /**
      * Interact with the category's tags

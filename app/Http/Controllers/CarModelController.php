@@ -109,17 +109,9 @@ class CarModelController extends Controller
         if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
             $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        if($video = Video::createFromRequest($request, $imagePoster, preview: false)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_id'] = $video->id;
-        }
-
-        if($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)){
+        if($video_preview = Video::createFromRequest($request, $image, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
-        }
-        if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
-            $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
         $model->update($validatedFields);
 
