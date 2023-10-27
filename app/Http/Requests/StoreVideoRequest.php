@@ -38,6 +38,7 @@ class StoreVideoRequest extends FormRequest
             'related' => 'nullable',
             'vod' => 'boolean',
             'is_360' => 'boolean', 
+            '360_video'=>'nullable|string',
             'video_width' => 'nullable|numeric',
             'video_height' => 'nullable|numeric',
             'video_preview_width' => 'nullable|numeric',
