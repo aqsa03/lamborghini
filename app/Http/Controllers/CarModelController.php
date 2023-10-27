@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ModelStatus;
 use App\Http\Requests\StoreCarModelRequest;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use App\Models\Video;
 use App\Models\CarModel;
 use Meride\Storage\Tus\Token;
-use App\Http\Requests\StoreProgramRequest;
-use Illuminate\Support\Facades\DB;
 
 class CarModelController extends Controller
 {
@@ -50,27 +49,25 @@ class CarModelController extends Controller
     {
         
         $validatedFields=$request->validated();
-        if($image = Image::createAndStoreFromRequest($request, 'image', 'model')){
-            $validatedFields['image_id'] = $image->id;
-        }
-
         if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
             $validatedFields['image_poster_id'] = $imagePoster->id;
         }
-        if($QRScan = Image::createAndStoreFromRequest($request, 'qr_scan', 'model')){
-            $validatedFields['qr_scan_id'] = $QRScan->id;
+        if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
+            $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        if($video = Video::createFromRequest($request, $image, preview: false)){
+        if($video = Video::createFromRequest($request, $imagePoster, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_id'] = $video->id;
         }
 
-        if($video_preview = Video::createFromRequest($request, $image, preview: true)){
+        if($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
         $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
-
+        if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
+            $validatedFields['published_at'] = date('Y-m-d H:i:s');
+        }
         CarModel::create($validatedFields);
 
         return redirect()->route('models.index')->with('success','Model created successfully.');
@@ -103,16 +100,14 @@ class CarModelController extends Controller
         $validatedFields=[];
         $validatedFields['title']=$request->title;
         $validatedFields['description']=$request->description;
+        $validatedFields['status']=$request->status;
         $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
-        if($image = Image::createAndStoreFromRequest($request, 'image', 'model')){
-            $validatedFields['image_id'] = $image->id;
-        }
-
-        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
+        
+         if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
             $validatedFields['image_poster_id'] = $imagePoster->id;
         }
-        if($QRScan = Image::createAndStoreFromRequest($request, 'qr_scan', 'model')){
-            $validatedFields['qr_scan_id'] = $QRScan->id;
+        if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
+            $validatedFields['qr_code_id'] = $QRScan->id;
         }
         if($video_preview = Video::createFromRequest($request, $image, preview: true)){
             //TODO rimuovi vecchio video se c'è

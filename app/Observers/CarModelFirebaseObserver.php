@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Enums\ModelStatus;
 use App\Models\CarModel;
 use App\Jobs\PushcarModelToFirebase;
 use App\Jobs\DeleteCarModelFromFirebase;
@@ -16,8 +17,13 @@ class CarModelFirebaseObserver
      */
     public function created(CarModel $CarModel)
     {
+        if(
+            $CarModel->status == ModelStatus::PUBLISHED->value 
+            // and Carbon::parse($program->ordered_at) <= Carbon::now()
+        ){
         PushCarModelToFirebase::dispatch($CarModel);
-    }
+   
+         } }
 
     /**
      * Handle the CarModel "updated" event.
@@ -27,7 +33,17 @@ class CarModelFirebaseObserver
      */
     public function updated(CarModel $CarModel)
     {
+        if(
+            $CarModel->status == ModelStatus::PUBLISHED->value 
+            // and Carbon::parse($program->ordered_at) <= Carbon::now()
+        ){
         PushCarModelToFirebase::dispatch($CarModel);
+        
+        }else {
+            // if($CarModel->published_at){
+            //     DeleteCarModelFromFirebase::dispatch($CarModel->id);
+            // }
+        }
         // foreach($CarModel->published_posts as $post){
         //     PushPostToFirebase::dispatch($post);
         // }
@@ -52,7 +68,14 @@ class CarModelFirebaseObserver
      */
     public function restored(CarModel $CarModel)
     {
-        PushCarModelToFirebase::dispatch($CarModel);
+        if(
+            $CarModel->status == ModelStatus::PUBLISHED->value 
+        ) { PushCarModelToFirebase::dispatch($CarModel);}
+        else {
+            // if($CarModel->published_at){
+            //     DeleteCarModelFromFirebase::dispatch($CarModel->id);
+            // }
+        }
     }
 
     /**
