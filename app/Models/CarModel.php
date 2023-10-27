@@ -11,7 +11,7 @@ class CarModel extends Model
 {
     use HasFactory;
     protected $table = 'CarModel'; 
-    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_id','video_preview_id','parent_id'];
+    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id'];
     public function imagePoster()
     {
         return $this->belongsTo(Image::class, 'image_poster_id');
@@ -19,10 +19,6 @@ class CarModel extends Model
     public function QRScan()
     {
         return $this->belongsTo(Image::class, 'qr_code_id');
-    }
-    public function video()
-    {
-        return $this->belongsTo(Video::class, 'video_id');
     }
     public function videoPreview()
     {
