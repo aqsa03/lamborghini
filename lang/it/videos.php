@@ -9,4 +9,5 @@ return [
     'related' => 'correlati',
     'vod' => 'vod',
     '360'=>'360',
+    'video 360'=>'video 360',
 ];

@@ -95,8 +95,8 @@ class ModelVideoController extends Controller
         if($video_preview = Video::createFromRequest($request, null, preview: true)){
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
-        $validatedFields['tags'] = json_encode(array_filter(array_map('trim', explode(',', $validatedFields['tags']))));
-        $validatedFields['related'] = json_encode($validatedFields['related'] ?? []);
+        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+        $validatedFields['related'] = $validatedFields['related'] ?? [];
         if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
@@ -136,8 +136,6 @@ class ModelVideoController extends Controller
             // is important to catch the exception
             throw new \Exception("Some error occured with the video service");
         }
-        
-        $video->tags=json_decode($video->tags);
         return view('video.form', [
             'formType' => 'edit',
             'video' => $video,

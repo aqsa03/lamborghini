@@ -57,7 +57,6 @@ class PushModelVideoToFirebase implements ShouldQueue
     public function handle()
     {
         //
-        // dd($this->video->image);
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
         if(
@@ -67,6 +66,7 @@ class PushModelVideoToFirebase implements ShouldQueue
         }
         $data = [
             '360' => $this->video->is_360?true:false,
+            '360_video'=>$this->video->{'360_video'},
             'category' => $this->video->category_id ? $db->collection('categories')->document($this->video->category_id) : null,
             'category_id'=>$this->video->category_id,
             'description'=>$this->video->description,
