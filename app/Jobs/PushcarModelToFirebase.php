@@ -11,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Enums\VideoStatus;
 use App\Enums\ModelStatus;
+use Google\Cloud\Core\Timestamp;
 
 class PushcarModelToFirebase implements ShouldQueue
 {
@@ -68,6 +69,7 @@ class PushcarModelToFirebase implements ShouldQueue
             'title' => $this->model->title, 
             'description'=>$this->model->description,
             'parent_id'=>$this->model->parent_id,
+            'published_date'=>$this->model->published_at ? new Timestamp(new \DateTime($this->model->published_at)) : null,
             'image' => $this->model->imagePoster ? [
                 'source' => [
                     'url' => $this->model->imagePoster->url
@@ -118,10 +120,10 @@ class PushcarModelToFirebase implements ShouldQueue
                 'meride_embed_id' => $this->model->video->meride_embed_id,
                 'duration' => $this->model->video->duration,
             ] : null,
-            'parent'=>$this->model->parent_id ? $db->collection('carModel')->document($this->model->parent_id) : null,
+            'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];
 
-        $db->collection('carModel')->document($this->model->id)->set($data);
+        $db->collection('models')->document($this->model->id)->set($data);
     }
 }

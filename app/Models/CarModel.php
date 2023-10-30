@@ -31,26 +31,11 @@ class CarModel extends Model
 
     public function canPublish()
     {
-        $bothPreviewAndMainVideo = !empty($this->videoPreview) AND !empty($this->video);
-        $noPreviewAndMainVideo = empty($this->videoPreview) AND empty($this->video);
-        return (
-                $noPreviewAndMainVideo == true
-                OR
-                (
-                    $bothPreviewAndMainVideo AND
-                    $this->videoPreview?->meride_status === VideoStatus::READY->value AND
-                    $this->video?->meride_status === VideoStatus::READY->value
-                )
-                OR
-                (
-                    ($this->videoPreview?->meride_status === VideoStatus::READY->value AND empty($this->video)) OR
-                    ($this->video?->meride_status === VideoStatus::READY->value AND empty($this->videoPreview))
-                )
-            );
+        return $this->videoPreview?->meride_status === VideoStatus::READY->value; 
     }
     public function videosAreReady()
     {
-        return $this->video?->isReady() AND $this->videoPreview?->isReady();
+        return $this->videoPreview?->isReady();
     }
     public function videos(): HasMany
     {

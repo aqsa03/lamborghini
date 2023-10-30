@@ -92,26 +92,30 @@ class CarModelController extends Controller
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
-    public function update(Request $request, CarModel $model)
+    public function update(StoreCarModelRequest $request, CarModel $model)
     {
         // $request->validate([
         //     'title' => 'required|max:255|unique:CarModel,title,'.$CarModel->id,
         // ]);
-        $validatedFields=[];
-        $validatedFields['title']=$request->title;
-        $validatedFields['description']=$request->description;
-        $validatedFields['status']=$request->status;
-        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
-        
-         if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
+        $validatedFields=$request->validated();
+        if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
             $validatedFields['image_poster_id'] = $imagePoster->id;
         }
         if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
             $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        if($video_preview = Video::createFromRequest($request, $image, preview: true)){
+        if($video = Video::createFromRequest($request, $imagePoster, preview: true)){
+            //TODO rimuovi vecchio video se c'è
+            $validatedFields['video_id'] = $video->id;
+        }
+
+        if($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
+        }
+        $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
+        if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
+            $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
         $model->update($validatedFields);
 

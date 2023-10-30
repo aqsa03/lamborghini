@@ -24,7 +24,7 @@ class ModelVideo extends Model
         'is_360',
         '360_video',
         'vod',
-        'published_date',
+        'published_at',
         'image_id',
         'video_id',
         'video_preview_id',
