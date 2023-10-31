@@ -115,7 +115,7 @@ class PushModelVideoToFirebase implements ShouldQueue
 
         ];
         Log::info('Video to save in Firestore:', $data);
-        $db->collection('Video')->document($this->video->id)->set($data);
+        $db->collection('videos')->document($this->video->id)->set($data);
         Log::info('Successfully stored Video in Firestore');
 
     }
