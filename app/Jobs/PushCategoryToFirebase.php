@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Category;
+use Illuminate\Support\Facades\Log;
 
 class PushCategoryToFirebase implements ShouldQueue
 {
@@ -55,7 +56,7 @@ class PushCategoryToFirebase implements ShouldQueue
     {
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
-
+        Log::info('Category to save in Firestore');
         $db->collection('categories')->document($this->category->id)->set(
             ['title' => $this->category->title,
             'description'=>$this->category->description,
@@ -82,5 +83,6 @@ class PushCategoryToFirebase implements ShouldQueue
                 ]
             ] : null,]
         );
+        Log::info('Successfully stored Category in Firestore');
     }
 }

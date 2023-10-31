@@ -12,6 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Enums\VideoStatus;
 use App\Enums\ModelStatus;
 use Google\Cloud\Core\Timestamp;
+use Illuminate\Support\Facades\Log;
 
 class PushcarModelToFirebase implements ShouldQueue
 {
@@ -63,6 +64,8 @@ class PushcarModelToFirebase implements ShouldQueue
             $this->model->status != ModelStatus::PUBLISHED->value or
             !$this->model->published_at
         ){
+            Log::info('Model not published yet');
+
             throw new \Exception('unable to push unpublished model to firebase');
         }
         $data = [
@@ -123,7 +126,9 @@ class PushcarModelToFirebase implements ShouldQueue
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];
-
+        Log::info('Model to save in Firestore:', $data);
         $db->collection('models')->document($this->model->id)->set($data);
+        Log::info('Successfully stored Model in Firestore');
+
     }
 }

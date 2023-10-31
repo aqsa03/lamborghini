@@ -6,6 +6,7 @@ use App\Enums\ModelStatus;
 use App\Models\CarModel;
 use App\Jobs\PushcarModelToFirebase;
 use App\Jobs\DeleteCarModelFromFirebase;
+use Illuminate\Support\Facades\Log;
 
 class CarModelFirebaseObserver
 {
@@ -21,6 +22,7 @@ class CarModelFirebaseObserver
             $CarModel->status == ModelStatus::PUBLISHED->value 
             // and Carbon::parse($program->ordered_at) <= Carbon::now()
         ){
+            Log::info('Model Video is ready.Initiating a Firestore create job to store model.');
         PushCarModelToFirebase::dispatch($CarModel);
    
          } }
@@ -37,6 +39,7 @@ class CarModelFirebaseObserver
             $CarModel->status == ModelStatus::PUBLISHED->value 
             // and Carbon::parse($program->ordered_at) <= Carbon::now()
         ){
+            Log::info('Model video is ready .Initiating a Firestore update job for Model synchronization.');
         PushCarModelToFirebase::dispatch($CarModel);
         
         }else {
@@ -57,6 +60,7 @@ class CarModelFirebaseObserver
      */
     public function deleted(CarModel $CarModel)
     {
+        Log::info('Initiating a Firestore delete job to remove model.');
         DeleteCarModelFromFirebase::dispatch($CarModel->id);
     }
 
@@ -70,7 +74,9 @@ class CarModelFirebaseObserver
     {
         if(
             $CarModel->status == ModelStatus::PUBLISHED->value 
-        ) { PushCarModelToFirebase::dispatch($CarModel);}
+        ) { 
+            Log::info('Initiating a Firestore restore job for model synchronization.');
+            PushCarModelToFirebase::dispatch($CarModel);}
         else {
             // if($CarModel->published_at){
             //     DeleteCarModelFromFirebase::dispatch($CarModel->id);
@@ -86,6 +92,7 @@ class CarModelFirebaseObserver
      */
     public function forceDeleted(CarModel $CarModel)
     {
+        Log::info('Initiating a Firestore forcedelete job to remove model.');
         DeleteCarModelFromFirebase::dispatch($CarModel);
     }
 }

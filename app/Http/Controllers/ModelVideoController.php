@@ -11,6 +11,8 @@ use App\Models\CarModel;
 use App\Models\Video;
 use App\Models\Category;
 use App\Models\Image;
+use Illuminate\Support\Facades\Log;
+
 class ModelVideoController extends Controller
 {
     /**
@@ -84,6 +86,7 @@ class ModelVideoController extends Controller
      */
     public function store(StoreVideoRequest $request)
     {
+        Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
         if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
             $validatedFields['image_id'] = $image->id;
@@ -100,7 +103,9 @@ class ModelVideoController extends Controller
         if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
+        Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
+        Log::info('Video created successfully in database, redirecting to list view');
         
 
         return redirect()->route('videos.index')->with('success','Video created successfully.');
@@ -155,6 +160,7 @@ class ModelVideoController extends Controller
      */
     public function update(StoreVideoRequest $request, ModelVideo $video)
     {
+        Log::info('Inside Update Video Controller');
         $validatedFields = $request->validated();
         if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
             $validatedFields['image_id'] = $image->id;
@@ -172,7 +178,9 @@ class ModelVideoController extends Controller
         if($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
+        Log::info('Video data to update:', $validatedFields);
         $video->update($validatedFields);
+        Log::info('Video updated successfully');
 
         return redirect()->route('videos.index')->with('success','Video updated successfully.');
     }

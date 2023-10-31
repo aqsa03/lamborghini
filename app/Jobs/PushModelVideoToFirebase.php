@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Google\Cloud\Core\Timestamp;
 use App\Enums\VideoStatus;
+use Illuminate\Support\Facades\Log;
 
 class PushModelVideoToFirebase implements ShouldQueue
 {
@@ -62,6 +63,7 @@ class PushModelVideoToFirebase implements ShouldQueue
         if(
             $this->video->status != VideosStatus::PUBLISHED->value
         ){
+            Log::info('Video not published yet');
             throw new \Exception('unable to push unpublished video to firebase');
         }
         $data = [
@@ -112,7 +114,9 @@ class PushModelVideoToFirebase implements ShouldQueue
             'vod'=>$this->video->vod?true:false
 
         ];
-
+        Log::info('Video to save in Firestore:', $data);
         $db->collection('Video')->document($this->video->id)->set($data);
+        Log::info('Successfully stored Video in Firestore');
+
     }
 }

@@ -7,6 +7,7 @@ use App\Enums\VideoStatus;
 use App\Models\ModelVideo;
 use App\Jobs\PushModelVideoToFirebase;
 use App\Jobs\DeleteModelVideoFromFirebase;
+use Illuminate\Support\Facades\Log;
 
 class ModelVideoFirebaseObserver
 {
@@ -19,9 +20,11 @@ class ModelVideoFirebaseObserver
     public function created(ModelVideo $ModelVideo)
     {
         if(
+          
             $ModelVideo->status == VideosStatus::PUBLISHED->value 
             // and Carbon::parse($ModelVideo->ordered_at) <= Carbon::now()
         ){
+            Log::info('Initiating a Firestore create job to store videos.');
             PushModelVideoToFirebase::dispatch($ModelVideo);
         }
     }
@@ -38,9 +41,11 @@ class ModelVideoFirebaseObserver
             $ModelVideo->status == VideosStatus::PUBLISHED->value 
             // and Carbon::parse($ModelVideo->ordered_at) <= Carbon::now()
         ){
+            Log::info('Initiating a Firestore update job for video synchronization.');
             PushModelVideoToFirebase::dispatch($ModelVideo);
         } else {
             if($ModelVideo->published_at){
+                Log::info('Since Video is not ready so initiating a Firestore delete job to remove video.');
                 DeleteModelVideoFromFirebase::dispatch($ModelVideo->id);
             }
         }
@@ -54,6 +59,7 @@ class ModelVideoFirebaseObserver
      */
     public function deleted(ModelVideo $ModelVideo)
     {
+        Log::info('Initiating a Firestore delete job to remove video.');
         DeleteModelVideoFromFirebase::dispatch($ModelVideo->id);
     }
 
@@ -66,9 +72,11 @@ class ModelVideoFirebaseObserver
     public function restored(ModelVideo $ModelVideo)
     {
         if($ModelVideo->status == VideosStatus::PUBLISHED->value){
+            Log::info('Initiating a Firestore restore job for video synchronization.');
             PushModelVideoToFirebase::dispatch($ModelVideo);
         } else {
             if($ModelVideo->published_at){
+                Log::info('Since Video is not ready so initiating a Firestore delete job to remove video.');
                 DeleteModelVideoFromFirebase::dispatch($ModelVideo->id);
             }
         }
@@ -83,6 +91,7 @@ class ModelVideoFirebaseObserver
      */
     public function forceDeleted(ModelVideo $ModelVideo)
     {
+        Log::info('Initiating a Firestore forcedelete job to remove video.');
         DeleteModelVideoFromFirebase::dispatch($ModelVideo);
     }
 }

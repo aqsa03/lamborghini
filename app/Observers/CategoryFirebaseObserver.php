@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Jobs\PushCategoryToFirebase;
 use App\Jobs\DeleteCategoryFromFirebase;
 use App\Jobs\PushPostToFirebase;
+use Illuminate\Support\Facades\Log;
 
 class CategoryFirebaseObserver
 {
@@ -17,6 +18,7 @@ class CategoryFirebaseObserver
      */
     public function created(Category $category)
     {
+        Log::info('Initiating a Firestore create job to store category.');
         PushCategoryToFirebase::dispatch($category);
     }
 
@@ -28,6 +30,7 @@ class CategoryFirebaseObserver
      */
     public function updated(Category $category)
     {
+        Log::info('Initiating a Firestore update job for category synchronization.');
         PushCategoryToFirebase::dispatch($category);
         // foreach($category->published_posts as $post){
         //     PushPostToFirebase::dispatch($post);
@@ -42,6 +45,7 @@ class CategoryFirebaseObserver
      */
     public function deleted(Category $category)
     {
+        Log::info('Initiating a Firestore delete job to remove category.');
         DeleteCategoryFromFirebase::dispatch($category->id);
     }
 
@@ -53,6 +57,7 @@ class CategoryFirebaseObserver
      */
     public function restored(Category $category)
     {
+        Log::info('Initiating a Firestore restore job for category synchronization.');
         PushCategoryToFirebase::dispatch($category);
     }
 
@@ -64,6 +69,7 @@ class CategoryFirebaseObserver
      */
     public function forceDeleted(Category $category)
     {
+        Log::info('Initiating a Firestore forcedelete job to remove category.');
         DeleteCategoryFromFirebase::dispatch($category);
     }
 }

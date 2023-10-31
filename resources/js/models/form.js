@@ -30,18 +30,8 @@ import TusConfig from '../libs/tus/tusConfig.js';
         videos.add("preview");
         form.querySelector("#publish-button").disabled = true;
     });
-    tusCreateForm.uppyMainVideo && tusCreateForm.uppyMainVideo.on("file-added", () => {
-        videos.add("main");
-        form.querySelector("#publish-button").disabled = true;
-    });
     tusCreateForm.uppyPreviewVideo && tusCreateForm.uppyPreviewVideo.on("file-removed", () => {
         videos.delete("preview");
-        if (videos.size === 0) {
-            form.querySelector("#publish-button").disabled = false;
-        }
-    });
-    tusCreateForm.uppyMainVideo && tusCreateForm.uppyMainVideo.on("file-removed", () => {
-        videos.delete("main");
         if (videos.size === 0) {
             form.querySelector("#publish-button").disabled = false;
         }

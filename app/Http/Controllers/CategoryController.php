@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\Image;
 use App\Http\Requests\StoreCategoryRequest;
+use Illuminate\Support\Facades\Log;
 
 class CategoryController extends Controller
 {
@@ -55,7 +56,9 @@ class CategoryController extends Controller
             $validatedFields['image_id'] = $image->id;
         }
         $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
+        Log::info('Creating Category with data',$validatedFields);
         Category::create($validatedFields);
+        Log::info('Category created successfully');
 
         return redirect()->route('categories.index')->with('success','Category created successfully.');
     }
@@ -109,7 +112,9 @@ class CategoryController extends Controller
         if($image = Image::createAndStoreFromRequest($request, 'image', 'category')){
             $validatedFields['image_id'] = $image->id;
         }
+        Log::info('Category data to update',$validatedFields);
         $category->update($validatedFields);
+        Log::info('Category updated successfully');
 
         return redirect()->route('categories.index')->with('success','Category updated successfully.');
     }

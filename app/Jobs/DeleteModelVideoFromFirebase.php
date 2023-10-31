@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class DeleteModelVideoFromFirebase implements ShouldQueue
 {
@@ -48,8 +49,10 @@ class DeleteModelVideoFromFirebase implements ShouldQueue
     {
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
-
+        Log::info('Video to delete from Firestore:', $this->video_id);
         $db->collection('video')->document($this->video_id)->delete();
+        Log::info('Successfully removed Video from Firestore');
+
     }
 }
 

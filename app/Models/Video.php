@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Meride\Api;
 use App\Enums\VideoStatus;
+use Illuminate\Support\Facades\Log;
 
 class Video extends Model
 {
@@ -49,18 +50,28 @@ class Video extends Model
      * @return  bool
      */
     public function check_meride_availability(){
+        Log::info("Checking Meride Video availability");
         if(!$this->meride_video_id){
+            Log::info("Video not found");
             return false;
         }
         if($this->isReady()){
+            Log::info("Video is ready");
             return true;
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
         $videoResponse = $merideApi->get('video', $this->meride_video_id);
+        Log::info('Video respone from meride Api:', ["Meride availability"=>$videoResponse->available_video,
+        "title"=>$videoResponse->title,
+
+    ]);
         if($videoResponse->available_video){
             $embed = $merideApi->create('embed', [
                 'video_id' => $this->meride_video_id,
-                'title' => $videoResponse->title
+                'title' => $videoResponse->title,
+                'url' => $videoResponse->url_video,
+                'url_mp4' => $videoResponse->url_video_mp4,
+                'image_preview_url' => $videoResponse->preview_image,
             ]);
             if (!$embed->hasErrors()){
                 $this->meride_embed_id = $embed->public_id ?? $embed->id;
@@ -69,8 +80,10 @@ class Video extends Model
                 $this->image_preview_url = $videoResponse->preview_image;
                 $this->meride_status = VideoStatus::READY->value;
                 $this->save();
+                Log::info('Successfully saved video in databse');
                 return true;
             }
+            Log::info('Some error occured in embeding video:', $embed->hasErrors());
         }
         return false;
     }

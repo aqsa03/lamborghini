@@ -9,6 +9,7 @@ use App\Models\Image;
 use App\Models\Video;
 use App\Models\CarModel;
 use Meride\Storage\Tus\Token;
+use Illuminate\Support\Facades\Log;
 
 class CarModelController extends Controller
 {
@@ -47,7 +48,7 @@ class CarModelController extends Controller
     }
     public function store(StoreCarModelRequest $request)
     {
-        
+        Log::info('Inside Model Store');
         $validatedFields=$request->validated();
         if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
             $validatedFields['image_poster_id'] = $imagePoster->id;
@@ -68,7 +69,9 @@ class CarModelController extends Controller
         if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
+        Log::info('Creating a Model with data: ',$validatedFields);
         CarModel::create($validatedFields);
+        Log::info('Model created successfully redirecting to list of models');
 
         return redirect()->route('models.index')->with('success','Model created successfully.');
     }
@@ -97,6 +100,7 @@ class CarModelController extends Controller
         // $request->validate([
         //     'title' => 'required|max:255|unique:CarModel,title,'.$CarModel->id,
         // ]);
+        Log::info('Inside Model Update');
         $validatedFields=$request->validated();
         if($imagePoster = Image::createAndStoreFromRequest($request, 'image_poster', 'model')){
             $validatedFields['image_poster_id'] = $imagePoster->id;
@@ -117,7 +121,9 @@ class CarModelController extends Controller
         if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
+        Log::info('Updating a Model with data: ',$validatedFields);
         $model->update($validatedFields);
+        Log::info('Model updated successfully');
 
         return redirect()->route('models.index')->with('success','Model updated successfully.');
     }

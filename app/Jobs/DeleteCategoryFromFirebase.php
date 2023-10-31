@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Category;
+use Illuminate\Support\Facades\Log;
 
 class DeleteCategoryFromFirebase implements ShouldQueue
 {
@@ -48,7 +49,9 @@ class DeleteCategoryFromFirebase implements ShouldQueue
     {
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
-
+        Log::info('Category to remove from Firestore',$this->category_id);
         $db->collection('categories')->document($this->category_id)->delete();
+        Log::info('Successfully removed Category from Firestore');
+
     }
 }
