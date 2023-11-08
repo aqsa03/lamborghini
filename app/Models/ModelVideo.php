@@ -21,7 +21,7 @@ class ModelVideo extends Model
         'description',
         'tags',
         'related',
-        'is_360',
+        'type',
         '360_video',
         'vod',
         'published_at',

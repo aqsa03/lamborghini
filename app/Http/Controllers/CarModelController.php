@@ -16,12 +16,9 @@ class CarModelController extends Controller
     //
     public function index()
     {
-        $models = CarModel::latest()
-        ->leftJoin('CarModel as parent', 'CarModel.parent_id', '=', 'parent.id')
-        ->select('CarModel.*', 'parent.title as parent_id')
-        ->paginate(20);
+        $models = CarModel::with('parentCategory')->orderBy('parent_id')->paginate(20);
         return view('models.index',[
-                'total' => $models->count(),
+                'total' => $models->total(),
                 'models' => $models
             ])
             ->with('i', (request()->input('page', 1) - 1) * 20);
@@ -56,11 +53,6 @@ class CarModelController extends Controller
         if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
             $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        if($video = Video::createFromRequest($request, $imagePoster, preview: true)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_id'] = $video->id;
-        }
-
         if($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;

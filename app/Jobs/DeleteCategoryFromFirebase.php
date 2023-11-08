@@ -49,7 +49,7 @@ class DeleteCategoryFromFirebase implements ShouldQueue
     {
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
-        Log::info('Category to remove from Firestore',$this->category_id);
+        Log::info('Category to remove from Firestore',["category_id"=>$this->category_id]);
         $db->collection('categories')->document($this->category_id)->delete();
         Log::info('Successfully removed Category from Firestore');
 

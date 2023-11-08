@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\VideosStatus;
+use App\Enums\VideoType;
 use App\Http\Requests\StoreVideoRequest;
 use App\Models\ModelVideo;
 use Illuminate\Http\Request;
@@ -72,8 +73,8 @@ class ModelVideoController extends Controller
             'models' => $models,
             'categories'=>$categories,
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
-
             'tusToken' => $token,
+            'video'=>null,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -88,21 +89,41 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
-        if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
-            $validatedFields['image_id'] = $image->id;
-        }
-        if($video = Video::createFromRequest($request,null, preview: true)){
-            $validatedFields['video_id'] = $video->id;
-        }
-
-        if($video_preview = Video::createFromRequest($request, null, preview: true)){
-            $validatedFields['video_preview_id'] = $video_preview->id;
-        }
-        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['related'] = $validatedFields['related'] ?? [];
-        if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
+        if($validatedFields['type']==='IS_360'){
+            if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+                $validatedFields['image_id'] = $image->id;
+            }
+            $validatedFields['is_360']=1;
+            $validatedFields['video_id']=null;
+            $validatedFields['video_preview_id']=null;
+            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['related'] = $validatedFields['related'] ?? [];
+            $validatedFields['status']=VideosStatus::PUBLISHED->value;
+            if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            }
+
+
         }
+        else if(!$validatedFields['type']){
+            $validatedFields['type']=VideoType::NEW->value;
+            if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+                $validatedFields['image_id'] = $image->id;
+            }
+            if($video = Video::createFromRequest($request,$image, preview: true)){
+                $validatedFields['video_id'] = $video->id;
+            }
+    
+            if($video_preview = Video::createFromRequest($request, $image, preview: true)){
+                $validatedFields['video_preview_id'] = $video_preview->id;
+            }
+            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['related'] = $validatedFields['related'] ?? [];
+            if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            }
+        }
+       
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
         Log::info('Video created successfully in database, redirecting to list view');
@@ -163,13 +184,13 @@ class ModelVideoController extends Controller
         Log::info('Inside Update Video Controller');
         $validatedFields = $request->validated();
         if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
-            $validatedFields['image_id'] = $image->id;
+            $validatedFields['image_id'] = $poster_image->id;
         }
-        if($main_video = Video::createFromRequest($request, null, preview: true)){
+        if($main_video = Video::createFromRequest($request, $image, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_id'] = $main_video->id;
         }
-        if($video_preview = Video::createFromRequest($request, null, preview: true)){
+        if($video_preview = Video::createFromRequest($request, $image, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }

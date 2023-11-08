@@ -17,14 +17,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::latest()
-        ->leftJoin('categories as parent', 'categories.parent_id', '=', 'parent.id')
-        ->select('categories.*', 'parent.title as parent_id')
-        ->paginate(20);
-    
+        $categories = Category::with('parentCategory')->orderBy('parent_id')->paginate(20);
     return view('category.index', [
         'total' => $categories->total(),
-        'categories' => $categories
+        'categories' => $categories,
     ])->with('i', (request()->input('page', 1) - 1) * 20);
     }
 

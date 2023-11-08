@@ -34,7 +34,7 @@
 @foreach ($models as $model)
     <li class="table_list__row hover:bg-slate-100">
     <div class="table_list__row__cell">
-            {{ $model->parent_id }}
+    {{  $model->parentCategory->title ?? ''  }}
         </div>
         <div class="table_list__row__cell">
             {{ $model->title }}

@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Google\Cloud\Core\Timestamp;
 use App\Enums\VideoStatus;
+use App\Enums\VideoType;
 use Illuminate\Support\Facades\Log;
 
 class PushModelVideoToFirebase implements ShouldQueue
@@ -66,8 +67,12 @@ class PushModelVideoToFirebase implements ShouldQueue
             Log::info('Video not published yet');
             throw new \Exception('unable to push unpublished video to firebase');
         }
+        if($this->video->type===VideoType::VIDEO_360)
+        {
+
+        }
         $data = [
-            '360' => $this->video->is_360?true:false,
+            '360' => $this->video->type=='IS_360' ?true:false,
             '360_video'=>$this->video->{'360_video'},
             'category' => $this->video->category_id ? $db->collection('categories')->document($this->video->category_id) : null,
             'category_id'=>$this->video->category_id,

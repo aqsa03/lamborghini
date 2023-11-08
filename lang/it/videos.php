@@ -8,6 +8,6 @@ return [
     'Model' => 'modello',
     'related' => 'correlati',
     'vod' => 'vod',
-    '360'=>'360',
+    'type'=>'tipo',
     'video 360'=>'video 360',
 ];

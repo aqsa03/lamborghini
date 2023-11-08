@@ -41,4 +41,8 @@ class CarModel extends Model
     {
         return $this->hasMany(ModelVideo::class);
     }
+    public function parentCategory()
+    {
+        return $this->belongsTo(CarModel::class, 'parent_id');
+    }
 }

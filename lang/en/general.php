@@ -7,6 +7,7 @@ return [
     'tags' => 'tags',
     'comma separated tags' => 'comma separated tags',
     'category' => 'category',
+    'select_video_type'=>'select video type',
     'section' => 'section',
     'type' => 'type',
     'status' => 'status',

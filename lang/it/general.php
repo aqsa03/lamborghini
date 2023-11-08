@@ -12,6 +12,7 @@ return [
     'parent category' => 'categoria genitore',
     'choose category'=>'scegli categoria',
     'parent'=>'genitore',
+    'select_video_type'=>'seleziona il tipo di video',
     'section' => 'sezione',
     'type' => 'tipo',
     'status' => 'stato',
@@ -79,4 +80,5 @@ return [
     'saturday' => 'sabato',
     'sunday' => 'domenica',
     'peso massimo immagine' => 'peso massimo immagine',
+
 ];

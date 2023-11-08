@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Enums\VideosStatus;
 use App\Enums\VideoStatus;
+use App\Enums\VideoType;
 use App\Models\ModelVideo;
 use App\Jobs\PushModelVideoToFirebase;
 use App\Jobs\DeleteModelVideoFromFirebase;
