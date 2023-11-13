@@ -9,6 +9,8 @@ use App\Enums\VideosStatus;
 use App\Enums\VideoStatus;
 use App\Models\Image;
 use App\Models\Video;
+use Meride\Api;
+use Illuminate\Support\Facades\Log;
 
 class ModelVideo extends Model
 {
@@ -30,6 +32,7 @@ class ModelVideo extends Model
         'video_preview_id',
         'model_id',
         'category_id',
+        'pre_existing_video_id',
     ];
     public function model()
     {
@@ -96,5 +99,20 @@ class ModelVideo extends Model
     public function videosAreReady()
     {
         return $this->video?->isReady() AND $this->videoPreview?->isReady();
+    }
+    public function get_meride_video()
+    {
+        Log::info("Get Meride Video details ");
+        $video=Video::where('meride_video_id', '=', $this->video_id)->first();
+        if(!$video)
+        {
+            $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+            $videoResponse = $merideApi->get('video', $this->video_id);
+            return $videoResponse;
+            
+        }
+        else{
+           return $video;
+        }
     }
 }

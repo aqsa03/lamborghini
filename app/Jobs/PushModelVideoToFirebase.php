@@ -38,6 +38,7 @@ class PushModelVideoToFirebase implements ShouldQueue
      * @var \App\Models\ModelVideo
      */
     public $video;
+    public $pre_existing;
 
     /**
      * Create a new job instance.
@@ -67,9 +68,9 @@ class PushModelVideoToFirebase implements ShouldQueue
             Log::info('Video not published yet');
             throw new \Exception('unable to push unpublished video to firebase');
         }
-        if($this->video->type===VideoType::VIDEO_360)
+        if($this->video->type=='PRE_EXISTING')
         {
-
+           $this->pre_existing= $this->video->get_meride_video();
         }
         $data = [
             '360' => $this->video->type=='IS_360' ?true:false,
@@ -106,7 +107,16 @@ class PushModelVideoToFirebase implements ShouldQueue
             ], $this->video->related) : null,
             'tags' => $this->video->tags,
             'title' => $this->video->title, 
-            'video' => ($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
+            'video' =>  $this->pre_existing? [
+                'url' => $this->pre_existing->url,
+                'url_mp4' => $this->pre_existing->url_mp4,
+                'width' => $this->pre_existing->source_width,
+                'height' => $this->pre_existing->source_height,
+                'public' => $this->pre_existing->public ? true : false,
+                'podcast' => $this->pre_existing->podcast ? true : false,
+                'meride_embed_id' => $this->pre_existing->meride_embed_id,
+                'duration' => $this->pre_existing->duration,]:
+            (($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
                 'url' => $this->video->video->url,
                 'url_mp4' => $this->video->video->url_mp4,
                 'width' => $this->video->video->source_width,
@@ -115,7 +125,7 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'podcast' => $this->video->video->podcast ? true : false,
                 'meride_embed_id' => $this->video->video->meride_embed_id,
                 'duration' => $this->video->video->duration,
-            ] : null,
+            ] : null),
             'vod'=>$this->video->vod?true:false
 
         ];

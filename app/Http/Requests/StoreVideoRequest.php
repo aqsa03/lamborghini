@@ -44,6 +44,7 @@ class StoreVideoRequest extends FormRequest
             'video_height' => 'nullable|numeric',
             'video_preview_width' => 'nullable|numeric',
             'video_preview_height' => 'nullable|numeric',
+            'pre_existing_video_id'=>'nullable|numeric',
         ];
     }
 }

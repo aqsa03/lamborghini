@@ -10,4 +10,5 @@ return [
     'vod' => 'vod',
     'type'=>'tipo',
     'video 360'=>'video 360',
+    'pre-existing videos'=>'video preesistenti'
 ];

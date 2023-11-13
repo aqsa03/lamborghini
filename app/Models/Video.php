@@ -130,8 +130,9 @@ class Video extends Model
             'order' => 'desc',
         ];
 
-        $videos = $merideApi->all('video', [
+        $videos = $merideApi->all('video', $this->video_id,[
             'sort' => $sortingCriteria,
+            'PerPage'=>10,
         ]);
         $videoList = [];
         foreach ($videos as $videoData) {
@@ -149,5 +150,12 @@ class Video extends Model
         }
 
         return $videoList;
+    }
+    public function get_meride_video()
+    {
+        Log::info("Checking Meride Video availability");
+        $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $videoResponse = $merideApi->get('video', $this->meride_video_id);
+        return $videoResponse;
     }
 }

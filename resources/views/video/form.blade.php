@@ -87,9 +87,8 @@
                     {{ trans("videos.type") }}
                 </label>
                 <select name="type" class="form_select" required id="type">
-                <option value=" ">{{trans("general.select_video_type")}}</option>
+                    <option value=" ">{{trans("general.select_video_type")}}</option>
                     <option value="IS_360" {{ old("type", $video->type ?? '0') == 'IS_360' ? 'selected' : '' }}>360</option>
-                    <option value="LIVE" {{ old("type", $video->type ?? '0') == 'LIVE' ? 'selected' : '' }}>Live</option>
                     <option value="PRE_EXISTING" {{ old("type", $video->type ?? '0') == 'PRE_EXISTING' ? 'selected' : '' }}>Pre-existing</option>
                 </select>
             </div>
@@ -98,6 +97,18 @@
                     {{ trans("videos.video 360") }}
                 </label>
                 <input class="form_input" type="text" name="360_video" id="360_video" placeholder="{{ trans("videos.video 360") }}" required value="{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}" />
+            </div>
+            <div class="w-full px-3 mt-12" id="pre-existing" style="display: none;">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
+                    {{ trans("videos.pre-existing videos") }}
+                </label>
+                <div class="inline-block relative w-64">
+                    <select name="pre_existing_video_id" class="form_select" required>
+                        @foreach ($meridePreExisting as $preExisting)
+                        <option {{ old("pre_existing_video_id", $video->pre_existing_video_id ?? '') == $preExisting->id ? 'selected' : '' }} value="{{ $preExisting->id }}">{{ $preExisting->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <div class="w-full px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="tags">
@@ -117,15 +128,15 @@
                         @endforeach
                     </select>
                     <a href="#" onclick="deselectAll(document.getElementById('related'))">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                </a>
-                <script type="text/javascript">
-                function deselectAll(select) {
-                    select.selectedIndex = -1;
-                }
-                </script>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </a>
+                    <script type="text/javascript">
+                        function deselectAll(select) {
+                            select.selectedIndex = -1;
+                        }
+                    </script>
                 </div>
             </div>
             <div class="w-full md:w-1/2 px-3 mt-12">
@@ -188,17 +199,19 @@
         const preview_video = document.getElementById('preview_video');
         const main_video = document.getElementById('main_video');
         const video360Input = document.getElementById('360_video');
-        const preExisting=document.getElementById('pre-existing');
+        const preExisting = document.getElementById('pre-existing');
+        console.log("---->",istypeSelect.value);
         // Set initial visibility based on the value when editing
         if (istypeSelect.value === 'IS_360') {
             video360Field.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
             video360Input.setAttribute('required', 'required');
-        }else if(istypeSelect.value === 'PRE_EXISTING'){
-            preExisting.style.display='block';
-        } 
-        else {
+        } else if (istypeSelect.value === 'PRE_EXISTING') {
+            preExisting.style.display = 'block';
+            preview_video.style.display = 'none';
+            main_video.style.display = 'none';
+        } else {
             video360Field.style.display = 'none';
             video360Input.removeAttribute('required');
         }
@@ -209,9 +222,18 @@
                 video360Field.style.display = 'block';
                 preview_video.style.display = 'none';
                 main_video.style.display = 'none';
+                preExisting.style.display = 'none';
                 video360Input.setAttribute('required', 'required');
-            } else {
+            }else if (istypeSelect.value === 'PRE_EXISTING') {
                 video360Field.style.display = 'none';
+            preExisting.style.display = 'block';
+            preview_video.style.display = 'none';
+            main_video.style.display = 'none';
+        }  
+            
+            else {
+                video360Field.style.display = 'none';
+                preExisting.style.display = 'none';
                 preview_video.style.display = 'block';
                 main_video.style.display = 'block';
                 video360Input.value = null;
