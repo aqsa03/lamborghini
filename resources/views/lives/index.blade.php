@@ -21,9 +21,9 @@
         <div class="table_list__row__header_cell">
             {{ trans('general.title') }}
         </div>
-        <div class="table_list__row__header_cell">
+        <!-- <div class="table_list__row__header_cell">
             {{ trans("lives.podcast") }}
-        </div>
+        </div> -->
         @if (Auth::user()->is_root())
             <div class="table_list__row__header_cell_action">
                 {{ trans('general.edit') }}
@@ -38,9 +38,9 @@
         <div class="table_list__row__cell">
             <a class="table_list__row__cell__title" href="{{ route('lives.show', $live->id) }}" title="{{ $live->title }}">{{ $live->title }}</a>
         </div>
-        <div class="table_list__row__cell">
+        <!-- <div class="table_list__row__cell">
             {{ trans('general.'.($live->podcast ? 'YES' : 'NO')) }}
-        </div>
+        </div> -->
         @if (Auth::user()->is_root())
             <div class="table_list__row__cell">
                 <a class="text-amber-700" href="{{ route('lives.edit', $live->id) }}" title="Edit {{ $live->title }}">

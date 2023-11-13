@@ -154,12 +154,13 @@ class LiveController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Live  $live
+     * @param  int  $live_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Live $live)
+    public function destroy(int $live_id)
     {
         try{
+            $live = Live::find($live_id);
             $live->delete();
             return redirect()->route('lives.index')
                         ->with('success','Live deleted successfully');

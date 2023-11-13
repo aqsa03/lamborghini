@@ -62,9 +62,9 @@ class PushLiveToFirebase implements ShouldQueue
         $data = [
             'title' => $this->live->title,
             'short_description' => $this->live->short_description,
-            'description' => $this->live->descriptionToHtml(),
+            // 'description' => $this->live->descriptionToHtml(),
             'tags' => $this->live->tags,
-            'podcast' => $this->live->podcast ? true : false,
+            // 'podcast' => $this->live->podcast ? true : false,
             'meride_embed_id' => $this->live->meride_embed_id,
             'image' => $this->live->image ? [
                 'source' => [
