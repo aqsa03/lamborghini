@@ -1,6 +1,6 @@
 @push('scripts')
 
-@vite(['resources/js/episodes/show.js'])
+<!-- @vite(['resources/js/episodes/show.js']) -->
 
 @endpush
 
@@ -14,7 +14,7 @@
 
     <a href="{{ route("videos.edit", $video->id) }}" class="btn_new_entity text-center inline-flex items-center" >{{ trans('general.edit') }}</a>
 
-    <form action="{{ route('vidoes.destroy', $video->id) }}" method="POST">
+    <form action="{{ route('videos.destroy', $video->id) }}" method="POST">
         @csrf
         {{ method_field('DELETE') }}
         <button data-delete-message="Stai per cancellare l'episodio {{ $video->title }}. Sei sicuro?" class="delete-link delete_btn" type="submit">{{ trans('general.delete') }}</button>
@@ -30,8 +30,17 @@
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans('general.description') }}
             </label>
-            <div id="description" class="editor_textarea"></div>
-            <script type="text/plain" id="source_description">{!! $video->description !!}</script>
+            <div id="description" class="editor_textarea" data-description="{{ $video->description }}">
+        {{ $video->description }}</div>
+             <script type="text/plain" id="source_description">{{ $video->description }}</script>
+        </div>
+        <div class="w-full mt-12">
+            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                {{ trans('videos.video 360') }}
+            </label>
+            <div id="description" class="editor_textarea" data-description="{{ $video->description }}">
+        {{ $video->description }}</div>
+             <script type="text/plain" id="source_description">{{ $video->description }}</script>
         </div>
         <div class="w-full mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
@@ -39,12 +48,11 @@
             </label>
             @include('videos.render', ['entity' => $video, 'preview' => true])
         </div>
-
         <div class="w-full mt-12">
             <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans('general.main video') }}
             </label>
-            @include('videos.render', ['entity' => $video, 'preview' => false])
+            @include('videos.render', ['entity' => $video, 'preview' => true])
         </div>
 
     </div>
@@ -54,21 +62,9 @@
             <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans('general.status') }}
             </label>
-            <x-badges.video_status :status="$video->status">{{ $video->status }}</x-badges.video_status>
+            <x-badges.episode_status :status="$video->status">{{ $video->status }}</x-badges.episode_status>
         </div>
-        <!-- <div class="aside_info mt-8">
-            <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                {{ trans('episodes.Program') }}
-            </label>
-            <a href="{{ route('programs.show', $episode->season->program?->id) }}" title="{{ $episode->season->program?->title }}">{{ $episode->season->program?->title }}</a>
-        </div>
-        <div class="aside_info mt-8">
-            <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                {{ trans('episodes.Season') }}
-            </label>
-            <a href="{{ route('seasons.show', $episode->season?->id) }}" title="{{ $episode->season?->title }}">{{ $episode->season?->title }}</a>
-        </div> -->
-        @if ($video->status === App\Enums\Videosstatus::PUBLISHED->value)
+        @if ($video->status === App\Enums\VideosStatus::PUBLISHED->value)
         <div class="aside_info mt-8">
             <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans('general.published at') }}
@@ -97,7 +93,4 @@
     </aside>
 
 </div>
-
-
-
 </x-layouts.panel_layout>

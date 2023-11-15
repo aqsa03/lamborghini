@@ -10,5 +10,6 @@ return [
     'vod' => 'vod',
     'type'=>'tipo',
     'video 360'=>'video 360',
-    'pre-existing videos'=>'video preesistenti'
+    'pre-existing videos'=>'video preesistenti',
+    'Back to all videos'=>'Back to all Videos',
 ];
