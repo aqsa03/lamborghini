@@ -120,12 +120,13 @@ class ModelVideoController extends Controller
 
         }
         else if($validatedFields['type']==='PRE_EXISTING'){
+            $video=Video::where('meride_video_id' ,'=',$validatedFields['pre_existing_video_id'])->first();
             if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
                 $validatedFields['image_id'] = $image->id;
             }
             $validatedFields['is_360']=0;
-            $validatedFields['video_id']=$validatedFields['pre_existing_video_id'];
-            $validatedFields['video_preview_id']=null;
+            $validatedFields['video_id']=$video->id;
+            $validatedFields['video_preview_id']=$video->id;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status']=VideosStatus::PUBLISHED->value;
@@ -169,6 +170,7 @@ class ModelVideoController extends Controller
     public function show(ModelVideo $video)
     {
         return view('video.show', [
+          
             'video' => $video
         ]);
     }

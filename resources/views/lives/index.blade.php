@@ -21,6 +21,9 @@
         <div class="table_list__row__header_cell">
             {{ trans('general.title') }}
         </div>
+        <div class="table_list__row__header_cell">
+            {{ trans('general.description') }}
+        </div>
         <!-- <div class="table_list__row__header_cell">
             {{ trans("lives.podcast") }}
         </div> -->
@@ -37,6 +40,9 @@
     <li class="table_list__row hover:bg-slate-100">
         <div class="table_list__row__cell">
             <a class="table_list__row__cell__title" href="{{ route('lives.show', $live->id) }}" title="{{ $live->title }}">{{ $live->title }}</a>
+        </div>
+        <div class="table_list__row__cell">
+            <a class="table_list__row__cell__title" href="{{ route('lives.show', $live->id) }}" title="{{ $live->short_description }}">{{ $live->short_description }}</a>
         </div>
         <!-- <div class="table_list__row__cell">
             {{ trans('general.'.($live->podcast ? 'YES' : 'NO')) }}

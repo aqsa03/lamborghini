@@ -56,6 +56,18 @@
             </label>
             <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $model->title ?? '') }}" required maxlength="255" />
         </div>
+        <div class="w-full px-3 mt-12" id="pre-existing">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
+                    {{ trans("videos.pre-existing videos") }}
+                </label>
+                <div class="inline-block relative w-64">
+                    <select name="pre_existing_video_id" class="form_select" id="pre_existing_video_id" required>
+                        @foreach ($meridePreExisting as $preExisting)
+                        <option {{ old("pre_existing_video_id", $model->pre_existing_video_id ?? '') == $preExisting->id ? 'selected' : '' }} value="{{ $preExisting->id }}">{{ $preExisting->title }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
         <div class="w-full px-3 mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="description">
                 {{ trans("general.description") }}
@@ -83,8 +95,8 @@
             <input type="file" name="qr_code" accept="image/png, image/jpeg, image/webp" />
             <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
         </div>
-
-        <div class="w-full md:w-1/2 px-3 mt-12">
+        @if(empty($model->pre_existing_video_id))
+        <div class="w-full md:w-1/2 px-3 mt-12" id="video" style="display:block;">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans("general.preview video") }}
             </label>
@@ -94,6 +106,7 @@
             <div id="drag-drop-area-preview"></div>
 
         </div>
+        @endif
         <div class="w-full px-3 mt-12">
             <div class="basis-1/2">
                 @if (!isset($model) or $model?->status != App\Enums\ModelStatus::PUBLISHED->value)
@@ -113,6 +126,17 @@
 @vite(['resources/js/models/form.js'])
 @endpush
 <script>
+    var preExistingSelect = document.getElementById('pre_existing_video_id');
+    const video=document.getElementById("video");
+    preExistingSelect.addEventListener('change', function () {
+            var selectedValue = preExistingSelect.value;
+            if (selectedValue) {
+                video.style.display="none";
+            }
+            else{
+                video.style.display="block";
+            }
+        });
     const programEditForm = document.getElementById("model-edit-form");
     const publishButton = document.getElementById("publish-button");
     publishButton.addEventListener("click", ev => {

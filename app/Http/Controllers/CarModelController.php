@@ -10,6 +10,7 @@ use App\Models\Video;
 use App\Models\CarModel;
 use Meride\Storage\Tus\Token;
 use Illuminate\Support\Facades\Log;
+use Meride\Api;
 
 class CarModelController extends Controller
 {
@@ -26,6 +27,19 @@ class CarModelController extends Controller
     public function create()
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
+        $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $sortingCriteria = [
+            'field' => 'id',
+            'order' => 'desc',
+        ];
+        $merideLives = $merideApi->all('video',[
+            'sort' => $sortingCriteria,
+            'perPage'=>10,
+        ]);
+        $meridePreExisting = [];
+        foreach($merideLives as $merideLive){
+                array_push($meridePreExisting, $merideLive);
+        }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
@@ -40,6 +54,7 @@ class CarModelController extends Controller
             'tusToken' => $token,
             'models'=>$models,
             'model'=>null,
+            'meridePreExisting' => $meridePreExisting,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -57,6 +72,12 @@ class CarModelController extends Controller
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
+        if($validatedFields['pre_existing_video_id'])
+        {
+            $video=Video::where('meride_video_id' ,'=',$validatedFields['pre_existing_video_id'])->first();
+            $validatedFields['video_preview_id']=$video->id;
+            $validatedFields['status'] = ModelStatus::PUBLISHED->value;
+        }
         $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
         if($validatedFields['status'] == ModelStatus::PUBLISHED->value){
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
@@ -70,6 +91,19 @@ class CarModelController extends Controller
     public function edit(CarModel $model)
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
+        $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $sortingCriteria = [
+            'field' => 'id',
+            'order' => 'desc',
+        ];
+        $merideLives = $merideApi->all('video',[
+            'sort' => $sortingCriteria,
+            'perPage'=>10,
+        ]);
+        $meridePreExisting = [];
+        foreach($merideLives as $merideLive){
+                array_push($meridePreExisting, $merideLive);
+        }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
@@ -84,6 +118,7 @@ class CarModelController extends Controller
             'model' => $model,
             'models'=>$models,
             'tusToken' => $token,
+            'meridePreExisting' => $meridePreExisting,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -100,14 +135,14 @@ class CarModelController extends Controller
         if($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')){
             $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        if($video = Video::createFromRequest($request, $imagePoster, preview: true)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_id'] = $video->id;
-        }
-
         if($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)){
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
+        }
+        if($validatedFields['pre_existing_video_id'])
+        {
+            $validatedFields['video_preview_id']=$validatedFields['pre_existing_video_id'];
+            $validatedFields['status'] = ModelStatus::PUBLISHED->value;
         }
         $validatedFields['parent_id']=$request->parent_id==='null'?null:$request->parent_id;
         if($validatedFields['status'] == ModelStatus::PUBLISHED->value){

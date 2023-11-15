@@ -37,6 +37,7 @@ class PushcarModelToFirebase implements ShouldQueue
      * @var \App\Models\CarModel
      */
     public $model;
+    public $pre_existing;
 
     /**
      * Create a new job instance.
@@ -67,6 +68,10 @@ class PushcarModelToFirebase implements ShouldQueue
             Log::info('Model not published yet');
 
             throw new \Exception('unable to push unpublished model to firebase');
+        }
+        if($this->model->pre_existing_video_id)
+        {
+           $this->pre_existing= $this->model->get_meride_video();
         }
         $data = [
             'title' => $this->model->title, 
@@ -113,16 +118,25 @@ class PushcarModelToFirebase implements ShouldQueue
                     'url' => $this->model->QRScan->url.(($rule = config('image.imageManagerResizingQueryString.xl', false)) ? '?'.$rule : '')
                 ]
             ] : null,
-            'video' => ($this->model->videoPreview and $this->model->videoPreview->meride_status == VideoStatus::READY->value) ? [
-                'url' => $this->model->videoPreview->url,
-                'url_mp4' => $this->model->videoPreview->url_mp4,
-                'width' => $this->model->videoPreview->source_width,
-                'height' => $this->model->videoPreview->source_height,
-                'public' => $this->model->videoPreview->public ? true : false,
-                'podcast' => $this->model->videoPreview->podcast ? true : false,
-                'meride_embed_id' => $this->model->videoPreview->meride_embed_id,
-                'duration' => $this->model->videoPreview->duration,
-            ] : null,
+            'video' =>  $this->pre_existing? [
+                'url' => $this->pre_existing->url,
+                'url_mp4' => $this->pre_existing->url_mp4,
+                'width' => $this->pre_existing->source_width,
+                'height' => $this->pre_existing->source_height,
+                'public' => $this->pre_existing->public ? true : false,
+                'podcast' => $this->pre_existing->podcast ? true : false,
+                'meride_embed_id' => $this->pre_existing->meride_embed_id,
+                'duration' => $this->pre_existing->duration,]:
+            (($this->model->video and $this->model->video->meride_status == VideoStatus::READY->value) ? [
+                'url' => $this->model->video->url,
+                'url_mp4' => $this->model->video->url_mp4,
+                'width' => $this->model->video->source_width,
+                'height' => $this->model->video->source_height,
+                'public' => $this->model->video->public ? true : false,
+                'podcast' => $this->model->video->podcast ? true : false,
+                'meride_embed_id' => $this->model->video->meride_embed_id,
+                'duration' => $this->model->video->duration,
+            ] : null),
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];

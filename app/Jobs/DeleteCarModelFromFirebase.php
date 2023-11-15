@@ -50,7 +50,7 @@ class DeleteCarModelFromFirebase implements ShouldQueue
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
         Log::info('Model to remove from Firestore:', ["model_id"=>$this->model_id]);
-        $db->collection('model')->document($this->model_id)->delete();
+        $db->collection('models')->document($this->model_id)->delete();
         Log::info('Successfully removed Model from Firestore');
 
     }

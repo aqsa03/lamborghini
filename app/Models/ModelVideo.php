@@ -108,7 +108,18 @@ class ModelVideo extends Model
         {
             $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
             $videoResponse = $merideApi->get('video', $this->video_id);
-            return $videoResponse;
+            $videoData = [
+                'url' => $videoResponse->url_video,
+                'url_mp4' => $videoResponse->url_video_mp4,
+                'source_width' => $videoResponse->width,
+                'source_height' => $videoResponse->height,
+                'public' => $videoResponse->public,
+                'podcast' => $videoResponse->podcast,
+                'meride_embed_id' => $videoResponse->meride_embed_id,
+                'duration' => $videoResponse->duration,
+            ];
+            
+            return (object)$videoData;
             
         }
         else{

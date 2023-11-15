@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\VideoStatus;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Meride\Api;
+use Illuminate\Support\Facades\Log;
 
 class CarModel extends Model
 {
     use HasFactory;
     protected $table = 'CarModel'; 
-    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id'];
+    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id', 'pre_existing_video_id'];
     public function imagePoster()
     {
         return $this->belongsTo(Image::class, 'image_poster_id');
@@ -44,5 +46,31 @@ class CarModel extends Model
     public function parentCategory()
     {
         return $this->belongsTo(CarModel::class, 'parent_id');
+    }
+    public function get_meride_video()
+    {
+        Log::info("Get Meride Video details ");
+        $video=Video::where('meride_video_id', '=', $this->video_preview_id)->first();
+        if(!$video)
+        {
+            $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+            $videoResponse = $merideApi->get('video', $this->video_preview_id);
+            $videoData = [
+                'url' => $videoResponse->url_video,
+                'url_mp4' => $videoResponse->url_video_mp4,
+                'source_width' => $videoResponse->width,
+                'source_height' => $videoResponse->height,
+                'public' => $videoResponse->public,
+                'podcast' => $videoResponse->podcast,
+                'meride_embed_id' => $videoResponse->meride_embed_id,
+                'duration' => $videoResponse->duration,
+            ];
+            
+            return (object)$videoData;
+            
+        }
+        else{
+           return $video;
+        }
     }
 }
