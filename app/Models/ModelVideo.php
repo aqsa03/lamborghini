@@ -103,7 +103,7 @@ class ModelVideo extends Model
     public function get_meride_video()
     {
         Log::info("Get Meride Video details ");
-        $video=Video::where('meride_video_id', '=', $this->video_id)->first();
+        $video=Video::where('meride_video_id', '=', $this->pre_existing_video_id)->first();
         if(!$video)
         {
             $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');

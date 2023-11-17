@@ -127,15 +127,15 @@ class PushcarModelToFirebase implements ShouldQueue
                 'podcast' => $this->pre_existing->podcast ? true : false,
                 'meride_embed_id' => $this->pre_existing->meride_embed_id,
                 'duration' => $this->pre_existing->duration,]:
-            (($this->model->video and $this->model->video->meride_status == VideoStatus::READY->value) ? [
-                'url' => $this->model->video->url,
-                'url_mp4' => $this->model->video->url_mp4,
-                'width' => $this->model->video->source_width,
-                'height' => $this->model->video->source_height,
-                'public' => $this->model->video->public ? true : false,
-                'podcast' => $this->model->video->podcast ? true : false,
-                'meride_embed_id' => $this->model->video->meride_embed_id,
-                'duration' => $this->model->video->duration,
+            (($this->model->videoPreview and $this->model->videoPreview->meride_status == VideoStatus::READY->value) ? [
+                'url' => $this->model->videoPreview->url,
+                'url_mp4' => $this->model->videoPreview->url_mp4,
+                'width' => $this->model->videoPreview->source_width,
+                'height' => $this->model->videoPreview->source_height,
+                'public' => $this->model->videoPreview->public ? true : false,
+                'podcast' => $this->model->videoPreview->podcast ? true : false,
+                'meride_embed_id' => $this->model->videoPreview->meride_embed_id,
+                'duration' => $this->model->videoPreview->duration,
             ] : null),
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 

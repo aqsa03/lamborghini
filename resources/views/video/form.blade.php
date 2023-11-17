@@ -35,7 +35,7 @@
             <input type="hidden" id="video_preview_width" name="video_preview_width" value="" />
             <input type="hidden" id="video_preview_height" name="video_preview_height" value="" />
             <input type="hidden" id="video_preview_duration" name="video_preview_duration" value="" />
-
+            <input type="hidden" id="meride_video_id" name="meride_video_id" value="{{ $video->pre_existing_video_id ?? '' }}" />
             <input type="hidden" id="status" name="status" value="{{$video->status ?? 'DRAFT'}}" />
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="category_id">
@@ -86,8 +86,10 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="is_360">
                     {{ trans("videos.type") }}
                 </label>
-                <select name="type" class="form_select" required id="type">
-                    <option value=" ">{{trans("general.select_video_type")}}</option>
+                <select name="type" class="form_select" id="type">
+                    <option value=""  {{ old("type", $video->type ?? '') == '' ? 'selected' : '' }}>
+                        {{ trans("general.select_video_type") }}
+                    </option>
                     <option value="IS_360" {{ old("type", $video->type ?? '0') == 'IS_360' ? 'selected' : '' }}>360</option>
                     <option value="PRE_EXISTING" {{ old("type", $video->type ?? '0') == 'PRE_EXISTING' ? 'selected' : '' }}>Pre-existing</option>
                 </select>
@@ -98,16 +100,17 @@
                 </label>
                 <input class="form_input" type="text" name="360_video" id="360_video" placeholder="{{ trans("videos.video 360") }}" required value="{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}" />
             </div>
-            <div class="w-full px-3 mt-12" id="pre-existing" style="display: none;">
+            <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
                     {{ trans("videos.pre-existing videos") }}
                 </label>
-                <div class="inline-block relative w-64">
-                    <select name="pre_existing_video_id" class="form_select" required>
-                        @foreach ($meridePreExisting as $preExisting)
-                        <option {{ old("pre_existing_video_id", $video->pre_existing_video_id ?? '') == $preExisting->id ? 'selected' : '' }} value="{{ $preExisting->id }}">{{ $preExisting->title }}</option>
-                        @endforeach
-                    </select>
+                <div id="filtered_results" class="mt-2">
+                    <input list="pre_existing_videos" name="pre_existing_video_id" class="form_select" id="pre_existing_video_id">
+                    <datalist id="pre_existing_videos">
+                        @foreach($meridePreExisting as $result)
+                        <option value="{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->url_video_mp4 }}">
+                            @endforeach
+                    </datalist>
                 </div>
             </div>
             <div class="w-full px-3 mt-12">
@@ -179,7 +182,7 @@
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
                     @endif
                 </div>
-                @if (isset($video) and $video->canPublish())
+                @if (isset($video) and $video->canPublish() and (!$video->isPublished()))
                 <div class="basis-1/2 text-right">
                     <button id="publish-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">{{ trans("general.Publish") }}</button>
                 </div>
@@ -194,14 +197,26 @@
     @endpush
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var preExistingVideoId = document.getElementById('meride_video_id').value;
+            var preExistingSelect = document.getElementById("pre_existing_video_id");
+            var options = document.querySelectorAll("#pre_existing_videos option");
+            var selectedOption = Array.from(options).find(function(option) {
+                return option.getAttribute("data-id") === preExistingVideoId;
+            });
+
+            if (selectedOption) {
+                preExistingSelect.value = selectedOption.value;
+            } else {
+                console.log("No matching option found");
+            }
+        });
         const istypeSelect = document.getElementById('type');
         const video360Field = document.getElementById('360_video_field');
         const preview_video = document.getElementById('preview_video');
         const main_video = document.getElementById('main_video');
         const video360Input = document.getElementById('360_video');
         const preExisting = document.getElementById('pre-existing');
-        console.log("---->",istypeSelect.value);
-        // Set initial visibility based on the value when editing
         if (istypeSelect.value === 'IS_360') {
             video360Field.style.display = 'block';
             preview_video.style.display = 'none';
@@ -215,8 +230,6 @@
             video360Field.style.display = 'none';
             video360Input.removeAttribute('required');
         }
-
-        // Add change event listener to toggle visibility
         istypeSelect.addEventListener('change', function() {
             if (this.value === 'IS_360') {
                 video360Field.style.display = 'block';
@@ -224,14 +237,12 @@
                 main_video.style.display = 'none';
                 preExisting.style.display = 'none';
                 video360Input.setAttribute('required', 'required');
-            }else if (istypeSelect.value === 'PRE_EXISTING') {
+            } else if (istypeSelect.value === 'PRE_EXISTING') {
                 video360Field.style.display = 'none';
-            preExisting.style.display = 'block';
-            preview_video.style.display = 'none';
-            main_video.style.display = 'none';
-        }  
-            
-            else {
+                preExisting.style.display = 'block';
+                preview_video.style.display = 'none';
+                main_video.style.display = 'none';
+            } else {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'none';
                 preview_video.style.display = 'block';

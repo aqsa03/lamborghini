@@ -1,192 +1,220 @@
 import UppyVideo from "./uppyVideo.js";
 // import { createEditor } from "../editor.js";
 import TusVideo from "../tus/tusVideo.js";
+import * as videoMetadataThumbnails from "video-metadata-thumbnails";
 
 class CreateForm {
-    constructor({
-        form,
-        tusConfig,
-        dropAreaIdMain,
-        dropAreaIdPreview,
-        publishButton,
-        editorPlaceholder,
-        editorData,
-        uploadMaxSize,
-    }) {
-        this.form = form;
-        this.editor = null;
-        this.editorPlaceholder = editorPlaceholder;
-        this.editorData = editorData || {};
-        this.tusConfig = tusConfig;
-        this.uploadMaxSize = uploadMaxSize ?? 2000000000;
-        this.uppyMainVideoTarget = null;
-        this.uppyPreviewVideoTarget = null;
-        this.saveButton = document.getElementById("save-button");
-        try {
-            this.uppyMainVideoTarget = document.querySelector(dropAreaIdMain);
-        } catch (ex) { }
-        try {
-            this.uppyPreviewVideoTarget = document.querySelector(dropAreaIdPreview);
-        } catch (ex) { }
-        if (this.mainVideoIsValid()) {
-            this.uppyMainVideo = UppyVideo({
-                target: dropAreaIdMain,
-                maxFileSize: this.uploadMaxSize,
-                tusToken: tusConfig.tusToken,
-                tusEndpoint: tusConfig.tusEndpoint
-            });
-            this.uppyMainVideo.on('file-added', (file) => {
-                const video = document.createElement("video");
-                video.preload = "metadata";
-                video.addEventListener("loadedmetadata", ev => {
-                    try {
-                        document.getElementById("video_width").value = video.videoWidth;
-                    } catch (ex) { }
-                    try {
-                        document.getElementById("video_height").value = video.videoHeight;
-                    } catch (ex) { }
-                    try {
-                        document.getElementById("video_duration").value = video.duration;
-                    } catch (ex) { }
-                });
-                video.src = URL.createObjectURL(file.data);
-            });
-        }
-        if (this.previewVideoIsValid()) {
-            this.uppyPreviewVideo = UppyVideo({
-                target: dropAreaIdPreview,
-                maxFileSize: this.uploadMaxSize,
-                tusToken: tusConfig.tusToken,
-                tusEndpoint: tusConfig.tusEndpoint
-            });
-            this.uppyPreviewVideo.on('file-added', (file) => {
-                const video = document.createElement("video");
-                video.preload = "metadata";
-                video.addEventListener("loadedmetadata", ev => {
-                    try {
-                        document.getElementById("video_preview_width").value = video.videoWidth;
-                    } catch (ex) { }
-                    try {
-                        document.getElementById("video_preview_height").value = video.videoHeight;
-                    } catch (ex) { }
-                    try {
-                        document.getElementById("video_preview_duration").value = video.duration;
-                    } catch (ex) { }
-                });
-                video.src = URL.createObjectURL(file.data);
-            });
-        }
-        this.publishButton = publishButton;
+  constructor({
+    form,
+    tusConfig,
+    dropAreaIdMain,
+    dropAreaIdPreview,
+    publishButton,
+    editorPlaceholder,
+    editorData,
+    uploadMaxSize,
+  }) {
+    this.form = form;
+    this.editor = null;
+    this.editorPlaceholder = editorPlaceholder;
+    this.editorData = editorData || {};
+    this.tusConfig = tusConfig;
+    this.uploadMaxSize = uploadMaxSize ?? 2000000000;
+    this.uppyMainVideoTarget = null;
+    this.uppyPreviewVideoTarget = null;
+    this.saveButton = document.getElementById("save-button");
+    try {
+      this.uppyMainVideoTarget = document.querySelector(dropAreaIdMain);
+    } catch (ex) {}
+    try {
+      this.uppyPreviewVideoTarget = document.querySelector(dropAreaIdPreview);
+    } catch (ex) {}
+    if (this.mainVideoIsValid()) {
+      this.uppyMainVideo = UppyVideo({
+        target: dropAreaIdMain,
+        maxFileSize: this.uploadMaxSize,
+        tusToken: tusConfig.tusToken,
+        tusEndpoint: tusConfig.tusEndpoint,
+      });
+      this.uppyMainVideo.on("file-added", (file) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.addEventListener("loadedmetadata", (ev) => {
+          try {
+            document.getElementById("video_width").value = video.videoWidth;
+          } catch (ex) {}
+          try {
+            document.getElementById("video_height").value = video.videoHeight;
+          } catch (ex) {}
+          try {
+            document.getElementById("video_duration").value = video.duration;
+          } catch (ex) {}
+        });
+        video.src = URL.createObjectURL(file.data);
+      });
     }
-
-    mainVideoIsValid() {
-        return this.uppyMainVideoTarget !== null;
+    if (this.previewVideoIsValid()) {
+      this.uppyPreviewVideo = UppyVideo({
+        target: dropAreaIdPreview,
+        maxFileSize: this.uploadMaxSize,
+        tusToken: tusConfig.tusToken,
+        tusEndpoint: tusConfig.tusEndpoint,
+      });
+      this.uppyPreviewVideo.on("file-added", (file) => {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.addEventListener("loadedmetadata", (ev) => {
+          try {
+            document.getElementById("video_preview_width").value =
+              video.videoWidth;
+          } catch (ex) {}
+          try {
+            document.getElementById("video_preview_height").value =
+              video.videoHeight;
+          } catch (ex) {}
+          try {
+            document.getElementById("video_preview_duration").value =
+              video.duration;
+          } catch (ex) {}
+        });
+        video.src = URL.createObjectURL(file.data);
+      });
     }
+    this.publishButton = publishButton;
+  }
 
-    previewVideoIsValid() {
-        return this.uppyPreviewVideoTarget !== null;
+  mainVideoIsValid() {
+    return this.uppyMainVideoTarget !== null;
+  }
+
+  previewVideoIsValid() {
+    return this.uppyPreviewVideoTarget !== null;
+  }
+
+  async upload(uppyObject) {
+    const result = await uppyObject.upload();
+    //console.info('Successful uploads:', result)
+    if (result.failed.length > 0) {
+      console.error("Errors:");
+      result.failed.forEach((file) => {
+        console.error(file.error);
+      });
+      return Promise.reject(result.failed);
+    } else {
+      return Promise.resolve(result.successful);
     }
+  }
 
-    async upload(uppyObject) {
-        const result = await uppyObject.upload();
-        //console.info('Successful uploads:', result)
-        if (result.failed.length > 0) {
-            console.error('Errors:');
-            result.failed.forEach((file) => {
-                console.error(file.error);
-            });
-            return Promise.reject(result.failed);
-        } else {
-            return Promise.resolve(result.successful);
-        }
+  async uploadPreviewVideo() {
+    return this.upload(this.uppyPreviewVideo);
+  }
+
+  async uploadMainVideo() {
+    return this.upload(this.uppyMainVideo);
+  }
+
+  disableSaveButton() {
+    if (this.saveButton) {
+      this.saveButton.disabled = true;
     }
+  }
 
-    async uploadPreviewVideo() {
-        return this.upload(this.uppyPreviewVideo);
+  enableSaveButton() {
+    if (this.saveButton) {
+      this.saveButton.disabled = false;
     }
-
-    async uploadMainVideo() {
-        return this.upload(this.uppyMainVideo);
+  }
+  async handlePreExistingVideoSelection(video_url, video_id) {
+    try {
+      const metadata = await videoMetadataThumbnails.getMetadata(video_url);
+      const { width, height } = metadata;
+      try {
+        document.getElementById("video_width").value = width;
+      } catch (ex) {}
+      try {
+        document.getElementById("video_height").value = height;
+      } catch (ex) {}
+      try {
+        document.getElementById("meride_video_id").value = video_id;
+      } catch (ex) {}
+    } catch (error) {
+      console.error("Error fetching video:", error);
     }
+    console.log(video);
+  }
 
-    disableSaveButton() {
-        if (this.saveButton) {
-            this.saveButton.disabled = true;
-        }
-    }
-
-    enableSaveButton() {
-        if (this.saveButton) {
-            this.saveButton.disabled = false;
-        }
-    }
-
-    async submitForm(ev) {
-        ev.preventDefault();
-        this.disableSaveButton();
-        if (this.previewVideoIsValid()) {
-            let previewVideoUploadResult = null;
-            try {
-                previewVideoUploadResult = await this.uploadPreviewVideo();
-                const previewUploadURL = TusVideo.extractURL(previewVideoUploadResult[0].uploadURL);
-                const previewUploadName = previewVideoUploadResult[0].name;
-                const previewHiddenVideoName = document.getElementById("video_preview_name");
-                previewHiddenVideoName.value = previewUploadName;
-                const previewHiddenVideoUploadUser = document.getElementById("video_preview_upload_url");
-                previewHiddenVideoUploadUser.value = previewUploadURL;
-            } catch (err) {
-                console.error("Error uploading video", previewVideoUploadResult);
-                this.enableSaveButton();
-            }
-        }
-        if (this.mainVideoIsValid()) {
-            let mainVideoUploadResult = null;
-            try {
-                mainVideoUploadResult = await this.uploadMainVideo();
-                const mainUploadURL = TusVideo.extractURL(mainVideoUploadResult[0].uploadURL);
-                const mainUploadName = mainVideoUploadResult[0].name;
-                const mainHiddenVideoName = document.getElementById("video_name");
-                mainHiddenVideoName.value = mainUploadName;
-                const mainHiddenVideoUploadUser = document.getElementById("video_upload_url");
-                mainHiddenVideoUploadUser.value = mainUploadURL;
-            } catch (err) {
-                console.error("Error uploading video", mainVideoUploadResult);
-                this.enableSaveButton();
-            }
-        }
-        // const outputData = await this.editor.save();
-        // const descriptionInput = document.querySelector("input[name='description']");
-        // descriptionInput.value = JSON.stringify(outputData.blocks);
-        this.form.submit();
+  async submitForm(ev) {
+    ev.preventDefault();
+    this.disableSaveButton();
+    if (this.previewVideoIsValid()) {
+      let previewVideoUploadResult = null;
+      try {
+        previewVideoUploadResult = await this.uploadPreviewVideo();
+        const previewUploadURL = TusVideo.extractURL(
+          previewVideoUploadResult[0].uploadURL
+        );
+        const previewUploadName = previewVideoUploadResult[0].name;
+        const previewHiddenVideoName =
+          document.getElementById("video_preview_name");
+        previewHiddenVideoName.value = previewUploadName;
+        const previewHiddenVideoUploadUser = document.getElementById(
+          "video_preview_upload_url"
+        );
+        previewHiddenVideoUploadUser.value = previewUploadURL;
+      } catch (err) {
+        console.error("Error uploading video", previewVideoUploadResult);
         this.enableSaveButton();
+      }
     }
-
-    setStatusPublished() {
-        try {
-            document.getElementById("status").value = "PUBLISHED";
-        } catch (ex) {
-            console.error(ex);
-        }
+    if (this.mainVideoIsValid()) {
+      let mainVideoUploadResult = null;
+      try {
+        mainVideoUploadResult = await this.uploadMainVideo();
+        const mainUploadURL = TusVideo.extractURL(
+          mainVideoUploadResult[0].uploadURL
+        );
+        const mainUploadName = mainVideoUploadResult[0].name;
+        const mainHiddenVideoName = document.getElementById("video_name");
+        mainHiddenVideoName.value = mainUploadName;
+        const mainHiddenVideoUploadUser =
+          document.getElementById("video_upload_url");
+        mainHiddenVideoUploadUser.value = mainUploadURL;
+      } catch (err) {
+        console.error("Error uploading video", mainVideoUploadResult);
+        this.enableSaveButton();
+      }
     }
+    // const outputData = await this.editor.save();
+    // const descriptionInput = document.querySelector("input[name='description']");
+    // descriptionInput.value = JSON.stringify(outputData.blocks);
+    this.form.submit();
+    this.enableSaveButton();
+  }
 
-    setup() {
-        // this.editor = createEditor({
-        //     data: this.editorData
-        // });
-        console.log(this.form);
-        this.form.addEventListener("submit", this.submitForm.bind(this));
-
-        if (this.publishButton !== null) {
-            this.publishButton.addEventListener("click", ev => {
-                ev.preventDefault();
-                this.setStatusPublished();
-                this.submitForm(ev);
-                return false;
-            });
-        }
+  setStatusPublished() {
+    try {
+      document.getElementById("status").value = "PUBLISHED";
+    } catch (ex) {
+      console.error(ex);
     }
+  }
+
+  setup() {
+    // this.editor = createEditor({
+    //     data: this.editorData
+    // });
+    console.log(this.form);
+    this.form.addEventListener("submit", this.submitForm.bind(this));
+
+    if (this.publishButton !== null) {
+      this.publishButton.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        this.setStatusPublished();
+        this.submitForm(ev);
+        return false;
+      });
+    }
+  }
 }
 
-export {
-    CreateForm
-}
+export { CreateForm };

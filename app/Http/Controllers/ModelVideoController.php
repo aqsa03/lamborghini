@@ -14,6 +14,8 @@ use App\Models\Category;
 use App\Models\Image;
 use Illuminate\Support\Facades\Log;
 use Meride\Api;
+use App\Enums\VideoStatus;
+
 
 class ModelVideoController extends Controller
 {
@@ -25,22 +27,22 @@ class ModelVideoController extends Controller
     public function index(Request $request)
     {
         $videos = ModelVideo::orderBy('model_id');
-        if($request->query('model_id')){
-            $videos->where('model_id', '=' , $request->query('model_id'));
+        if ($request->query('model_id')) {
+            $videos->where('model_id', '=', $request->query('model_id'));
         }
-        if($request->query('title')){
-            foreach( explode(' ', $request->query('title')) as $word){
-                $videos->where('title', 'like' , '%'.$word.'%');
+        if ($request->query('title')) {
+            foreach (explode(' ', $request->query('title')) as $word) {
+                $videos->where('title', 'like', '%' . $word . '%');
             }
         }
-        if($request->query('status') and $request->query('status') != '-1'){
-            $videos->where('status', '=' , $request->query('status'));
+        if ($request->query('status') and $request->query('status') != '-1') {
+            $videos->where('status', '=', $request->query('status'));
         }
-        return view('video.index',[
-                'total' => $videos->count(),
-                'videos' => $videos->paginate(20),
-                'request' => $request
-            ])
+        return view('video.index', [
+            'total' => $videos->count(),
+            'videos' => $videos->paginate(20),
+            'request' => $request
+        ])
             ->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
@@ -52,42 +54,42 @@ class ModelVideoController extends Controller
     public function create()
     {
         $models = CarModel::all();
-        $categories=Category::all();
+        $categories = Category::all();
         if ($categories->isEmpty()) {
-            return redirect()->route('videos.index')->with('error','No category is present. Please insert at least one.');
+            return redirect()->route('videos.index')->with('error', 'No category is present. Please insert at least one.');
         }
         if ($models->isEmpty()) {
-            return redirect()->route('videos.index')->with('error','No model is present. Please insert at least one.');
+            return redirect()->route('videos.index')->with('error', 'No model is present. Please insert at least one.');
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
         $sortingCriteria = [
             'field' => 'id',
             'order' => 'desc',
         ];
-        $merideLives = $merideApi->all('video',[
+        $merideLives = $merideApi->all('video', [
             'sort' => $sortingCriteria,
-            'perPage'=>10,
+            'perPage' => 10,
         ]);
         $meridePreExisting = [];
-        foreach($merideLives as $merideLive){
-                array_push($meridePreExisting, $merideLive);
+        foreach ($merideLives as $merideLive) {
+            array_push($meridePreExisting, $merideLive);
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
             // run the token generation
             $token = $tokenGenerator->generate();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // is important to catch the exception
             throw new \Exception("Some error occured with the video service");
         }
         return view('video.form', [
             'formType' => 'create',
             'models' => $models,
-            'categories'=>$categories,
+            'categories' => $categories,
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
             'tusToken' => $token,
-            'video'=>null,
+            'video' => null,
             'meridePreExisting' => $meridePreExisting,
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
@@ -103,62 +105,87 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
-        if($validatedFields['type']==='IS_360'){
-            if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+        if ($validatedFields['type'] === 'IS_360') {
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
                 $validatedFields['image_id'] = $image->id;
             }
-            $validatedFields['is_360']=1;
-            $validatedFields['video_id']=null;
-            $validatedFields['video_preview_id']=null;
+            $validatedFields['is_360'] = 1;
+            $validatedFields['video_id'] = null;
+            $validatedFields['video_preview_id'] = null;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
-            $validatedFields['status']=VideosStatus::PUBLISHED->value;
-            if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
-            $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            $validatedFields['status'] = VideosStatus::PUBLISHED->value;
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
             }
-
-
-        }
-        else if($validatedFields['type']==='PRE_EXISTING'){
-            $video=Video::where('meride_video_id' ,'=',$validatedFields['pre_existing_video_id'])->first();
-            if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+        } else if ($validatedFields['type'] === 'PRE_EXISTING') {
+            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
                 $validatedFields['image_id'] = $image->id;
             }
-            $validatedFields['is_360']=0;
-            $validatedFields['video_id']=$video->id;
-            $validatedFields['video_preview_id']=$video->id;
+            if (!$video) {
+                $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+                $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
+                $embed = $merideApi->create('embed', [
+                    'video_id' => $validatedFields['meride_video_id'],
+                    'title' => $videoResponse->title,
+                    'url' => $videoResponse->url_video,
+                    'url_mp4' => $videoResponse->url_video_mp4,
+                    'image_preview_url' => $videoResponse->preview_image,
+                ]);
+                $created_video = Video::create([
+                    'title' => $videoResponse->title,
+                    'source_url' =>  $videoResponse->url_video,
+                    'image_source_url' => $image ? $image->url : null,
+                    'public' => true,
+                    'podcast' => false,
+                    'source_width' => $validatedFields['video_width'],
+                    'source_height' => $validatedFields['video_height'],
+                    'duration' => $videoResponse->duration ?? null,
+                    'url' => $videoResponse->url_video,
+                    'url_mp4' => $videoResponse->url_video_mp4,
+                    'image_preview_url' => $videoResponse->preview_image,
+                    'meride_status' => VideoStatus::READY->value,
+                    'meride_video_id' => $videoResponse->id,
+                    'meride_embed_id' => $embed->public_id ?? $embed->id,
+                ]);
+                $validatedFields['video_id'] = $created_video->id;
+                $validatedFields['video_preview_id'] = $created_video->id;
+                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            }
+
+            $validatedFields['is_360'] = 0;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
-            $validatedFields['status']=VideosStatus::PUBLISHED->value;
-            if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
-            $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            $validatedFields['status'] = VideosStatus::PUBLISHED->value;
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
             }
-        }
-        else if(!$validatedFields['type']){
-            $validatedFields['type']=VideoType::NEW->value;
-            if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
+        } else if (!$validatedFields['type']) {
+            $validatedFields['type'] = VideoType::NEW->value;
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
                 $validatedFields['image_id'] = $image->id;
             }
-            if($video = Video::createFromRequest($request,$image, preview: true)){
+            if ($video = Video::createFromRequest($request, $image, preview: true)) {
                 $validatedFields['video_id'] = $video->id;
             }
-    
-            if($video_preview = Video::createFromRequest($request, $image, preview: true)){
+
+            if ($video_preview = Video::createFromRequest($request, $image, preview: true)) {
                 $validatedFields['video_preview_id'] = $video_preview->id;
             }
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
-            if($validatedFields['status'] == VideosStatus::PUBLISHED->value){
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
                 $validatedFields['published_at'] = date('Y-m-d H:i:s');
             }
         }
-       
+
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
         Log::info('Video created successfully in database, redirecting to list view');
-        
 
-        return redirect()->route('videos.index')->with('success','Video created successfully.');
+
+        return redirect()->route('videos.index')->with('success', 'Video created successfully.');
     }
 
     /**
@@ -170,7 +197,7 @@ class ModelVideoController extends Controller
     public function show(ModelVideo $video)
     {
         return view('video.show', [
-          
+
             'video' => $video
         ]);
     }
@@ -186,15 +213,15 @@ class ModelVideoController extends Controller
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
         $merideLives = $merideApi->all('video');
         $meridePreExisting = [];
-        foreach($merideLives as $merideLive){
-                array_push($meridePreExisting, $merideLive);
+        foreach ($merideLives as $merideLive) {
+            array_push($meridePreExisting, $merideLive);
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
             // run the token generation
             $token = $tokenGenerator->generate();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             // is important to catch the exception
             throw new \Exception("Some error occured with the video service");
         }
@@ -202,7 +229,7 @@ class ModelVideoController extends Controller
             'formType' => 'edit',
             'video' => $video,
             'models' => CarModel::all(),
-            'categories'=>Category::all(),
+            'categories' => Category::all(),
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
             'tusToken' => $token,
             'meridePreExisting' => $meridePreExisting,
@@ -220,27 +247,86 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Update Video Controller');
         $validatedFields = $request->validated();
-        if($image = Image::createAndStoreFromRequest($request, 'image', 'video')){
-            $validatedFields['image_id'] = $poster_image->id;
-        }
-        if($main_video = Video::createFromRequest($request, $image, preview: true)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_id'] = $main_video->id;
-        }
-        if($video_preview = Video::createFromRequest($request, $image, preview: true)){
-            //TODO rimuovi vecchio video se c'è
-            $validatedFields['video_preview_id'] = $video_preview->id;
-        }
-        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['related'] = $validatedFields['related'] ?? [];
-        if($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at){
-            $validatedFields['published_at'] = date('Y-m-d H:i:s');
+        if ($validatedFields['type'] === 'IS_360') {
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
+                $validatedFields['image_id'] = $image->id;
+            }
+            $validatedFields['is_360'] = 1;
+            $validatedFields['video_id'] = null;
+            $validatedFields['video_preview_id'] = null;
+            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['related'] = $validatedFields['related'] ?? [];
+            $validatedFields['status'] = VideosStatus::PUBLISHED->value;
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            }
+        } else if ($validatedFields['type'] === 'PRE_EXISTING') {
+            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
+                $validatedFields['image_id'] = $image->id;
+            }
+            if (!$video) {
+                $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+                $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
+                $embed = $merideApi->create('embed', [
+                    'video_id' => $validatedFields['meride_video_id'],
+                    'title' => $videoResponse->title,
+                    'url' => $videoResponse->url_video,
+                    'url_mp4' => $videoResponse->url_video_mp4,
+                    'image_preview_url' => $videoResponse->preview_image,
+                ]);
+                $created_video = Video::create([
+                    'title' => $videoResponse->title,
+                    'source_url' =>  $videoResponse->url_video,
+                    'image_source_url' => $image ? $image->url : null,
+                    'public' => true,
+                    'podcast' => false,
+                    'source_width' => $validatedFields['video_width'],
+                    'source_height' => $validatedFields['video_height'],
+                    'duration' => $videoResponse->duration ?? null,
+                    'url' => $videoResponse->url_video,
+                    'url_mp4' => $videoResponse->url_video_mp4,
+                    'image_preview_url' => $videoResponse->preview_image,
+                    'meride_status' => VideoStatus::READY->value,
+                    'meride_video_id' => $videoResponse->id,
+                    'meride_embed_id' => $embed->public_id ?? $embed->id,
+                ]);
+                $validatedFields['video_id'] = $created_video->id;
+                $validatedFields['video_preview_id'] = $created_video->id;
+                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            }
+
+            $validatedFields['is_360'] = 0;
+            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['related'] = $validatedFields['related'] ?? [];
+            $validatedFields['status'] = VideosStatus::PUBLISHED->value;
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            }
+        } else if (!$validatedFields['type']) {
+            $validatedFields['type'] = VideoType::NEW->value;
+            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
+                $validatedFields['image_id'] = $image->id;
+            }
+            if ($main_video = Video::createFromRequest($request, $image, preview: true)) {
+                //TODO rimuovi vecchio video se c'è
+                $validatedFields['video_id'] = $main_video->id;
+            }
+            if ($video_preview = Video::createFromRequest($request, $image, preview: true)) {
+                //TODO rimuovi vecchio video se c'è
+                $validatedFields['video_preview_id'] = $video_preview->id;
+            }
+            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['related'] = $validatedFields['related'] ?? [];
+            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
+                $validatedFields['published_at'] = date('Y-m-d H:i:s');
+            }
         }
         Log::info('Video data to update:', $validatedFields);
         $video->update($validatedFields);
         Log::info('Video updated successfully');
 
-        return redirect()->route('videos.index')->with('success','Video updated successfully.');
+        return redirect()->route('videos.index')->with('success', 'Video updated successfully.');
     }
 
     /**
@@ -251,17 +337,17 @@ class ModelVideoController extends Controller
      */
     public function destroy(ModelVideo $video)
     {
-        try{
+        try {
             $video->delete();
             return redirect()->route('videos.index')
-                        ->with('success','Video deleted successfully');
-        } catch(\Exception $e) {
+                ->with('success', 'Video deleted successfully');
+        } catch (\Exception $e) {
             $error_message = $e->getMessage();
             return redirect()->route('videos.index')
-                        ->with('error', $error_message);
+                ->with('error', $error_message);
         }
     }
-    
+
     /**
      * Search videos by their title
      * @param Request The request where must be present the `title` query string attribute
