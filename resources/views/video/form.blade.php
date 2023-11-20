@@ -108,7 +108,7 @@
                     <input list="pre_existing_videos" name="pre_existing_video_id" class="form_select" id="pre_existing_video_id">
                     <datalist id="pre_existing_videos">
                         @foreach($meridePreExisting as $result)
-                        <option value="{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->url_video_mp4 }}">
+                        <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->url_video_mp4 }}">
                             @endforeach
                     </datalist>
                 </div>

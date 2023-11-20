@@ -62,17 +62,23 @@ class ModelVideoController extends Controller
             return redirect()->route('videos.index')->with('error', 'No model is present. Please insert at least one.');
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $videoResponse = $merideApi->get('video',null);
+        $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
             'order' => 'desc',
         ];
-        $merideLives = $merideApi->all('video', [
-            'sort' => $sortingCriteria,
-            'perPage' => 10,
-        ]);
         $meridePreExisting = [];
-        foreach ($merideLives as $merideLive) {
-            array_push($meridePreExisting, $merideLive);
+
+        for ($page = 1; $page <= $total_pages; $page++) {
+            $merideLives = $merideApi->all('video', [
+                'sort' => $sortingCriteria,
+                'search_page' => $page,
+            ]);
+
+            foreach ($merideLives as $merideLive) {
+                $meridePreExisting[] = $merideLive;
+            }
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));

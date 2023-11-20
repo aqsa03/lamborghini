@@ -30,17 +30,23 @@ class CarModelController extends Controller
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $videoResponse = $merideApi->get('video',null);
+        $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
             'order' => 'desc',
         ];
-        $merideLives = $merideApi->all('video', [
-            'sort' => $sortingCriteria,
-            'perPage' => 10,
-        ]);
         $meridePreExisting = [];
-        foreach ($merideLives as $merideLive) {
-            array_push($meridePreExisting, $merideLive);
+
+        for ($page = 1; $page <= $total_pages; $page++) {
+            $merideLives = $merideApi->all('video', [
+                'sort' => $sortingCriteria,
+                'search_page' => $page,
+            ]);
+
+            foreach ($merideLives as $merideLive) {
+                $meridePreExisting[] = $merideLive;
+            }
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
@@ -70,7 +76,7 @@ class CarModelController extends Controller
         if ($QRScan = Image::createAndStoreFromRequest($request, 'qr_code', 'model')) {
             $validatedFields['qr_code_id'] = $QRScan->id;
         }
-        $validatedFields['type'] = $validatedFields['type']?$validatedFields['type']:ModelType::NEW->value;
+        $validatedFields['type'] = $validatedFields['type'] ? $validatedFields['type'] : ModelType::NEW->value;
         if ($validatedFields['meride_video_id']) {
             $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
             if (!$video) {
@@ -100,11 +106,10 @@ class CarModelController extends Controller
                     'meride_embed_id' => $embed->public_id ?? $embed->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
-                
             } else {
                 $validatedFields['video_preview_id'] = $video->id;
             }
-            $validatedFields['pre_existing_video_id']=$validatedFields['meride_video_id'];
+            $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['status'] = ModelStatus::PUBLISHED->value;
         } else if ($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)) {
             //TODO rimuovi vecchio video se c'è
@@ -125,17 +130,23 @@ class CarModelController extends Controller
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
+        $videoResponse = $merideApi->get('video',null);
+        $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
             'order' => 'desc',
         ];
-        $merideLives = $merideApi->all('video', [
-            'sort' => $sortingCriteria,
-            'perPage' => 10,
-        ]);
         $meridePreExisting = [];
-        foreach ($merideLives as $merideLive) {
-            array_push($meridePreExisting, $merideLive);
+
+        for ($page = 1; $page <= $total_pages; $page++) {
+            $merideLives = $merideApi->all('video', [
+                'sort' => $sortingCriteria,
+                'search_page' => $page,
+            ]);
+
+            foreach ($merideLives as $merideLive) {
+                $meridePreExisting[] = $merideLive;
+            }
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
@@ -202,9 +213,9 @@ class CarModelController extends Controller
                     'meride_embed_id' => $embed->public_id ?? $embed->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
-                $validatedFields['pre_existing_video_id']=$validatedFields['meride_video_id'];
+                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            }
         }
-    }
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
