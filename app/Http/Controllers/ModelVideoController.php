@@ -204,7 +204,8 @@ class ModelVideoController extends Controller
     {
         return view('video.show', [
 
-            'video' => $video
+            'video' => $video,
+            'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
         ]);
     }
 

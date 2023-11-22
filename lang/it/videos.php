@@ -6,6 +6,7 @@ return [
     'Videos' => 'Videos',
     'Video' => 'Video',
     'Model' => 'modello',
+    'Category'=>'Categoria',
     'related' => 'correlati',
     'vod' => 'vod',
     'type'=>'tipo',

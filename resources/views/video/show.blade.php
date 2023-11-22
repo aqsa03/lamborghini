@@ -31,17 +31,47 @@
                     </div>
                     <script type="text/plain" id="source_description">{{ $video->description }}</script>
                 </div>
-                @if($video->{'360_video'})
-                <div class="w-full px-3 mt-12" id="360_video_field">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="360_video">
-                        {{ trans("videos.video 360") }}
+                <div class="w-full mt-12">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('general.tags') }}
                     </label>
-                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;" onclick="window.location.href='{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}';">
-                    {{ $video->{'360_video'} }}
+                    <div>
+                        
+                        {{ !empty($video->tags) ? implode(', ', $video->tags) : '' }}
+                    </div>
+                </div>
+                @if(!empty($video->related))
+                <div class="w-full mt-12">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="related">
+                        {{ trans("videos.related") }}
+                    </label>
+                    <div class="flex relative w-64">
+                        <select name="related[]" class="form_select" multiple size='8' id="related">
+                            @foreach ($published_videos->whereIn('id', $video->related) as $v)
+                            <option selected value="{{ $v->id }}">{{ $v->title }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
                 @endif
-
+                @if($video->{'360_video'})
+                <div class="w-full mt-12" id="360_video_field">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="360_video">
+                        {{ trans("videos.video 360") }}
+                    </label>
+                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;" onclick="window.location.href='{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}';">
+                        {{ $video->{'360_video'} }}
+                    </div>
+                </div>
+                @endif
+                <div class="w-full mt-12">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans("general.image") }}
+                    </label>
+                    @if (isset($video) && !empty($video->image))
+                    <img src="{{ $video->image->url }}" title="{{ $video->image->name }}" />
+                    @endif
+                </div>
 
                 @if(!$video->{'360_video'})
                 <div class="w-full mt-12">
@@ -60,6 +90,26 @@
             </div>
 
             <aside class="basis-1/3 border-l p-6">
+                <div class="aside_info mt-8">
+                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('videos.Category') }}
+                    </label>
+                    <span >{{ $video->category->title }}</span>
+                </div>
+                <div class="aside_info mt-8">
+                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('videos.Model') }}
+                    </label>
+                    <span>{{ $video->model->title }}</span>
+                </div>
+                <div class="aside_info mt-8">
+                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('videos.vod') }}
+                    </label>
+                    <div >
+                        {{ $video->vod == 1 ? 'True' : 'False' }}
+</div>
+                </div>
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('general.status') }}
