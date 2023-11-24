@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\VideoStatus;
+use App\Enums\VideosStatus;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Meride\Api;
 use Illuminate\Support\Facades\Log;
@@ -46,6 +47,10 @@ class CarModel extends Model
     public function parentCategory()
     {
         return $this->belongsTo(CarModel::class, 'parent_id');
+    }
+    public function isPublished()
+    {
+        return $this->status == VideosStatus::PUBLISHED->value;
     }
     public function get_meride_video()
     {

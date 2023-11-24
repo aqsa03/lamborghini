@@ -59,7 +59,7 @@
                 <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $model->title ?? '') }}" required maxlength="255" />
             </div>
             <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="is_360">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="type">
                     {{ trans("videos.type") }}
                 </label>
                 <select name="type" class="form_select" required id="type">
@@ -107,25 +107,20 @@
                 <input type="file" name="qr_code" accept="image/png, image/jpeg, image/webp" />
                 <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
             </div>
-            @if(empty($model->pre_existing_video_id))
             <div class="w-full md:w-1/2 px-3 mt-12" id="video" style="display:block;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                     {{ trans("general.preview video") }}
                 </label>
-
                 @include('videos.render', ['entity' => $model ?? null, 'preview' => true])
-
                 <div id="drag-drop-area-preview"></div>
-
             </div>
-            @endif
             <div class="w-full px-3 mt-12">
                 <div class="basis-1/2">
                     @if (!isset($model) or $model?->status != App\Enums\ModelStatus::PUBLISHED->value)
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
                     @endif
                 </div>
-                @if (isset($model) and $model->canPublish() and (!$video->isPublished()))
+                @if (isset($model) and $model->canPublish() and (!$model->isPublished()))
                 <div class="basis-1/2 text-right">
                     <button id="publish-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" type="submit">{{ trans("general.Publish") }}</button>
                 </div>

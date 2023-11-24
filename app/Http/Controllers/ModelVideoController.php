@@ -111,14 +111,15 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
-        if ($validatedFields['type'] === 'IS_360') {
+        if ($validatedFields['type'] === 'EXT_VIEW') {
             if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
                 $validatedFields['image_id'] = $image->id;
             }
-            $validatedFields['is_360'] = 1;
+            $validatedFields['ext_view'] = 1;
             $validatedFields['video_id'] = null;
             $validatedFields['video_preview_id'] = null;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
@@ -160,8 +161,9 @@ class ModelVideoController extends Controller
                 $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             }
 
-            $validatedFields['is_360'] = 0;
+            $validatedFields['ext_view'] = 0;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
@@ -180,6 +182,7 @@ class ModelVideoController extends Controller
                 $validatedFields['video_preview_id'] = $video_preview->id;
             }
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
                 $validatedFields['published_at'] = date('Y-m-d H:i:s');
@@ -254,14 +257,15 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Update Video Controller');
         $validatedFields = $request->validated();
-        if ($validatedFields['type'] === 'IS_360') {
+        if ($validatedFields['type'] === 'EXT_VIEW') {
             if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
                 $validatedFields['image_id'] = $image->id;
             }
-            $validatedFields['is_360'] = 1;
+            $validatedFields['ext_view'] = 1;
             $validatedFields['video_id'] = null;
             $validatedFields['video_preview_id'] = null;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
@@ -303,8 +307,9 @@ class ModelVideoController extends Controller
                 $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             }
 
-            $validatedFields['is_360'] = 0;
+            $validatedFields['ext_view'] = 0;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
@@ -324,6 +329,7 @@ class ModelVideoController extends Controller
                 $validatedFields['video_preview_id'] = $video_preview->id;
             }
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
             $validatedFields['related'] = $validatedFields['related'] ?? [];
             if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
                 $validatedFields['published_at'] = date('Y-m-d H:i:s');
