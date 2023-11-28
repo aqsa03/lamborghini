@@ -42,7 +42,8 @@
                     {{ trans("general.category") }}
                 </label>
                 <div class="inline-block relative w-64">
-                    <select id="category_id" name="category_id" class="form_select" required>
+                    <select id="category_id" name="category_id" class="form_select">
+                    <option disbaled value="">{{ trans("general.choose category") }}</option>
                         @foreach ($categories as $category)
                         <option {{ old("category_id", $video->category_id ?? '') == $category->id ? 'selected' : '' }} value="{{ $category->id }}">{{ $category->title }}</option>
                         @endforeach
@@ -54,7 +55,8 @@
                     {{ trans("model.Model") }}
                 </label>
                 <div class="inline-block relative w-64">
-                    <select id="model_id" name="model_id" class="form_select" required>
+                    <select id="model_id" name="model_id" class="form_select">
+                    <option disbaled value="">{{ trans("general.choose model") }}</option>
                         @foreach ($models as $model)
                         <option {{ old("model_id", $video->model_id ?? '') == $model->id ? 'selected' : '' }} value="{{ $model->id }}">{{ $model->title }}</option>
                         @endforeach
@@ -83,22 +85,46 @@
                 </select>
             </div>
             <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="is_360">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="vod">
+                    {{ trans("videos.product video") }}
+                </label>
+                <select name="product_video" class="form_select" required>
+                    <option {{ strtolower(old("product_video", $video->product_video ?? '')) == '0' ? 'selected' : '' }} value="0">No</option>
+                    <option {{ strtolower(old("product_video", $video->product_video ?? '')) == '1' ? 'selected' : '' }} value="1">Si</option>
+                </select>
+            </div>
+            <div class="w-full px-3 mt-12">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="subtitles">
+                    {{ trans("videos.subtitles") }}
+                </label>
+                <select name="subtitles" class="form_select" required>
+                    <option {{ strtolower(old("subtitles", $video->subtitles ?? '')) == '0' ? 'selected' : '' }} value="0">No</option>
+                    <option {{ strtolower(old("subtitles", $video->subtitles ?? '')) == '1' ? 'selected' : '' }} value="1">Si</option>
+                </select>
+            </div>
+            <div class="w-full px-3 mt-12">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="type">
                     {{ trans("videos.type") }}
                 </label>
                 <select name="type" class="form_select" id="type">
                     <option value=""  {{ old("type", $video->type ?? '') == '' ? 'selected' : '' }}>
                         {{ trans("general.select_video_type") }}
                     </option>
-                    <option value="IS_360" {{ old("type", $video->type ?? '0') == 'IS_360' ? 'selected' : '' }}>360</option>
+                    <option value="EXT_VIEW" {{ old("type", $video->type ?? '0') == 'EXT_VIEW' ? 'selected' : '' }}>ext_view</option>
                     <option value="PRE_EXISTING" {{ old("type", $video->type ?? '0') == 'PRE_EXISTING' ? 'selected' : '' }}>Pre-existing</option>
                 </select>
             </div>
-            <div class="w-full px-3 mt-12" id="360_video_field" style="display:none;">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="360_video">
-                    {{ trans("videos.video 360") }}
+            <div class="w-full px-3 mt-12" id="ext_view_url_field" style="display:none;">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ext_view_url">
+                    {{ trans("videos.ext_view_url") }}
                 </label>
-                <input class="form_input" type="text" name="360_video" id="360_video" placeholder="{{ trans("videos.video 360") }}" required value="{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}" />
+                <input class="form_input" type="text" name="ext_view_url" id="ext_view_url" placeholder="{{ trans("videos.ext_view_url") }}" required value="{{ old("ext_view_url", $video->ext_view_url ?? '') }}" />
+            </div>
+            <div class="w-full px-3 mt-12" id="thumb_num_container" style="display:none;">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
+                    {{ trans("videos.thumb_num") }}
+                </label>
+                <input class="form_input" type="text" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->{'thumb_num'} ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
@@ -118,6 +144,12 @@
                     {{ trans("general.tags") }}
                 </label>
                 <input class="form_input" value="{{ old("tags", (isset($video) && !empty($video->tags)) ? implode(', ', $video->tags) : '') }}" type="text" name="tags" placeholder="{{ trans("general.comma separated tags") }}" />
+            </div>
+            <div class="w-full px-3 mt-12">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
+                    {{ trans("general.models") }}
+                </label>
+                <input class="form_input" value="{{ old("models", (isset($video) && !empty($video->models)) ? implode(', ', $video->models) : '') }}" type="text" name="models" placeholder="{{ trans("general.comma separated models") }}" />
             </div>
 
             <div class="w-full md:w-1/2 px-3 mt-12">
@@ -152,7 +184,7 @@
                 <input type="file" name="image" accept="image/png, image/jpeg, image/webp" />
                 <p><i>{{ trans("general.peso massimo immagine") }} {{ ini_get('upload_max_filesize') }}</i></p>
             </div>
-            @if($video?->type != App\Enums\VideoType::VIDEO_360->value)
+            @if($video?->type != App\Enums\VideoType::EXT_VIEW->value)
             <div class="w-full md:w-1/2 px-3 mt-12" id="preview_video" style="display:block;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                     {{ trans("general.preview video") }}
@@ -212,43 +244,56 @@
             }
         });
         const istypeSelect = document.getElementById('type');
-        const video360Field = document.getElementById('360_video_field');
+        const video360Field = document.getElementById('ext_view_url_field');
+        console.log("------------------>",video360Field);
+        const thumb_num_container = document.getElementById('thumb_num_container');
+        const thumb_num = document.getElementById('thumb_num');
         const preview_video = document.getElementById('preview_video');
         const main_video = document.getElementById('main_video');
-        const video360Input = document.getElementById('360_video');
+        const video360Input = document.getElementById('ext_view_url');
+        console.log("------------------>",video360Input);
         const preExisting = document.getElementById('pre-existing');
-        if (istypeSelect.value === 'IS_360') {
+        if (istypeSelect.value === 'EXT_VIEW') {
             video360Field.style.display = 'block';
+            thumb_num_container.style.display='block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
             video360Input.setAttribute('required', 'required');
+            thumb_num.setAttribute('required','required');
         } else if (istypeSelect.value === 'PRE_EXISTING') {
             preExisting.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
         } else {
             video360Field.style.display = 'none';
+            thumb_num_container.style.display='none';
             video360Input.removeAttribute('required');
+            thumb_num.removeAttribute('required');
         }
         istypeSelect.addEventListener('change', function() {
-            if (this.value === 'IS_360') {
+            if (this.value === 'EXT_VIEW') {
                 video360Field.style.display = 'block';
+                thumb_num_container.style.display='block';
                 preview_video.style.display = 'none';
                 main_video.style.display = 'none';
                 preExisting.style.display = 'none';
                 video360Input.setAttribute('required', 'required');
+                thumb_num.setAttribute('required','required');
             } else if (istypeSelect.value === 'PRE_EXISTING') {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'block';
                 preview_video.style.display = 'none';
+                thumb_num_container.style.display='none';
                 main_video.style.display = 'none';
             } else {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'none';
+                thumb_num_container.style.display='none';
                 preview_video.style.display = 'block';
                 main_video.style.display = 'block';
                 video360Input.value = null;
                 video360Input.removeAttribute('required');
+                thumb_num.removeAttribute('required');
             }
         });
         const createForm = document.getElementById("video-form");

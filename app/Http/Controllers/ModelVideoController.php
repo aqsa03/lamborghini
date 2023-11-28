@@ -158,9 +158,9 @@ class ModelVideoController extends Controller
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
                 $validatedFields['video_preview_id'] = $created_video->id;
-                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+               
             }
-
+            $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
             $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
             $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));

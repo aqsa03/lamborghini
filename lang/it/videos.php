@@ -10,7 +10,10 @@ return [
     'related' => 'correlati',
     'vod' => 'vod',
     'type'=>'tipo',
-    'video 360'=>'video 360',
+    'ext_view_url'=>'ext_view_url',
+    'thumb_num'=>'thumb_num',
+    'product video'=>'video prodotto',
+    'subtitles'=>'sottotitoli',
     'pre-existing videos'=>'video preesistenti',
     'Back to all videos'=>'Back to all Videos',
 ];

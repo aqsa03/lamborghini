@@ -24,7 +24,7 @@ class ModelVideo extends Model
         'tags',
         'related',
         'type',
-        '360_video',
+        'ext_view_url',
         'vod',
         'published_at',
         'image_id',
@@ -33,6 +33,10 @@ class ModelVideo extends Model
         'model_id',
         'category_id',
         'pre_existing_video_id',
+        'thumb_num',
+        'models',
+        'product_video',
+        'subtitles'
     ];
     public function model()
     {
@@ -86,6 +90,19 @@ class ModelVideo extends Model
      * @return \Illuminate\Database\Eloquent\Casts\Attribute
      */
     protected function tags(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => json_decode($value),
+            set: fn ($value) => json_encode($value),
+        );
+    }
+    
+     /**
+     * Interact with the video's models
+     *
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     */
+    protected function models(): Attribute
     {
         return Attribute::make(
             get: fn ($value) => json_decode($value),

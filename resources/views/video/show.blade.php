@@ -36,7 +36,7 @@
                         {{ trans('general.tags') }}
                     </label>
                     <div>
-                        
+
                         {{ !empty($video->tags) ? implode(', ', $video->tags) : '' }}
                     </div>
                 </div>
@@ -54,13 +54,21 @@
                     </div>
                 </div>
                 @endif
-                @if($video->{'360_video'})
-                <div class="w-full mt-12" id="360_video_field">
-                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="360_video">
-                        {{ trans("videos.video 360") }}
+                @if($video->ext_view_url)
+                <div class="w-full mt-12" id="ext_view_url_field">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ext_view_url">
+                        {{ trans("videos.ext_view_url") }}
                     </label>
-                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;" onclick="window.location.href='{{ old("{'360_video'}", $video->{'360_video'} ?? '') }}';">
-                        {{ $video->{'360_video'} }}
+                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;" onclick="window.location.href='{{ old("{'ext_view_url'}", $video->ext_view_url ?? '') }}';">
+                        {{ $video->ext_view_url }}
+                    </div>
+                </div>
+                <div class="w-full mt-12" id="thumb_num">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
+                        {{ trans("videos.thumb_num") }}
+                    </label>
+                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;" onclick="window.location.href='{{ old("{'thumb_num'}", $video->thumb_num ?? '') }}';">
+                        {{ $video->thumb_num }}
                     </div>
                 </div>
                 @endif
@@ -73,7 +81,7 @@
                     @endif
                 </div>
 
-                @if(!$video->{'360_video'})
+                @if(!$video->ext_view_url)
                 <div class="w-full mt-12">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('general.preview video') }}
@@ -94,22 +102,39 @@
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('videos.Category') }}
                     </label>
-                    <span >{{ $video->category->title }}</span>
+                    <span>{{ $video->category->title ?? '' }}</span>
                 </div>
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('videos.Model') }}
                     </label>
-                    <span>{{ $video->model->title }}</span>
+                    <span>{{ $video->model->title ?? '' }}</span>
                 </div>
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('videos.vod') }}
                     </label>
-                    <div >
+                    <div>
                         {{ $video->vod == 1 ? 'True' : 'False' }}
-</div>
+                    </div>
                 </div>
+                <div class="aside_info mt-8">
+                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('videos.product video') }}
+                    </label>
+                    <div>
+                        {{ $video->product_video == 1 ? 'True' : 'False' }}
+                    </div>
+                </div>
+                <div class="aside_info mt-8">
+                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                        {{ trans('videos.subtitles') }}
+                    </label>
+                    <div>
+                        {{ $video->subtitles == 1 ? 'True' : 'False' }}
+                    </div>
+                </div>
+                
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('general.status') }}

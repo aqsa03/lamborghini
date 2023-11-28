@@ -73,8 +73,9 @@ class PushModelVideoToFirebase implements ShouldQueue
            $this->pre_existing= $this->video->get_meride_video();
         }
         $data = [
-            '360' => $this->video->type=='IS_360' ?true:false,
-            '360_video'=>$this->video->{'360_video'},
+            'ext_view' => $this->video->type=='EXT_VIEW' ?true:false,
+            'ext_view_url'=>$this->video->{'ext_view_url'},
+            'thumb_num'=>$this->video->thumb_num,
             'category' => $this->video->category_id ? $db->collection('categories')->document($this->video->category_id) : null,
             'category_id'=>$this->video->category_id,
             'description'=>$this->video->description,
@@ -98,7 +99,7 @@ class PushModelVideoToFirebase implements ShouldQueue
                     'url' => $this->video->image->url.(($rule = config('image.imagePosterManagerResizingQueryString.xl', false)) ? '?'.$rule : '')
                 ]
             ] : null,
-            'model'=>$this->video->model_id ? $db->collection('carModel')->document($this->video->model_id) : null,
+            'model'=>$this->video->model_id ? $db->collection('models')->document($this->video->model_id) : null,
             'model_id'=>$this->video->model_id,
             'published_date'=>$this->video->published_at ? new Timestamp(new \DateTime($this->video->published_at)) : null,
             'related' => !empty($this->video->related) ? array_map(fn ($id) => [
@@ -106,18 +107,19 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'ref' => $db->collection('video')->document($id)
             ], $this->video->related) : null,
             'tags' => $this->video->tags,
+            'models' => $this->video->models,
             'title' => $this->video->title, 
-            'video' =>  $this->pre_existing? [
-                'url' => $this->pre_existing->url,
+            'video' => $this->pre_existing ? [
+                'url' => $this->getVideoUrl($this->pre_existing->url,$this->pre_existing->meride_embed_id),
                 'url_mp4' => $this->pre_existing->url_mp4,
                 'width' => $this->pre_existing->source_width,
                 'height' => $this->pre_existing->source_height,
                 'public' => $this->pre_existing->public ? true : false,
                 'podcast' => $this->pre_existing->podcast ? true : false,
                 'meride_embed_id' => $this->pre_existing->meride_embed_id,
-                'duration' => $this->pre_existing->duration,]:
-            (($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
-                'url' => $this->video->video->url,
+                'duration' => $this->pre_existing->duration,
+            ] : (($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
+                'url' => $this->getVideoUrl($this->video->video->url, $this->video->video->meride_embed_id),
                 'url_mp4' => $this->video->video->url_mp4,
                 'width' => $this->video->video->source_width,
                 'height' => $this->video->video->source_height,
@@ -126,7 +128,9 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'meride_embed_id' => $this->video->video->meride_embed_id,
                 'duration' => $this->video->video->duration,
             ] : null),
-            'vod'=>$this->video->vod?true:false
+            'vod'=>$this->video->vod?true:false,
+            'product_video'=>$this->video->product_video?true:false,
+            'subtitles'=>$this->video->subtitles?true:false
 
         ];
         Log::info('Video to save in Firestore:', $data);
@@ -134,4 +138,16 @@ class PushModelVideoToFirebase implements ShouldQueue
         Log::info('Successfully stored Video in Firestore');
 
     }
+    protected function getVideoUrl($url, $embedId = null)
+    {
+        // dd($url,$this->video->subtitles,$embedId);
+        if ($this->video->subtitles) {
+            // Add the embed_id to the video URL if subtitles are true
+            $embedIdSuffix = $embedId ? '_' . $embedId : null;
+            // dd($embedIdSuffix);
+            $url = $embedIdSuffix?preg_replace('/\.m3u8$/', $embedIdSuffix . '.m3u8', $url):$url;
+        }
+        return $url;
+    }
+    
 }
