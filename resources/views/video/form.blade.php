@@ -245,13 +245,11 @@
         });
         const istypeSelect = document.getElementById('type');
         const video360Field = document.getElementById('ext_view_url_field');
-        console.log("------------------>",video360Field);
         const thumb_num_container = document.getElementById('thumb_num_container');
         const thumb_num = document.getElementById('thumb_num');
         const preview_video = document.getElementById('preview_video');
         const main_video = document.getElementById('main_video');
         const video360Input = document.getElementById('ext_view_url');
-        console.log("------------------>",video360Input);
         const preExisting = document.getElementById('pre-existing');
         if (istypeSelect.value === 'EXT_VIEW') {
             video360Field.style.display = 'block';
@@ -264,6 +262,8 @@
             preExisting.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
+            video360Field.style.display = 'none';
+            thumb_num_container.style.display='none';
         } else {
             video360Field.style.display = 'none';
             thumb_num_container.style.display='none';
@@ -285,6 +285,9 @@
                 preview_video.style.display = 'none';
                 thumb_num_container.style.display='none';
                 main_video.style.display = 'none';
+                video360Input.value = null;
+                video360Input.removeAttribute('required');
+                thumb_num.removeAttribute('required');
             } else {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'none';
