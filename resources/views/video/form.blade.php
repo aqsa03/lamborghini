@@ -210,8 +210,10 @@
 
             <div class="w-full px-3 mt-12">
                 <div class="basis-1/2">
-                    @if (!isset($video) or $video?->status != App\Enums\VideosStatus::PUBLISHED->value)
+                @if (!isset($video) or $video?->status != App\Enums\VideosStatus::PUBLISHED->value)
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
+                    @elseif($video?->status==App\Enums\ModelStatus::PUBLISHED->value)
+                    <button id="save-button" class="btn_save" type="submit">{{ trans("general.save") }}</button>
                     @endif
                 </div>
                 @if (isset($video) and $video->canPublish() and (!$video->isPublished()))
@@ -264,6 +266,8 @@
             main_video.style.display = 'none';
             video360Field.style.display = 'none';
             thumb_num_container.style.display='none';
+            video360Input.removeAttribute('required');
+            thumb_num.removeAttribute('required');
         } else {
             video360Field.style.display = 'none';
             thumb_num_container.style.display='none';

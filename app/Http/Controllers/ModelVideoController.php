@@ -62,7 +62,7 @@ class ModelVideoController extends Controller
             return redirect()->route('videos.index')->with('error', 'No model is present. Please insert at least one.');
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-        $videoResponse = $merideApi->get('video',null);
+        $videoResponse = $merideApi->get('video', null);
         $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
@@ -111,25 +111,16 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
+        if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
+            $validatedFields['image_id'] = $image->id;
+        }
         if ($validatedFields['type'] === 'EXT_VIEW') {
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
             $validatedFields['ext_view'] = 1;
             $validatedFields['video_id'] = null;
             $validatedFields['video_preview_id'] = null;
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
         } else if ($validatedFields['type'] === 'PRE_EXISTING') {
             $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
@@ -158,22 +149,14 @@ class ModelVideoController extends Controller
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
                 $validatedFields['video_preview_id'] = $created_video->id;
-               
             }
+            $validatedFields['video_id'] = $video->id;
+            $validatedFields['video_preview_id'] = $video->id;
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
         } else if (!$validatedFields['type']) {
             $validatedFields['type'] = VideoType::NEW->value;
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
             if ($video = Video::createFromRequest($request, $image, preview: true)) {
                 $validatedFields['video_id'] = $video->id;
             }
@@ -181,12 +164,12 @@ class ModelVideoController extends Controller
             if ($video_preview = Video::createFromRequest($request, $image, preview: true)) {
                 $validatedFields['video_preview_id'] = $video_preview->id;
             }
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
+        }
+        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+        $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
+        $validatedFields['related'] = $validatedFields['related'] ?? [];
+        if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
+            $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
 
         Log::info('Video to create:', $validatedFields);
@@ -257,26 +240,18 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Update Video Controller');
         $validatedFields = $request->validated();
+        if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
+            $validatedFields['image_id'] = $image->id;
+        }
         if ($validatedFields['type'] === 'EXT_VIEW') {
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
             $validatedFields['ext_view'] = 1;
             $validatedFields['video_id'] = null;
             $validatedFields['video_preview_id'] = null;
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
         } else if ($validatedFields['type'] === 'PRE_EXISTING') {
-            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
-            if (!$video) {
+            $existing_video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            if (!$existing_video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
                 $embed = $merideApi->create('embed', [
@@ -304,22 +279,14 @@ class ModelVideoController extends Controller
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
                 $validatedFields['video_preview_id'] = $created_video->id;
-                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            } else {
+                $validatedFields['video_id'] = $existing_video->id;
+                $validatedFields['video_preview_id'] = $existing_video->id;
             }
-
             $validatedFields['ext_view'] = 0;
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
         } else if (!$validatedFields['type']) {
             $validatedFields['type'] = VideoType::NEW->value;
-            if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
-                $validatedFields['image_id'] = $image->id;
-            }
             if ($main_video = Video::createFromRequest($request, $image, preview: true)) {
                 //TODO rimuovi vecchio video se c'è
                 $validatedFields['video_id'] = $main_video->id;
@@ -328,12 +295,12 @@ class ModelVideoController extends Controller
                 //TODO rimuovi vecchio video se c'è
                 $validatedFields['video_preview_id'] = $video_preview->id;
             }
-            $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-            $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
-            $validatedFields['related'] = $validatedFields['related'] ?? [];
-            if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
-                $validatedFields['published_at'] = date('Y-m-d H:i:s');
-            }
+        }
+        $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
+        $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
+        $validatedFields['related'] = $validatedFields['related'] ?? [];
+        if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
+            $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
         Log::info('Video data to update:', $validatedFields);
         $video->update($validatedFields);

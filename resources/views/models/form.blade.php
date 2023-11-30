@@ -116,8 +116,10 @@
             </div>
             <div class="w-full px-3 mt-12">
                 <div class="basis-1/2">
-                    @if (!isset($model) or $model?->status != App\Enums\ModelStatus::PUBLISHED->value)
+                    @if ($model?->status != App\Enums\ModelStatus::PUBLISHED->value)
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
+                    @elseif($model?->status==App\Enums\ModelStatus::PUBLISHED->value)
+                    <button id="save-button" class="btn_save" type="submit">{{ trans("general.save") }}</button>
                     @endif
                 </div>
                 @if (isset($model) and $model->canPublish() and (!$model->isPublished()))
