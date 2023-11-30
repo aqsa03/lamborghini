@@ -76,16 +76,7 @@
                 <textarea rows="3" name="description" placeholder="{{ trans("general.description") }}" class="form_input">{{ old("description", $video->description ?? '') }}</textarea>
             </div>
             <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="vod">
-                    {{ trans("videos.vod") }}
-                </label>
-                <select name="vod" class="form_select" required>
-                    <option {{ strtolower(old("vod", $video->vod ?? '')) == '0' ? 'selected' : '' }} value="0">No</option>
-                    <option {{ strtolower(old("vod", $video->vod ?? '')) == '1' ? 'selected' : '' }} value="1">Si</option>
-                </select>
-            </div>
-            <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="vod">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="product_video">
                     {{ trans("videos.product video") }}
                 </label>
                 <select name="product_video" class="form_select" required>

@@ -37,7 +37,6 @@ class StoreVideoRequest extends FormRequest
             'tags' => 'nullable|string',
             'models' => 'nullable|string',
             'related' => 'nullable',
-            'vod' => 'boolean',
             'product_video' => 'boolean',
             'subtitles' => 'boolean',
             'ext_view' => 'boolean', 

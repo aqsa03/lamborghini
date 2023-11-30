@@ -112,14 +112,6 @@
                 </div>
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                        {{ trans('videos.vod') }}
-                    </label>
-                    <div>
-                        {{ $video->vod == 1 ? 'True' : 'False' }}
-                    </div>
-                </div>
-                <div class="aside_info mt-8">
-                    <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('videos.product video') }}
                     </label>
                     <div>

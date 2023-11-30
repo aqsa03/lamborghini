@@ -8,7 +8,6 @@ return [
     'Model' => 'modello',
     'Category'=>'Categoria',
     'related' => 'correlati',
-    'vod' => 'vod',
     'type'=>'tipo',
     'ext_view_url'=>'ext_view_url',
     'thumb_num'=>'thumb_num',

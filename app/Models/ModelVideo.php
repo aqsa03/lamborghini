@@ -25,7 +25,6 @@ class ModelVideo extends Model
         'related',
         'type',
         'ext_view_url',
-        'vod',
         'published_at',
         'image_id',
         'video_id',

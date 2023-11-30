@@ -128,7 +128,6 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'meride_embed_id' => $this->video->video->meride_embed_id,
                 'duration' => $this->video->video->duration,
             ] : null),
-            'vod'=>$this->video->vod?true:false,
             'product_video'=>$this->video->product_video?true:false,
             'subtitles'=>$this->video->subtitles?true:false
 
