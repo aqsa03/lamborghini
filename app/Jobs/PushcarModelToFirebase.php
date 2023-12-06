@@ -137,6 +137,10 @@ class PushcarModelToFirebase implements ShouldQueue
                 'meride_embed_id' => $this->model->videoPreview->meride_embed_id,
                 'duration' => $this->model->videoPreview->duration,
             ] : null),
+            'ce_model' => !empty($this->model->ce_model) ? array_map(fn ($id) => [
+                'model_id' => (int) $id,
+                'ref' => $db->collection('models')->document($id)
+            ], $this->model->ce_model) : null,
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];

@@ -5,4 +5,5 @@ return [
     'New model' => 'New model',
     'Models' => 'Models',
     'Model' => 'Model',
+    'ce_model'=>'ce_model',
 ];

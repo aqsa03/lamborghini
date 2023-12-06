@@ -30,7 +30,7 @@ class CarModelController extends Controller
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-        $videoResponse = $merideApi->get('video',null);
+        $videoResponse = $merideApi->get('embed');
         $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
@@ -39,7 +39,7 @@ class CarModelController extends Controller
         $meridePreExisting = [];
 
         for ($page = 1; $page <= $total_pages; $page++) {
-            $merideLives = $merideApi->all('video', [
+            $merideLives = $merideApi->all('embed', [
                 'sort' => $sortingCriteria,
                 'search_page' => $page,
             ]);
@@ -63,6 +63,7 @@ class CarModelController extends Controller
             'models' => $models,
             'model' => null,
             'meridePreExisting' => $meridePreExisting,
+            'published_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -78,32 +79,25 @@ class CarModelController extends Controller
         }
         $validatedFields['type'] = $validatedFields['type'] ? $validatedFields['type'] : ModelType::NEW->value;
         if ($validatedFields['meride_video_id']) {
-            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            $video = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-                $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
-                $embed = $merideApi->create('embed', [
-                    'video_id' => $validatedFields['meride_video_id'],
-                    'title' => $videoResponse->title,
-                    'url' => $videoResponse->url_video,
-                    'url_mp4' => $videoResponse->url_video_mp4,
-                    'image_preview_url' => $videoResponse->preview_image,
-                ]);
+                $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
-                    'source_url' =>  $videoResponse->url_video,
-                    'image_source_url' => $imagePoster ? $imagePoster->url : null,
+                    'source_url' =>  $videoResponse->video->url_video,
+                    'image_source_url' => $image?$image->url:null,
                     'public' => true,
                     'podcast' => false,
-                    'source_width' => $validatedFields['video_width'],
-                    'source_height' => $validatedFields['video_height'],
-                    'duration' => $videoResponse->duration ?? null,
-                    'url' => $videoResponse->url_video,
-                    'url_mp4' => $videoResponse->url_video_mp4,
-                    'image_preview_url' => $videoResponse->preview_image,
+                    'source_width' => $videoResponse->width,
+                    'source_height' =>$videoResponse->height,
+                    'duration' => $videoResponse->video->duration??null,
+                    'url' => $videoResponse->video->url_video??null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
+                    'image_preview_url' => $videoResponse->video->preview_image??null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->id,
-                    'meride_embed_id' => $embed->public_id ?? $embed->id,
+                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
             } else {
@@ -111,11 +105,12 @@ class CarModelController extends Controller
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['status'] = ModelStatus::PUBLISHED->value;
+           
         } else if ($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)) {
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
-
+        $validatedFields['ce_model'] = $validatedFields['ce_model'] ?? [];
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
@@ -130,7 +125,7 @@ class CarModelController extends Controller
     {
         $models = CarModel::latest()->whereNull('parent_id')->get();
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-        $videoResponse = $merideApi->get('video',null);
+        $videoResponse = $merideApi->get('embed');
         $total_pages = $videoResponse->last_page;
         $sortingCriteria = [
             'field' => 'id',
@@ -139,7 +134,7 @@ class CarModelController extends Controller
         $meridePreExisting = [];
 
         for ($page = 1; $page <= $total_pages; $page++) {
-            $merideLives = $merideApi->all('video', [
+            $merideLives = $merideApi->all('embed', [
                 'sort' => $sortingCriteria,
                 'search_page' => $page,
             ]);
@@ -163,6 +158,7 @@ class CarModelController extends Controller
             'models' => $models,
             'tusToken' => $token,
             'meridePreExisting' => $meridePreExisting,
+            'published_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -185,37 +181,34 @@ class CarModelController extends Controller
         }
         $validatedFields['type'] = ModelType::NEW->value;
         if ($validatedFields['meride_video_id']) {
-            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            $video = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-                $videoResponse = $merideApi->get('video', $validatedFields['meride_video_id']);
-                $embed = $merideApi->create('embed', [
-                    'video_id' => $validatedFields['meride_video_id'],
-                    'title' => $videoResponse->title,
-                    'url' => $videoResponse->url_video,
-                    'url_mp4' => $videoResponse->url_video_mp4,
-                    'image_preview_url' => $videoResponse->preview_image,
-                ]);
+                $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
-                    'source_url' =>  $videoResponse->url_video,
-                    'image_source_url' => $imagePoster ? $imagePoster->url : null,
+                    'source_url' =>  $videoResponse->video->url_video,
+                    'image_source_url' => $image?$image->url:null,
                     'public' => true,
                     'podcast' => false,
-                    'source_width' => $validatedFields['video_width'],
-                    'source_height' => $validatedFields['video_height'],
-                    'duration' => $videoResponse->duration ?? null,
-                    'url' => $videoResponse->url_video,
-                    'url_mp4' => $videoResponse->url_video_mp4,
-                    'image_preview_url' => $videoResponse->preview_image,
+                    'source_width' => $videoResponse->width,
+                    'source_height' =>$videoResponse->height,
+                    'duration' => $videoResponse->video->duration??null,
+                    'url' => $videoResponse->video->url_video??null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
+                    'image_preview_url' => $videoResponse->video->preview_image??null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->id,
-                    'meride_embed_id' => $embed->public_id ?? $embed->id,
+                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
-                $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+            }
+            else{
+                $validatedFields['video_preview_id'] = $video->id;
             }
         }
+        $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
+        $validatedFields['ce_model'] = $validatedFields['ce_model'] ?? [];
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

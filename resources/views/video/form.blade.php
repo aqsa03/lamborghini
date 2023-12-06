@@ -114,7 +114,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
                     {{ trans("videos.thumb_num") }}
                 </label>
-                <input class="form_input" type="text" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->{'thumb_num'} ?? '') }}" />
+                <input class="form_input" type="text" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
@@ -124,6 +124,9 @@
                     <input list="pre_existing_videos" name="pre_existing_video_id" class="form_select" id="pre_existing_video_id">
                     <datalist id="pre_existing_videos">
                         @foreach($meridePreExisting as $result)
+                        @if($result->video==null)
+                        @continue
+                        @endif
                         <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->video?->url_video_mp4 }}">
                             @endforeach
                     </datalist>

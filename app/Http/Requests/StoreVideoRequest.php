@@ -41,7 +41,7 @@ class StoreVideoRequest extends FormRequest
             'subtitles' => 'boolean',
             'ext_view' => 'boolean', 
             'ext_view_url'=>'nullable|string',
-            'thumb_num'=>'nullable|string',
+            'thumb_num'=>'nullable|numeric',
             'type'=>'nullable|string',
             'video_width' => 'nullable|numeric',
             'video_height' => 'nullable|numeric',

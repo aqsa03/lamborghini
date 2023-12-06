@@ -117,7 +117,7 @@ class ModelVideoController extends Controller
             $validatedFields['video_preview_id'] = null;
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
         } else if ($validatedFields['type'] === 'PRE_EXISTING') {
-            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            $video = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
@@ -237,7 +237,7 @@ class ModelVideoController extends Controller
             $validatedFields['video_preview_id'] = null;
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
         } else if ($validatedFields['type'] === 'PRE_EXISTING') {
-            $video = Video::where('meride_video_id', '=', $validatedFields['meride_video_id'])->first();
+            $video = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
