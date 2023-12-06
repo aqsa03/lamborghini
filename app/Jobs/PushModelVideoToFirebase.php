@@ -68,10 +68,6 @@ class PushModelVideoToFirebase implements ShouldQueue
             Log::info('Video not published yet');
             throw new \Exception('unable to push unpublished video to firebase');
         }
-        if($this->video->type=='PRE_EXISTING')
-        {
-           $this->pre_existing= $this->video->get_meride_video();
-        }
         $data = [
             'ext_view' => $this->video->type=='EXT_VIEW' ?true:false,
             'ext_view_url'=>$this->video->{'ext_view_url'},
@@ -109,16 +105,7 @@ class PushModelVideoToFirebase implements ShouldQueue
             'tags' => $this->video->tags,
             'models' => $this->video->models,
             'title' => $this->video->title, 
-            'video' => $this->pre_existing ? [
-                'url' => $this->getVideoUrl($this->pre_existing->url,$this->pre_existing->meride_embed_id),
-                'url_mp4' => $this->pre_existing->url_mp4,
-                'width' => $this->pre_existing->source_width,
-                'height' => $this->pre_existing->source_height,
-                'public' => $this->pre_existing->public ? true : false,
-                'podcast' => $this->pre_existing->podcast ? true : false,
-                'meride_embed_id' => $this->pre_existing->meride_embed_id,
-                'duration' => $this->pre_existing->duration,
-            ] : (($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
+            'video' => ($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
                 'url' => $this->getVideoUrl($this->video->video->url, $this->video->video->meride_embed_id),
                 'url_mp4' => $this->video->video->url_mp4,
                 'width' => $this->video->video->source_width,
@@ -127,9 +114,10 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'podcast' => $this->video->video->podcast ? true : false,
                 'meride_embed_id' => $this->video->video->meride_embed_id,
                 'duration' => $this->video->video->duration,
-            ] : null),
+            ]:null,
             'product_video'=>$this->video->product_video?true:false,
-            'subtitles'=>$this->video->subtitles?true:false
+            'subtitles'=>$this->video->subtitles?true:false,
+            'ce_text'=>$this->video->ce_text,
 
         ];
         Log::info('Video to save in Firestore:', $data);

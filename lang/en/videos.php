@@ -14,5 +14,6 @@ return [
     'product video'=>'product video',
     'subtitles'=>'subtitles',
     'pre-existing videos'=>'pre-existing videos',
-    'Back to all videos'=>'Torna a tutti i Video'
+    'Back to all videos'=>'Torna a tutti i Video',
+    'ce_text'=>'ce_text',
 ];

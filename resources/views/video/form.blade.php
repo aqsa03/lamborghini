@@ -12,7 +12,6 @@
 @endpush
 
 <x-layouts.panel_layout>
-
     <div class="body_section">
 
         <x-form_errors :errors="$errors"></x-form_errors>
@@ -125,7 +124,7 @@
                     <input list="pre_existing_videos" name="pre_existing_video_id" class="form_select" id="pre_existing_video_id">
                     <datalist id="pre_existing_videos">
                         @foreach($meridePreExisting as $result)
-                        <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->url_video_mp4 }}">
+                        <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->video?->url_video_mp4 }}">
                             @endforeach
                     </datalist>
                 </div>
@@ -141,6 +140,12 @@
                     {{ trans("general.models") }}
                 </label>
                 <input class="form_input" value="{{ old("models", (isset($video) && !empty($video->models)) ? implode(', ', $video->models) : '') }}" type="text" name="models" placeholder="{{ trans("general.comma separated models") }}" />
+            </div>
+            <div class="w-full px-3 mt-12" id="ce_text_container">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
+                    {{ trans("videos.ce_text") }}
+                </label>
+                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}" required value="{{ old("ce_text", $video->ce_text ?? '') }}" />
             </div>
 
             <div class="w-full md:w-1/2 px-3 mt-12">
@@ -198,6 +203,12 @@
 
             </div>
             @endif
+            <div class="w-full px-3 mt-12">
+            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="scheduled_at">
+                {{ trans("general.published at") }}
+            </label>
+            <input class="form_input" type="datetime-local" name="published_at" placeholder="{{ trans("general.published at") }}" required value="{{ old("published_at", $video?->published_at ?? now()) }}" />
+        </div>
 
             <div class="w-full px-3 mt-12">
                 <div class="basis-1/2">
@@ -223,9 +234,16 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            const pre_exist_value=sessionStorage.getItem('pre-existingValue');
+            const pre_type=sessionStorage.getItem('selectedType');
+            const preExisting = document.getElementById('pre-existing');
             var preExistingVideoId = document.getElementById('meride_video_id').value;
             var preExistingSelect = document.getElementById("pre_existing_video_id");
             var options = document.querySelectorAll("#pre_existing_videos option");
+            const istypeSelect = document.getElementById('type');
+            preExisting.style.display = 'none';
+            console.log("------------>",pre_type);
+
             var selectedOption = Array.from(options).find(function(option) {
                 return option.getAttribute("data-id") === preExistingVideoId;
             });
@@ -234,6 +252,16 @@
                 preExistingSelect.value = selectedOption.value;
             } else {
                 console.log("No matching option found");
+            }
+            if(pre_exist_value)
+            {
+                const id=pre_exist_value.split('-');
+                document.getElementById('meride_video_id').value=id[0];
+                preExisting.style.display = 'block';
+                sessionStorage.removeItem('pre-existingValue')
+            }
+            else{
+                preExisting.style.display = 'none';
             }
         });
         const istypeSelect = document.getElementById('type');
@@ -244,6 +272,14 @@
         const main_video = document.getElementById('main_video');
         const video360Input = document.getElementById('ext_view_url');
         const preExisting = document.getElementById('pre-existing');
+        const pre_value=document.getElementById("pre_existing_video_id");
+        console.log("--------------->",istypeSelect.value);
+        sessionStorage.setItem('selectedType', istypeSelect.value);
+        console.log("------------>",sessionStorage.getItem('selectedType'));
+        pre_value.addEventListener('change', function() {
+        sessionStorage.setItem('pre-existingValue',pre_value.value);
+        });
+       
         if (istypeSelect.value === 'EXT_VIEW') {
             video360Field.style.display = 'block';
             thumb_num_container.style.display='block';
@@ -252,6 +288,7 @@
             video360Input.setAttribute('required', 'required');
             thumb_num.setAttribute('required','required');
         } else if (istypeSelect.value === 'PRE_EXISTING') {
+            document.getElementById("meride_video_id").value = video_id;
             preExisting.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
@@ -266,6 +303,7 @@
             thumb_num.removeAttribute('required');
         }
         istypeSelect.addEventListener('change', function() {
+            sessionStorage.setItem('selectedType', istypeSelect.value);
             if (this.value === 'EXT_VIEW') {
                 video360Field.style.display = 'block';
                 thumb_num_container.style.display='block';

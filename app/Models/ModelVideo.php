@@ -35,7 +35,8 @@ class ModelVideo extends Model
         'thumb_num',
         'models',
         'product_video',
-        'subtitles'
+        'subtitles',
+        'ce_text',
     ];
     public function model()
     {

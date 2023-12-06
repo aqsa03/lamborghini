@@ -30,6 +30,7 @@ return [
     'created at' => 'Creato il',
     'updated at' => 'Aggiornato il',
     'scheduled at' => 'Programmato il',
+    'published at'=>'pubblicato a',
     'start at' => 'Inizia il',
     'end at' => 'Termina il',
     'published' => 'Pubblicato',

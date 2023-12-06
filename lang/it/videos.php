@@ -15,4 +15,5 @@ return [
     'subtitles'=>'sottotitoli',
     'pre-existing videos'=>'video preesistenti',
     'Back to all videos'=>'Back to all Videos',
+    'ce_text'=>'ce_text',
 ];
