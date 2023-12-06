@@ -103,7 +103,15 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'ref' => $db->collection('video')->document($id)
             ], $this->video->related) : null,
             'tags' => $this->video->tags,
-            'models' => $this->video->models,
+            'models' => !empty($this->video->models) ? array_map(function ($id) use ($db) {
+                if (!empty($id)) {
+                    return [
+                        'model_id' => (int)$id,
+                        'ref' => $db->collection('models')->document($id)
+                    ];
+                }
+                return null;
+            }, $this->video->models) : null,
             'title' => $this->video->title, 
             'video' => ($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
                 'url' => $this->getVideoUrl($this->video->video->url, $this->video->video->meride_embed_id),

@@ -15,6 +15,7 @@ use App\Models\Image;
 use Illuminate\Support\Facades\Log;
 use Meride\Api;
 use App\Enums\VideoStatus;
+use App\Enums\ModelStatus;
 
 
 class ModelVideoController extends Controller
@@ -62,21 +63,22 @@ class ModelVideoController extends Controller
             return redirect()->route('videos.index')->with('error', 'No model is present. Please insert at least one.');
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
-        $videoResponse = $merideApi->get('embed');
-        $total_pages = $videoResponse->last_page;
-        $sortingCriteria = [
-            'field' => 'id',
-            'order' => 'desc',
-        ];
         $meridePreExisting = [];
-        for ($page = 1; $page <= $total_pages; $page++) {
-            $merideLives = $merideApi->all('embed', [
-                'sort'=>$sortingCriteria,
-                'search_page' => $page,
-            ]);
+        // $videoResponse = $merideApi->get('embed');
+        // $total_pages = $videoResponse->last_page;
+        // $sortingCriteria = [
+        //     'field' => 'id',
+        //     'order' => 'desc',
+        // ];
+      
+        // for ($page = 1; $page <= $total_pages; $page++) {
+        //     $merideLives = $merideApi->all('embed', [
+        //         'sort'=>$sortingCriteria,
+        //         'search_page' => $page,
+        //     ]);
 
-        $meridePreExisting = array_merge($meridePreExisting,json_decode(json_encode($merideLives), true));
-        }
+        // $meridePreExisting = array_merge($meridePreExisting,json_decode(json_encode($merideLives), true));
+        // }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
@@ -94,6 +96,7 @@ class ModelVideoController extends Controller
             'tusToken' => $token,
             'video' => null,
             'meridePreExisting' => $meridePreExisting,
+            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -158,7 +161,7 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
+        $validatedFields['models'] = $validatedFields['models']??[];
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
@@ -214,6 +217,7 @@ class ModelVideoController extends Controller
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
             'tusToken' => $token,
             'meridePreExisting' => $meridePreExisting,
+            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -279,7 +283,7 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['models'] = array_filter(array_map('trim', explode(',', $validatedFields['models'])));
+        $validatedFields['models'] = $validatedFields['models']??[];
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

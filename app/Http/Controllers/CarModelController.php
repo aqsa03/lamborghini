@@ -63,7 +63,6 @@ class CarModelController extends Controller
             'models' => $models,
             'model' => null,
             'meridePreExisting' => $meridePreExisting,
-            'published_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -86,7 +85,7 @@ class CarModelController extends Controller
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $image?$image->url:null,
+                    'image_source_url' => $imagePoster?$imagePoster->url:null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
@@ -110,7 +109,6 @@ class CarModelController extends Controller
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
         }
-        $validatedFields['ce_model'] = $validatedFields['ce_model'] ?? [];
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
@@ -188,7 +186,7 @@ class CarModelController extends Controller
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $image?$image->url:null,
+                    'image_source_url' => $imagePoster?$imagePoster->url:null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
@@ -208,7 +206,6 @@ class CarModelController extends Controller
             }
         }
         $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
-        $validatedFields['ce_model'] = $validatedFields['ce_model'] ?? [];
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

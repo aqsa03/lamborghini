@@ -25,7 +25,7 @@ class StoreCarModelRequest extends FormRequest
     public function rules()
     {
         return [
-                'title' => 'required|max:255',
+                'title' => 'required|max:52',
                 'description' => 'nullable|string',          
                 'image' => 'nullable|image',
                 'status' => 'in:'.implode(',', array_map(function($item) {
@@ -37,7 +37,7 @@ class StoreCarModelRequest extends FormRequest
                 'video_preview_height' => 'nullable|numeric',
                 'meride_video_id'=>'nullable|numeric',
                 'type'=>'nullable|string',
-                'ce_model'=>'nullable',
+                'ce_model'=>'nullable|string',
         ];
     }
 }

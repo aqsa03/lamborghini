@@ -26,7 +26,7 @@ class StoreVideoRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required|max:255',
+            'title' => 'required|max:52',
             'description' => 'nullable|string',
             'status' => 'in:'.implode(',', array_map(function($item) {
                 return $item->value;
@@ -35,7 +35,7 @@ class StoreVideoRequest extends FormRequest
             'category_id' => 'nullable|numeric',
             'image' => 'nullable|image',
             'tags' => 'nullable|string',
-            'models' => 'nullable|string',
+            'models' => 'nullable',
             'related' => 'nullable',
             'product_video' => 'boolean',
             'subtitles' => 'boolean',

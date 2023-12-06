@@ -16,18 +16,6 @@ class CarModel extends Model
     use HasFactory;
     protected $table = 'CarModel'; 
     protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id', 'pre_existing_video_id','type', 'ce_model'];
-     /**
-     * Interact with the model's ce_model
-     *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
-     */
-    protected function ce_model(): Attribute
-{
-    return Attribute::make(
-        get: fn ($value) => json_decode($value),
-        set: fn ($value) => is_array($value) ? json_encode($value) : $value,
-    );
-}
     public function imagePoster()
     {
         return $this->belongsTo(Image::class, 'image_poster_id');

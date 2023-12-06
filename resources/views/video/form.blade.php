@@ -66,7 +66,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="title">
                     {{ trans("general.title") }}
                 </label>
-                <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $video->title ?? '') }}" required maxlength="255" />
+                <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $video->title ?? '') }}" required maxlength="52" />
             </div>
             <div class="w-full px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="short_description">
@@ -114,7 +114,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
                     {{ trans("videos.thumb_num") }}
                 </label>
-                <input class="form_input" type="text" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
+                <input class="form_input" type="number" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
@@ -138,18 +138,36 @@
                 </label>
                 <input class="form_input" value="{{ old("tags", (isset($video) && !empty($video->tags)) ? implode(', ', $video->tags) : '') }}" type="text" name="tags" placeholder="{{ trans("general.comma separated tags") }}" />
             </div>
-            <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
-                    {{ trans("general.models") }}
-                </label>
-                <input class="form_input" value="{{ old("models", (isset($video) && !empty($video->models)) ? implode(', ', $video->models) : '') }}" type="text" name="models" placeholder="{{ trans("general.comma separated models") }}" />
-            </div>
             <div class="w-full px-3 mt-12" id="ce_text_container">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
                     {{ trans("videos.ce_text") }}
                 </label>
                 <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}" required value="{{ old("ce_text", $video->ce_text ?? '') }}" />
             </div>
+            <div class="w-full md:w-1/2 px-3 mt-12">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
+                    {{ trans("general.models") }}
+                </label>
+                <div class="flex relative w-64">
+                    <select name="models[]" class="form_select" multiple size='8' id="models">
+                        @foreach ($published_ce_models as $v)
+                        <option {{ in_array($v->id, old("models", $video->models ?? [])) ? 'selected' : '' }} value="{{ $v->id }}">{{ $v->ce_model }}</option>
+                        @endforeach
+                    </select>
+                    <a href="#" onclick="deselectAll(document.getElementById('models'))">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </a>
+                    <script type="text/javascript">
+                        function deselectAll(select) {
+                            select.selectedIndex = -1;
+                        }
+                    </script>
+                </div>
+            </div>
+           
+            
 
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="related">

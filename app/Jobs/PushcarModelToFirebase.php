@@ -118,16 +118,8 @@ class PushcarModelToFirebase implements ShouldQueue
                     'url' => $this->model->QRScan->url.(($rule = config('image.imageManagerResizingQueryString.xl', false)) ? '?'.$rule : '')
                 ]
             ] : null,
-            'video' =>  $this->pre_existing? [
-                'url' => $this->pre_existing->url,
-                'url_mp4' => $this->pre_existing->url_mp4,
-                'width' => $this->pre_existing->source_width,
-                'height' => $this->pre_existing->source_height,
-                'public' => $this->pre_existing->public ? true : false,
-                'podcast' => $this->pre_existing->podcast ? true : false,
-                'meride_embed_id' => $this->pre_existing->meride_embed_id,
-                'duration' => $this->pre_existing->duration,]:
-            (($this->model->videoPreview and $this->model->videoPreview->meride_status == VideoStatus::READY->value) ? [
+            'video' =>
+            ($this->model->videoPreview and $this->model->videoPreview->meride_status == VideoStatus::READY->value) ? [
                 'url' => $this->model->videoPreview->url,
                 'url_mp4' => $this->model->videoPreview->url_mp4,
                 'width' => $this->model->videoPreview->source_width,
@@ -136,11 +128,8 @@ class PushcarModelToFirebase implements ShouldQueue
                 'podcast' => $this->model->videoPreview->podcast ? true : false,
                 'meride_embed_id' => $this->model->videoPreview->meride_embed_id,
                 'duration' => $this->model->videoPreview->duration,
-            ] : null),
-            'ce_model' => !empty($this->model->ce_model) ? array_map(fn ($id) => [
-                'model_id' => (int) $id,
-                'ref' => $db->collection('models')->document($id)
-            ], $this->model->ce_model) : null,
+            ] : null,
+            'ce_model' => $this->model->ce_model,
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];

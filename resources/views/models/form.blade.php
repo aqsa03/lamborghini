@@ -56,7 +56,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="title">
                     {{ trans("general.title") }}
                 </label>
-                <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $model->title ?? '') }}" required maxlength="255" />
+                <input class="form_input" type="text" name="title" placeholder="{{ trans("general.title") }}" value="{{ old("title", $model->title ?? '') }}" required maxlength="52" />
             </div>
             <div class="w-full px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="type">
@@ -75,7 +75,7 @@
                     <input list="pre_existing_videos" name="pre_existing_video_id" class="form_select" id="pre_existing_video_id">
                     <datalist id="pre_existing_videos">
                         @foreach($meridePreExisting as $result)
-                        <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->url_video_mp4 }}">
+                        <option value="{{ $result->id }}-{{ $result->title }}" data-id="{{$result->id}}" data-url="{{ $result->video?->url_video_mp4 }}">
                             @endforeach
                     </datalist>
                 </div>
@@ -86,27 +86,11 @@
                 </label>
                 <textarea rows="3" name="description" placeholder="{{ trans("general.description") }}" class="form_input">{{ old("description", $model->description ?? '') }}</textarea>
             </div>
-            <div class="w-full md:w-1/2 px-3 mt-12">
+            <div class="w-full px-3 mt-12" id="ce_model_container">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_model">
                     {{ trans("model.ce_model") }}
                 </label>
-                <div class="flex relative w-64">
-                    <select name="ce_model[]" class="form_select" multiple size='8' id="ce_model">
-                        @foreach ($published_models as $v)
-                        <option {{ in_array($v->id, old("ce_model", $model->ce_model ?? [])) ? 'selected' : '' }} value="{{ $v->id }}">{{ $v->title }}</option>
-                        @endforeach
-                    </select>
-                    <a href="#" onclick="deselectAll(document.getElementById('ce_model'))">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </a>
-                    <script type="text/javascript">
-                        function deselectAll(select) {
-                            select.selectedIndex = -1;
-                        }
-                    </script>
-                </div>
+                <input class="form_input" type="text" name="ce_model" id="ce_model_id" placeholder="{{ trans("model.ce_model") }}" required value="{{ old("ce_model", $model->ce_model ?? '') }}" />
             </div>
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
