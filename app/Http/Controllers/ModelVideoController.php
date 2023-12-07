@@ -64,21 +64,21 @@ class ModelVideoController extends Controller
         }
         $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
         $meridePreExisting = [];
-        // $videoResponse = $merideApi->get('embed');
-        // $total_pages = $videoResponse->last_page;
-        // $sortingCriteria = [
-        //     'field' => 'id',
-        //     'order' => 'desc',
-        // ];
+        $videoResponse = $merideApi->get('embed');
+        $total_pages = $videoResponse->last_page;
+        $sortingCriteria = [
+            'field' => 'id',
+            'order' => 'desc',
+        ];
       
-        // for ($page = 1; $page <= $total_pages; $page++) {
-        //     $merideLives = $merideApi->all('embed', [
-        //         'sort'=>$sortingCriteria,
-        //         'search_page' => $page,
-        //     ]);
+        for ($page = 1; $page <= $total_pages; $page++) {
+            $merideLives = $merideApi->all('embed', [
+                'sort'=>$sortingCriteria,
+                'search_page' => $page,
+            ]);
 
-        // $meridePreExisting = array_merge($meridePreExisting,json_decode(json_encode($merideLives), true));
-        // }
+        $meridePreExisting = array_merge($meridePreExisting,json_decode(json_encode($merideLives), true));
+        }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
         try {
@@ -96,7 +96,7 @@ class ModelVideoController extends Controller
             'tusToken' => $token,
             'video' => null,
             'meridePreExisting' => $meridePreExisting,
-            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
+            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->whereNotNull('ce_model')->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }
@@ -182,6 +182,7 @@ class ModelVideoController extends Controller
         return view('video.show', [
 
             'video' => $video,
+            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->whereNotNull('ce_model')->orderBy('title')->get(),
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
         ]);
     }
@@ -217,7 +218,7 @@ class ModelVideoController extends Controller
             'published_videos' => ModelVideo::where('status', '=', VideosStatus::PUBLISHED->value)->orderBy('title')->get(),
             'tusToken' => $token,
             'meridePreExisting' => $meridePreExisting,
-            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->orderBy('title')->get(),
+            'published_ce_models' => CarModel::where('status', '=', ModelStatus::PUBLISHED->value)->whereNotNull('ce_model')->orderBy('title')->get(),
             'storageUploadEndpoint' => config('meride.storage.uploadEndpoint')
         ]);
     }

@@ -31,6 +31,16 @@
                     </div>
                     <script type="text/plain" id="source_description">{{ $video->description }}</script>
                 </div>
+                @if(!empty($video->ce_text))
+                <div class="w-full mt-12" id="ce_text">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
+                        {{ trans("videos.ce_text") }}
+                    </label>
+                    <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;">
+                        {{ $video->ce_text }}
+                    </div>
+                </div>
+                @endif
                 <div class="w-full mt-12">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('general.tags') }}
@@ -54,6 +64,21 @@
                     </div>
                 </div>
                 @endif
+                @if(!empty($video->models))
+                <div class="w-full mt-12">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
+                        {{ trans("general.models") }}
+                    </label>
+                    <div class="flex relative w-64">
+                        <select name="models[]" class="form_select" multiple size='8' id="models">
+                            @foreach ($published_ce_models->whereIn('id', $video->models) as $v)
+                            <option selected value="{{ $v->id }}">{{ htmlspecialchars($v->title) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                @endif
+
                 @if($video->ext_view_url)
                 <div class="w-full mt-12" id="ext_view_url_field">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ext_view_url">
@@ -126,7 +151,7 @@
                         {{ $video->subtitles == 1 ? 'True' : 'False' }}
                     </div>
                 </div>
-                
+
                 <div class="aside_info mt-8">
                     <label class="mp-12 block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                         {{ trans('general.status') }}
