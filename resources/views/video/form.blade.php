@@ -108,13 +108,13 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ext_view_url">
                     {{ trans("videos.ext_view_url") }}
                 </label>
-                <input class="form_input" type="text" name="ext_view_url" id="ext_view_url" placeholder="{{ trans("videos.ext_view_url") }}" required value="{{ old("ext_view_url", $video->ext_view_url ?? '') }}" />
+                <input class="form_input" type="text" name="ext_view_url" id="ext_view_url" placeholder="{{ trans("videos.ext_view_url") }}"  value="{{ old("ext_view_url", $video->ext_view_url ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="thumb_num_container" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
                     {{ trans("videos.thumb_num") }}
                 </label>
-                <input class="form_input" type="number" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" required value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
+                <input class="form_input" type="number" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}"  value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
@@ -142,7 +142,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
                     {{ trans("videos.ce_text") }}
                 </label>
-                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}" required value="{{ old("ce_text", $video->ce_text ?? '') }}" />
+                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}"  value="{{ old("ce_text", $video->ce_text ?? '') }}" />
             </div>
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
@@ -255,7 +255,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
+            
             const pre_exist_value=sessionStorage.getItem('pre-existingValue');
+            console.log("-------------->", pre_exist_value);
             const pre_type=sessionStorage.getItem('selectedType');
             const preExisting = document.getElementById('pre-existing');
             var preExistingVideoId = document.getElementById('meride_video_id').value;
@@ -263,7 +265,6 @@
             var options = document.querySelectorAll("#pre_existing_videos option");
             const istypeSelect = document.getElementById('type');
             preExisting.style.display = 'none';
-            console.log("------------>",pre_type);
 
             var selectedOption = Array.from(options).find(function(option) {
                 return option.getAttribute("data-id") === preExistingVideoId;
@@ -276,13 +277,15 @@
             }
             if(pre_exist_value)
             {
+                sessionStorage.removeItem('pre-existingValue')
                 const id=pre_exist_value.split('-');
                 document.getElementById('meride_video_id').value=id[0];
                 preExisting.style.display = 'block';
-                sessionStorage.removeItem('pre-existingValue')
+               
             }
             else{
                 preExisting.style.display = 'none';
+                sessionStorage.removeItem('pre-existingValue')
             }
         });
         const istypeSelect = document.getElementById('type');
@@ -294,9 +297,7 @@
         const video360Input = document.getElementById('ext_view_url');
         const preExisting = document.getElementById('pre-existing');
         const pre_value=document.getElementById("pre_existing_video_id");
-        console.log("--------------->",istypeSelect.value);
         sessionStorage.setItem('selectedType', istypeSelect.value);
-        console.log("------------>",sessionStorage.getItem('selectedType'));
         pre_value.addEventListener('change', function() {
         sessionStorage.setItem('pre-existingValue',pre_value.value);
         });

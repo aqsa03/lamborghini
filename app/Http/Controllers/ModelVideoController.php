@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use Meride\Api;
 use App\Enums\VideoStatus;
 use App\Enums\ModelStatus;
+use Illuminate\Support\Facades\Http;
 
 
 class ModelVideoController extends Controller
@@ -163,6 +164,26 @@ class ModelVideoController extends Controller
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
         $validatedFields['models'] = $validatedFields['models']??[];
         $validatedFields['related'] = $validatedFields['related'] ?? [];
+        if($validatedFields['models']){
+            $modelIds = $validatedFields['models'];
+            $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
+            $commaSeparatedString = implode(',', $modelTitles->toArray());
+            $apiUrl="https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
+            $response = Http::get($apiUrl);
+            if ($response->successful()) {
+                $apiData = $response->json();
+                if($apiData['aggregated']!==null)
+                {
+                    $validatedFields['ce_text']=$apiData['aggregated']['disclaimer']??null;
+                }
+                else{
+                    $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
+                }
+            } else {
+                $errorCode = $response->status();
+                return response()->json(['error' => 'Lamborghini API call failed'], $errorCode);
+            }
+        }
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
         Log::info('Video created successfully in database, redirecting to list view');
@@ -242,8 +263,8 @@ class ModelVideoController extends Controller
             $validatedFields['video_preview_id'] = null;
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
         } else if ($validatedFields['type'] === 'PRE_EXISTING') {
-            $video = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
-            if (!$video) {
+            $prevideo = Video::where('meride_embed_id', '=', $validatedFields['meride_video_id'])->first();
+            if (!$prevideo) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
                 $created_video = Video::create([
@@ -266,8 +287,8 @@ class ModelVideoController extends Controller
                 $validatedFields['video_preview_id'] = $created_video->id;
             }
             else{
-            $validatedFields['video_id'] = $video->id;
-            $validatedFields['video_preview_id'] = $video->id;
+            $validatedFields['video_id'] = $prevideo->id;
+            $validatedFields['video_preview_id'] = $prevideo->id;
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
@@ -284,7 +305,26 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['models'] = $validatedFields['models']??[];
+        if($validatedFields['models']){
+            $modelIds = $validatedFields['models'];
+            $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
+            $commaSeparatedString = implode(',', $modelTitles->toArray());
+            $apiUrl="https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
+            $response = Http::get($apiUrl);
+            if ($response->successful()) {
+                $apiData = $response->json();
+                if($apiData['aggregated']!==null)
+                {
+                    $validatedFields['ce_text']=$apiData['aggregated']['disclaimer']??null;
+                }
+                else{
+                    $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
+                }
+            } else {
+                $errorCode = $response->status();
+                return response()->json(['error' => 'Lamborghini API call failed'], $errorCode);
+            }
+        }
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

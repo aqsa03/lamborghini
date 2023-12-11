@@ -38,6 +38,9 @@ class ModelVideo extends Model
         'subtitles',
         'ce_text',
     ];
+    protected $attributes = [
+        'ce_text' => 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque',
+    ];
     public function model()
     {
         return $this->belongsTo(CarModel::class);

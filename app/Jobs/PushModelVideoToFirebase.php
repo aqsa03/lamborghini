@@ -62,6 +62,18 @@ class PushModelVideoToFirebase implements ShouldQueue
         //
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
+        $modelIds = $this->video->models;
+        $ceModels = [];
+
+        foreach ($modelIds as $modelId) {
+            $modelRef = $db->collection('models')->document($modelId);
+            $modelData = $modelRef->snapshot()->data();
+
+            // Check if 'ce_model' field exists in the model data
+            if (isset($modelData['ce_model'])) {
+                $ceModels[] = $modelData['ce_model'];
+            }
+        }
         if(
             $this->video->status != VideosStatus::PUBLISHED->value
         ){
@@ -103,15 +115,7 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'ref' => $db->collection('video')->document($id)
             ], $this->video->related) : null,
             'tags' => $this->video->tags,
-            'models' => !empty($this->video->models) ? array_map(function ($id) use ($db) {
-                if (!empty($id)) {
-                    return [
-                        'model_id' => (int)$id,
-                        'ref' => $db->collection('models')->document($id)
-                    ];
-                }
-                return null;
-            }, $this->video->models) : null,
+            'models' => $ceModels,
             'title' => $this->video->title, 
             'video' => ($this->video->video and $this->video->video->meride_status == VideoStatus::READY->value) ? [
                 'url' => $this->getVideoUrl($this->video->video->url, $this->video->video->meride_embed_id),

@@ -77,6 +77,7 @@
 @endforeach
     </ol>
 </div>
+{{  $videos->links() }}
 </div>
 </x-layouts.panel_layout>
 
