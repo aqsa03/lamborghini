@@ -78,7 +78,9 @@ class ModelVideoController extends Controller
                 'search_page' => $page,
             ]);
 
-        $meridePreExisting = array_merge($meridePreExisting,json_decode(json_encode($merideLives), true));
+            foreach ($merideLives as $merideLive) {
+                $meridePreExisting[] = $merideLive;
+            }
         }
         $token = '';
         $tokenGenerator = new Token(config('meride.clientId'), config('meride.authCode'));
@@ -162,9 +164,10 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['models'] = $validatedFields['models']??[];
         $validatedFields['related'] = $validatedFields['related'] ?? [];
-        if($validatedFields['models']){
+        $validatedFields['models']=$validatedFields['models']??[];
+        if(isset($validatedFields['models']) && !empty($validatedFields['models']))
+        {
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
@@ -180,9 +183,11 @@ class ModelVideoController extends Controller
                     $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
                 }
             } else {
-                $errorCode = $response->status();
-                return response()->json(['error' => 'Lamborghini API call failed'], $errorCode);
+                $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
+        }
+        else {
+            $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
         }
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
@@ -305,7 +310,9 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        if($validatedFields['models']){
+        $validatedFields['models']=$validatedFields['models']??[];
+        if(isset($validatedFields['models']) && !empty($validatedFields['models']))
+        {
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
@@ -321,9 +328,11 @@ class ModelVideoController extends Controller
                     $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
                 }
             } else {
-                $errorCode = $response->status();
-                return response()->json(['error' => 'Lamborghini API call failed'], $errorCode);
+                $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
+        }
+        else {
+            $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
         }
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {

@@ -38,6 +38,7 @@ class StoreCarModelRequest extends FormRequest
                 'meride_video_id'=>'nullable|numeric',
                 'type'=>'nullable|string',
                 'ce_model'=>'nullable|string',
+                'ce_text'=>'nullable|string',
         ];
     }
 }

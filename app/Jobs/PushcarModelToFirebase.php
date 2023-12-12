@@ -130,6 +130,7 @@ class PushcarModelToFirebase implements ShouldQueue
                 'duration' => $this->model->videoPreview->duration,
             ] : null,
             'ce_model' => $this->model->ce_model,
+            'ce_text'=>$this->model->ce_text,
             'parent'=>$this->model->parent_id ? $db->collection('models')->document($this->model->parent_id) : null,
 
         ];

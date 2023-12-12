@@ -13,6 +13,7 @@ use Meride\Storage\Tus\Token;
 use Illuminate\Support\Facades\Log;
 use Meride\Api;
 use App\Enums\VideoStatus;
+use Illuminate\Support\Facades\Http;
 
 class CarModelController extends Controller
 {
@@ -85,17 +86,17 @@ class CarModelController extends Controller
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $imagePoster?$imagePoster->url:null,
+                    'image_source_url' => $imagePoster ? $imagePoster->url : null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
-                    'source_height' =>$videoResponse->height,
-                    'duration' => $videoResponse->video->duration??null,
-                    'url' => $videoResponse->video->url_video??null,
-                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
-                    'image_preview_url' => $videoResponse->video->preview_image??null,
+                    'source_height' => $videoResponse->height,
+                    'duration' => $videoResponse->video->duration ?? null,
+                    'url' => $videoResponse->video->url_video ?? null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4 ?? null,
+                    'image_preview_url' => $videoResponse->video->preview_image ?? null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_video_id' => $videoResponse->video->id ?? null,
                     'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
@@ -104,7 +105,6 @@ class CarModelController extends Controller
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['status'] = ModelStatus::PUBLISHED->value;
-           
         } else if ($video_preview = Video::createFromRequest($request, $imagePoster, preview: true)) {
             //TODO rimuovi vecchio video se c'è
             $validatedFields['video_preview_id'] = $video_preview->id;
@@ -112,6 +112,21 @@ class CarModelController extends Controller
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
+        }
+        if (isset($validatedFields['ce_model']) && !empty($validatedFields['ce_model'])) {
+            $ce_model = $validatedFields['ce_model'];
+            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$ce_model}?_format=json&source=smart_tv";
+            $response = Http::get($apiUrl);
+            if ($response->successful()) {
+                $apiData = $response->json();
+                if ($apiData['aggregated'] !== null) {
+                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+                } else {
+                    $validatedFields['ce_text'] = $apiData['models'][$ce_model]['disclaimer'] ?? null;
+                }
+            } else {
+                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
+            }
         }
         Log::info('Creating a Model with data: ', $validatedFields);
         CarModel::create($validatedFields);
@@ -186,22 +201,21 @@ class CarModelController extends Controller
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $imagePoster?$imagePoster->url:null,
+                    'image_source_url' => $imagePoster ? $imagePoster->url : null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
-                    'source_height' =>$videoResponse->height,
-                    'duration' => $videoResponse->video->duration??null,
-                    'url' => $videoResponse->video->url_video??null,
-                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
-                    'image_preview_url' => $videoResponse->video->preview_image??null,
+                    'source_height' => $videoResponse->height,
+                    'duration' => $videoResponse->video->duration ?? null,
+                    'url' => $videoResponse->video->url_video ?? null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4 ?? null,
+                    'image_preview_url' => $videoResponse->video->preview_image ?? null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_video_id' => $videoResponse->video->id ?? null,
                     'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
                 ]);
                 $validatedFields['video_preview_id'] = $created_video->id;
-            }
-            else{
+            } else {
                 $validatedFields['video_preview_id'] = $video->id;
             }
         }
@@ -209,6 +223,21 @@ class CarModelController extends Controller
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
+        }
+        if ($model->ce_model!==$validatedFields['ce_model']&&isset($validatedFields['ce_model']) && !empty($validatedFields['ce_model'])) {
+            $ce_model = $validatedFields['ce_model'];
+            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$ce_model}?_format=json&source=smart_tv";
+            $response = Http::get($apiUrl);
+            if ($response->successful()) {
+                $apiData = $response->json();
+                if ($apiData['aggregated'] !== null) {
+                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+                } else {
+                    $validatedFields['ce_text'] = $apiData['models'][$ce_model]['disclaimer'] ?? null;
+                }
+            } else {
+                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
+            }
         }
         Log::info('Updating a Model with data: ', $validatedFields);
         $model->update($validatedFields);

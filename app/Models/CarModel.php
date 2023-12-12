@@ -15,7 +15,7 @@ class CarModel extends Model
 {
     use HasFactory;
     protected $table = 'CarModel'; 
-    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id', 'pre_existing_video_id','type', 'ce_model'];
+    protected $fillable = ['title','description','image_poster_id','qr_code_id','status','published_at','video_preview_id','parent_id', 'pre_existing_video_id','type', 'ce_model', 'ce_text'];
     public function imagePoster()
     {
         return $this->belongsTo(Image::class, 'image_poster_id');
