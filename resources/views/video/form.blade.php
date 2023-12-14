@@ -84,12 +84,12 @@
                 </select>
             </div>
             <div class="w-full px-3 mt-12">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="subtitles">
-                    {{ trans("videos.subtitles") }}
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="captions">
+                    {{ trans("videos.captions") }}
                 </label>
-                <select name="subtitles" class="form_select" required>
-                    <option {{ strtolower(old("subtitles", $video->subtitles ?? '')) == '0' ? 'selected' : '' }} value="0">No</option>
-                    <option {{ strtolower(old("subtitles", $video->subtitles ?? '')) == '1' ? 'selected' : '' }} value="1">Si</option>
+                <select name="captions" class="form_select" required>
+                    <option {{ strtolower(old("captions", $video->captions ?? '')) == '0' ? 'selected' : '' }} value="0">No</option>
+                    <option {{ strtolower(old("captions", $video->captions ?? '')) == '1' ? 'selected' : '' }} value="1">Si</option>
                 </select>
             </div>
             <div class="w-full px-3 mt-12">

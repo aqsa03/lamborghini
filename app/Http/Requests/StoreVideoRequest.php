@@ -38,7 +38,7 @@ class StoreVideoRequest extends FormRequest
             'models' => 'nullable',
             'related' => 'nullable',
             'product_video' => 'boolean',
-            'subtitles' => 'boolean',
+            'captions' => 'boolean',
             'ext_view' => 'boolean', 
             'ext_view_url'=>'nullable|string',
             'thumb_num'=>'nullable|numeric',
@@ -50,6 +50,7 @@ class StoreVideoRequest extends FormRequest
             'meride_video_id'=>'nullable|numeric',
             'ce_text'=>'nullable|string',
             'published_at'=>'required|date',
+            'subtitles'=>'nullable|json',
         ];
     }
 }

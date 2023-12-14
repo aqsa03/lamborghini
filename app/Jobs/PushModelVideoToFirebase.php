@@ -128,8 +128,9 @@ class PushModelVideoToFirebase implements ShouldQueue
                 'duration' => $this->video->video->duration,
             ]:null,
             'product_video'=>$this->video->product_video?true:false,
-            'subtitles'=>$this->video->subtitles?true:false,
+            'captions'=>$this->video->captions?true:false,
             'ce_text'=>$this->video->ce_text,
+            'subtitles'=>json_decode($this->video->subtitles),
 
         ];
         Log::info('Video to save in Firestore:', $data);

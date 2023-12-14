@@ -75,12 +75,23 @@ class Video extends Model
                 'url_mp4' => $videoResponse->url_video_mp4,
                 'image_preview_url' => $videoResponse->preview_image,
             ]);
+            $subtitles=$embed->subtitles??null;
             if (!$embed->hasErrors()) {
                 $this->meride_embed_id = $embed->public_id ?? $embed->id;
                 $this->url = $videoResponse->url_video;
                 $this->url_mp4 = $videoResponse->url_video_mp4;
                 $this->image_preview_url = $videoResponse->preview_image;
                 $this->meride_status = VideoStatus::READY->value;
+                $this->subtitles=$subtitles?json_encode([
+                    'it' => $subtitles->it,
+                    'de' => $subtitles->de,
+                    'en' => $subtitles->en,
+                    'es' => $subtitles->es,
+                    'fr' => $subtitles->fr,
+                    'zh' => $subtitles->zh,
+                    'ru' => $subtitles->ru,
+                    'ja' => $subtitles->ja,
+                ]):null;
                 $this->save();
                 Log::info('Successfully saved video in databse');
                 return true;

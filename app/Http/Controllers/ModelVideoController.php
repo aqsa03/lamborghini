@@ -28,24 +28,31 @@ class ModelVideoController extends Controller
      */
     public function index(Request $request)
     {
-        $videos = ModelVideo::orderBy('model_id');
-        if ($request->query('model_id')) {
-            $videos->where('model_id', '=', $request->query('model_id'));
+    
+    $searchTerm = $request->input('search');
+
+    $videos = ModelVideo::orderBy('model_id');
+
+    if ($request->query('model_id')) {
+        $videos->where('model_id', '=', $request->query('model_id'));
+    }
+
+    if ($searchTerm) {
+        foreach (explode(' ', $searchTerm) as $word) {
+            $videos->where('title', 'like', '%' . $word . '%');
         }
-        if ($request->query('title')) {
-            foreach (explode(' ', $request->query('title')) as $word) {
-                $videos->where('title', 'like', '%' . $word . '%');
-            }
-        }
-        if ($request->query('status') and $request->query('status') != '-1') {
-            $videos->where('status', '=', $request->query('status'));
-        }
-        return view('video.index', [
-            'total' => $videos->count(),
-            'videos' => $videos->paginate(20),
-            'request' => $request
-        ])
-            ->with('i', (request()->input('page', 1) - 1) * 20);
+    }
+
+    if ($request->query('status') and $request->query('status') != '-1') {
+        $videos->where('status', '=', $request->query('status'));
+    }
+
+    return view('video.index', [
+        'total' => $videos->count(),
+        'videos' => $videos->paginate(20),
+        'request' => $request,
+        'searchTerm' => $searchTerm,
+    ])->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
     /**
@@ -71,10 +78,10 @@ class ModelVideoController extends Controller
             'field' => 'id',
             'order' => 'desc',
         ];
-      
+
         for ($page = 1; $page <= $total_pages; $page++) {
             $merideLives = $merideApi->all('embed', [
-                'sort'=>$sortingCriteria,
+                'sort' => $sortingCriteria,
                 'search_page' => $page,
             ]);
 
@@ -127,28 +134,49 @@ class ModelVideoController extends Controller
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
+                $subtitles=$videoResponse->subtitles??null;
+                $validatedFields['subtitles'] = $subtitles?json_encode([
+                    'it' => $subtitles->it,
+                    'de' => $subtitles->de,
+                    'en' => $subtitles->en,
+                    'es' => $subtitles->es,
+                    'fr' => $subtitles->fr,
+                    'zh' => $subtitles->zh,
+                    'ru' => $subtitles->ru,
+                    'ja' => $subtitles->ja,
+                ]):null;
                 $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $image?$image->url:null,
+                    'image_source_url' => $image ? $image->url : null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
-                    'source_height' =>$videoResponse->height,
-                    'duration' => $videoResponse->video->duration??null,
-                    'url' => $videoResponse->video->url_video??null,
-                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
-                    'image_preview_url' => $videoResponse->video->preview_image??null,
+                    'source_height' => $videoResponse->height,
+                    'duration' => $videoResponse->video->duration ?? null,
+                    'url' => $videoResponse->video->url_video ?? null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4 ?? null,
+                    'image_preview_url' => $videoResponse->video->preview_image ?? null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_video_id' => $videoResponse->video->id ?? null,
                     'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
+                    'subtitles'=>$subtitles?json_encode([
+                        'it' => $subtitles->it,
+                        'de' => $subtitles->de,
+                        'en' => $subtitles->en,
+                        'es' => $subtitles->es,
+                        'fr' => $subtitles->fr,
+                        'zh' => $subtitles->zh,
+                        'ru' => $subtitles->ru,
+                        'ja' => $subtitles->ja,
+                    ]):null,
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
                 $validatedFields['video_preview_id'] = $created_video->id;
-            }
-            else{
-            $validatedFields['video_id'] = $video->id;
-            $validatedFields['video_preview_id'] = $video->id;
+            } else {
+                $validatedFields['video_id'] = $video->id;
+                $validatedFields['video_preview_id'] = $video->id;
+                $validatedFields['subtitles']=$video->subtitles;
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
@@ -165,29 +193,25 @@ class ModelVideoController extends Controller
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
         $validatedFields['related'] = $validatedFields['related'] ?? [];
-        $validatedFields['models']=$validatedFields['models']??[];
-        if(isset($validatedFields['models']) && !empty($validatedFields['models']))
-        {
+        $validatedFields['models'] = $validatedFields['models'] ?? [];
+        if (isset($validatedFields['models']) && !empty($validatedFields['models'])) {
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
-            $apiUrl="https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
+            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
             $response = Http::get($apiUrl);
             if ($response->successful()) {
                 $apiData = $response->json();
-                if($apiData['aggregated']!==null)
-                {
-                    $validatedFields['ce_text']=$apiData['aggregated']['disclaimer']??null;
-                }
-                else{
-                    $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
+                if ($apiData['aggregated'] !== null) {
+                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+                } else {
+                    $validatedFields['ce_text'] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
                 }
             } else {
-                $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
+                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
-        }
-        else {
-            $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
+        } else {
+            $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
         }
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
@@ -272,34 +296,56 @@ class ModelVideoController extends Controller
             if (!$prevideo) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
-                $created_video = Video::create([
+                $subtitles=$videoResponse->subtitles??null;
+                $validatedFields['subtitles'] = $subtitles?json_encode([
+                    'it' => $subtitles->it,
+                    'de' => $subtitles->de,
+                    'en' => $subtitles->en,
+                    'es' => $subtitles->es,
+                    'fr' => $subtitles->fr,
+                    'zh' => $subtitles->zh,
+                    'ru' => $subtitles->ru,
+                    'ja' => $subtitles->ja,
+                ]):null;
+                    $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
-                    'image_source_url' => $image?$image->url:null,
+                    'image_source_url' => $image ? $image->url : null,
                     'public' => true,
                     'podcast' => false,
                     'source_width' => $videoResponse->width,
-                    'source_height' =>$videoResponse->height,
-                    'duration' => $videoResponse->video->duration??null,
-                    'url' => $videoResponse->video->url_video??null,
-                    'url_mp4' => $videoResponse->video->url_video_mp4??null,
-                    'image_preview_url' => $videoResponse->video->preview_image??null,
+                    'source_height' => $videoResponse->height,
+                    'duration' => $videoResponse->video->duration ?? null,
+                    'url' => $videoResponse->video->url_video ?? null,
+                    'url_mp4' => $videoResponse->video->url_video_mp4 ?? null,
+                    'image_preview_url' => $videoResponse->video->preview_image ?? null,
                     'meride_status' => VideoStatus::READY->value,
-                    'meride_video_id' => $videoResponse->video->id??null,
+                    'meride_video_id' => $videoResponse->video->id ?? null,
                     'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
+                    'subtitles'=>$subtitles?json_encode([
+                        'it' => $subtitles->it,
+                        'de' => $subtitles->de,
+                        'en' => $subtitles->en,
+                        'es' => $subtitles->es,
+                        'fr' => $subtitles->fr,
+                        'zh' => $subtitles->zh,
+                        'ru' => $subtitles->ru,
+                        'ja' => $subtitles->ja,
+                    ]):null,
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
                 $validatedFields['video_preview_id'] = $created_video->id;
-            }
-            else{
-            $validatedFields['video_id'] = $prevideo->id;
-            $validatedFields['video_preview_id'] = $prevideo->id;
+            } else {
+                $validatedFields['video_id'] = $prevideo->id;
+                $validatedFields['video_preview_id'] = $prevideo->id;
+                $validatedFields['subtitles']=$prevideo->subtitles;
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
         } else if (!$validatedFields['type']) {
             $validatedFields['type'] = VideoType::NEW->value;
+            
             if ($main_video = Video::createFromRequest($request, $image, preview: true)) {
                 //TODO rimuovi vecchio video se c'è
                 $validatedFields['video_id'] = $main_video->id;
@@ -310,30 +356,28 @@ class ModelVideoController extends Controller
             }
         }
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
-        $validatedFields['models']=$validatedFields['models']??[];
-        if(isset($validatedFields['models']) && !empty($validatedFields['models']))
-        {
+        $validatedFields['models'] = $validatedFields['models'] ?? [];
+        if (isset($validatedFields['models']) && !empty($validatedFields['models'])) {
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
-            $apiUrl="https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
+            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
             $response = Http::get($apiUrl);
             if ($response->successful()) {
                 $apiData = $response->json();
-                if($apiData['aggregated']!==null)
-                {
-                    $validatedFields['ce_text']=$apiData['aggregated']['disclaimer']??null;
-                }
-                else{
-                    $validatedFields['ce_text']=$apiData['models'][$commaSeparatedString]['disclaimer']??null;
+                if ($apiData['aggregated'] !== null) {
+                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+                } else {
+                    $validatedFields['ce_text'] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
                 }
             } else {
-                $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
+                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
+        } else {
+            $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
         }
-        else {
-            $validatedFields['ce_text']='Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
-        }
+        $savedVideo=Video::where('id','=',$video->video_id)->first();
+        $validatedFields['subtitles']=$savedVideo->subtitles;
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
