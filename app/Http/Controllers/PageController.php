@@ -83,7 +83,7 @@ class PageController extends Controller
                                 //'collection' => substr($item->collection, 0, strlen($item->collection) - 1),
                                 'collection' => $item->collection,
                                 'ref' => $item->collection_id,
-                                'search_string' => $obj->search_string,
+                                'search_string' => $obj?->title,
                                 'image_poster' => [[
                                     'url' => $obj->imagePoster->url ?? ""
                                 ]]
