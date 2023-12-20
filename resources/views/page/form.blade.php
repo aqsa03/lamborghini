@@ -1,8 +1,10 @@
 <x-layouts.panel_layout>
 
   <x-form_errors :errors="$errors"></x-form_errors>
-  <?php //dump($sections) ?>
-  <?php //dump($page_id) ?>
+  <?php //dump($sections) 
+  ?>
+  <?php //dump($page_id) 
+  ?>
 
 
   <div className="body_section">
@@ -10,253 +12,258 @@
       @csrf
       {{ method_field('PUT') }}
 
-    <x-page_title>Page editor</x-page_title>
+      <x-page_title>Page editor</x-page_title>
 
-    <div class="save-btn-container">
-      <input type="hidden" id="index" name="index" value="0" />
-      <input class="btn_new_entity" type="submit" value="Salva tutto" />
-    </div>
-    
-
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <style>
-      .App {
-        display: grid;
-        /*border-bottom: 1px solid #000;*/
-        border-bottom: 1px solid #e0e0e0;
-        padding-bottom: 32px;
-        margin-bottom: 24px;
-        padding-left: 40px;
-        padding-right: 40px;
-      }
-
-      .section-title {
-        font-weight: 700;
-        /*text-decoration: underline;*/
-        text-transform: uppercase;
-        font-size: 13px;
-        line-height: 1;
-      }
-      
-      h2 {
-        font-weight: 700;
-        font-size: 13px;
-        line-height: 1;
-        text-transform: uppercase;
-      }
-
-      input, select {
-        border: 1px solid #e0e0e0 !important;
-        border-radius: 5px;
-      }
-
-      .save-btn-container {
-        text-align: right;
-        margin-bottom: 8px;
-      }
-
-      .new-section {
-        width: 100%;
-        text-align: right;
-      }
-
-      .section-heading {
-        display: grid;
-        gap: 8px;
-        width: 50%;
-        /*grid-template-columns: 2fr 5fr;*/
-        grid-template-columns: 1fr;
-        margin-top: 24px;
-        margin-bottom: 16px;
-        align-items: center;
-      }
-
-      .section-heading input, .section-heading select{
-        height: 45px !important;
-        /*height: 30px;*/
-        border-radius: 5px;
-        border: 1px solid #b0b0b0;
-
-        margin-bottom: 16px;
-      }
-
-      .slider-container {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        grid-auto-flow: column;
-        gap: 16px;
-        width: 100%;
-        margin: 0 auto;
-        overflow: scroll;
-      }
-
-      .slider-item {
-        height: 320px;
-        cursor: grab;
-        display: grid;
-        align-items: center;
-        background-color: lightgrey;
-        position: relative;
-        background-size: cover;
-        background-position: center;
-        min-width: 253px;
-      }
-
-      .slider-item h2 {
-        text-align: center;
-      }
-
-      .slider-item .form {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 0 16px; 
-      }
-    
-      .slider-item .form input, .slider-item .form select {
-        height: 30px;
-        border-radius: 5px;
-        display: none;
-      }
-
-      .slider-item .save-button {
-        display: none;
-      }
-
-      .buttons-grid {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-      }
-
-      .buttons-grid button svg {
-        width: 15px;
-        height: 15px;
-      }
-
-      .controllers {
-        display: grid;
-        justify-items: right;
-      }
-
-      .controllers button, .simple-container button, .simple-container-buttons button {
-        max-width: 200px;
-        background-color: #4791E6;
-        color: white;
-        padding: 8px 16px;
-        height: auto;
-        margin-top: 16px;
-        border-radius: 5px;
-      }
-
-      .search-results{
-        background: white;
-        margin-top: -8px;
-      }
-
-      .search-results li {
-        padding: 8px;
-        width: 100%;
-        border-bottom: 1px solid #efefef;
-        list-style-type: none;
-      }
-
-      .simple-container {
-        display: grid;
-        /*grid-template-columns: 2fr 5fr;*/
-        grid-template-columns: 1fr;
-        gap: 8px;
-        width: 50%;
-        margin-top: -8px;
-        align-items: center;
-      }
-
-      .simple-container .search-results{
-        margin-top: -32px;
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        margin-bottom: 32px;
-      }
-
-      .simple-container .search-results li{
-        border-top: 1px solid #e0e0e0;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .simple-container button {
-        margin-top: 0;
-      }
-
-      .simple-container input, .simple-container select{
-        margin-bottom: 16px;
-        height: 45px !important;
-      }
-
-      .simple-container-buttons {
-        display: grid;
-        grid-template-columns: 2fr 5fr;
-        gap: 8px;
-        width: 50%;
-        margin-top: -8px;
-        align-items: center;
-      }
-
-      .simple-container-buttons {
-        margin-top: -24px;
-      }
-
-      .spinned-input {
-        position: relative;
-      }
-
-      .spinned-input img {
-        position: absolute;
-        top: 50%;
-        right: 8px;
-        width: 28px;
-        height: 28px;
-        transform: translate(0, -75%);
-        display: none;
-      }
-
-      .spinned-input-slide {
-        position: relative;
-      }
+      <div class="save-btn-container">
+        <input type="hidden" id="index" name="index" value="0" />
+        <input class="btn_new_entity" type="submit" value="Salva tutto" />
+      </div>
 
 
-      .spinned-input-slide img {
-        position: absolute;
-        top: 50%;
-        right: 8px;
-        width: 20px;
-        height: 20px;
-        transform: translate(0, -50%);
-        display: none;
-      }
+      <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+      <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+      <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-      .rule-grid {
-        display: grid;
-        width: 100%;
-        grid-template-columns: 2fr 2fr 2fr;
-        gap: 8px;
-      }
+      <style>
+        .App {
+          display: grid;
+          /*border-bottom: 1px solid #000;*/
+          border-bottom: 1px solid #e0e0e0;
+          padding-bottom: 32px;
+          margin-bottom: 24px;
+          padding-left: 40px;
+          padding-right: 40px;
+        }
 
-    </style>
+        .section-title {
+          font-weight: 700;
+          /*text-decoration: underline;*/
+          text-transform: uppercase;
+          font-size: 13px;
+          line-height: 1;
+        }
 
-    <div id="div"></div>
+        h2 {
+          font-weight: 700;
+          font-size: 13px;
+          line-height: 1;
+          text-transform: uppercase;
+        }
 
-    <script type="text/babel">
+        input,
+        select {
+          border: 1px solid #e0e0e0 !important;
+          border-radius: 5px;
+        }
 
-      const { useState, useRef, useEffect } = React;
+        .save-btn-container {
+          text-align: right;
+          margin-bottom: 8px;
+        }
 
-      const ObjPHP = <?php echo json_encode($sections).";"; ?>
-      const pageId = <?php echo json_encode($page_id).";"; ?>
+        .new-section {
+          width: 100%;
+          text-align: right;
+        }
+
+        .section-heading {
+          display: grid;
+          gap: 8px;
+          width: 50%;
+          /*grid-template-columns: 2fr 5fr;*/
+          grid-template-columns: 1fr;
+          margin-top: 24px;
+          margin-bottom: 16px;
+          align-items: center;
+        }
+
+        .section-heading input,
+        .section-heading select {
+          height: 45px !important;
+          /*height: 30px;*/
+          border-radius: 5px;
+          border: 1px solid #b0b0b0;
+
+          margin-bottom: 16px;
+        }
+
+        .slider-container {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          grid-auto-flow: column;
+          gap: 16px;
+          width: 100%;
+          margin: 0 auto;
+          overflow: scroll;
+        }
+
+        .slider-item {
+          height: 320px;
+          cursor: grab;
+          display: grid;
+          align-items: center;
+          background-color: lightgrey;
+          position: relative;
+          background-size: cover;
+          background-position: center;
+          min-width: 253px;
+        }
+
+        .slider-item h2 {
+          text-align: center;
+        }
+
+        .slider-item .form {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 8px;
+          padding: 0 16px;
+        }
+
+        .slider-item .form input,
+        .slider-item .form select {
+          height: 30px;
+          border-radius: 5px;
+          display: none;
+        }
+
+        .slider-item .save-button {
+          display: none;
+        }
+
+        .buttons-grid {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+        }
+
+        .buttons-grid button svg {
+          width: 15px;
+          height: 15px;
+        }
+
+        .controllers {
+          display: grid;
+          justify-items: right;
+        }
+
+        .controllers button,
+        .simple-container button,
+        .simple-container-buttons button {
+          max-width: 200px;
+          background-color: #4791E6;
+          color: white;
+          padding: 8px 16px;
+          height: auto;
+          margin-top: 16px;
+          border-radius: 5px;
+        }
+
+        .search-results {
+          background: white;
+          margin-top: -8px;
+        }
+
+        .search-results li {
+          padding: 8px;
+          width: 100%;
+          border-bottom: 1px solid #efefef;
+          list-style-type: none;
+        }
+
+        .simple-container {
+          display: grid;
+          /*grid-template-columns: 2fr 5fr;*/
+          grid-template-columns: 1fr;
+          gap: 8px;
+          width: 50%;
+          margin-top: -8px;
+          align-items: center;
+        }
+
+        .simple-container .search-results {
+          margin-top: -32px;
+          border: 1px solid #e0e0e0;
+          border-radius: 5px;
+          margin-bottom: 32px;
+        }
+
+        .simple-container .search-results li {
+          border-top: 1px solid #e0e0e0;
+          border-bottom: 1px solid #e0e0e0;
+        }
+
+        .simple-container button {
+          margin-top: 0;
+        }
+
+        .simple-container input,
+        .simple-container select {
+          margin-bottom: 16px;
+          height: 45px !important;
+        }
+
+        .simple-container-buttons {
+          display: grid;
+          grid-template-columns: 2fr 5fr;
+          gap: 8px;
+          width: 50%;
+          margin-top: -8px;
+          align-items: center;
+        }
+
+        .simple-container-buttons {
+          margin-top: -24px;
+        }
+
+        .spinned-input {
+          position: relative;
+        }
+
+        .spinned-input img {
+          position: absolute;
+          top: 50%;
+          right: 8px;
+          width: 28px;
+          height: 28px;
+          transform: translate(0, -75%);
+          display: none;
+        }
+
+        .spinned-input-slide {
+          position: relative;
+        }
+
+
+        .spinned-input-slide img {
+          position: absolute;
+          top: 50%;
+          right: 8px;
+          width: 20px;
+          height: 20px;
+          transform: translate(0, -50%);
+          display: none;
+        }
+
+        .rule-grid {
+          display: grid;
+          width: 100%;
+          grid-template-columns: 2fr 2fr 2fr;
+          gap: 8px;
+        }
+      </style>
+
+      <div id="div"></div>
+
+      <script type="text/babel">
+
+        const { useState, useRef, useEffect } = React;
+
+      const ObjPHP = <?php echo json_encode($sections) . ";"; ?>
+      const pageId = <?php echo json_encode($page_id) . ";"; ?>
 
       function CustomSlider(props) {
         document.getElementById('index').value = props.index;
@@ -287,13 +294,14 @@
         const ascDesc = useRef();
         const searchresultsSimple = useRef();
         const IDSimple = useRef();
+        const IDRef = useRef();
         const limitForm = useRef();
         const field_1 = useRef([]);
         const operator = useRef([]);
         const fieldValue = useRef([]);
         const spinner = useRef();
 
-        const options = ["main", "custom", "news", "keep_watching", "rule"];
+        const options = ["main", "custom", "rule"];
         const [myValue, setMyValue] = useState(props.type);
 
         /*
@@ -355,7 +363,7 @@
                     const anchorElement = document.createElement("a");
                     anchorElement.href = "#" + element.id + "#" + element.image_poster.url;
                     anchorElement.id = "id" + index;
-                    anchorElement.textContent = element.search_string;
+                    anchorElement.textContent = element.title;
                     liElement.appendChild(anchorElement);
                     postNode.appendChild(liElement);
                   });
@@ -364,13 +372,14 @@
                   spinnerSlide.current[index].style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:9080/admin/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
+              xhr.open("GET", `http://localhost:9080/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchResults.current[index].addEventListener("click", function(){
                 event.preventDefault();
                 textElements.current[index].value = event.target.innerText;
                 idElements.current[index].value = event.target.href.split("#")[1];
+                IDRef.current.value=event.target.href.split('#')[1]?event?.target?.href?.split('#')[1]:null;
                 searchResults.current[index].style.display = "none";
                 const classNameCustom = "slide-"+(updatedSlides[index].ref);
                 const currentSlideDiv = document.getElementsByClassName(classNameCustom);
@@ -379,7 +388,6 @@
                 backgroundImages.current[index].value = event.target.href.split("#")[2];
               });
             });
-
             return updatedSlides;
           });
         };
@@ -390,6 +398,9 @@
             const updatedSlides = [...prevSlides];
             //updatedSlides[index].label = sectionLabel.current.value;
             //updatedSlides[index].type = sectionType.current.value;
+            if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
+              updatedSlides[0].ref = IDRef.current.value;
+            }
             updatedSlides[index].search_string = textElements.current[index].value;
             updatedSlides[index].collection = selectElements.current[index].value;
             updatedSlides[index].background_image = backgroundImages.current[index].value;
@@ -426,6 +437,9 @@
             }
             if(typeof IDSimple.current !== 'undefined' && IDSimple.current != null){
               updatedSlides[0].ref = IDSimple.current.value;
+            }
+            if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
+              updatedSlides[0].ref = IDRef.current.value;
             }
             if(typeof selectForm.current !== 'undefined' && selectForm.current != null){
               updatedSlides[0].collection = selectForm.current.value;
@@ -478,7 +492,8 @@
                     const anchorElement = document.createElement("a");
                     anchorElement.href = "#" + element.id;
                     anchorElement.id = "id" + index;
-                    anchorElement.textContent = element.search_string;
+                    anchorElement.textContent = element.title;
+                    anchorElement.textContent = element.title;
                     liElement.appendChild(anchorElement);
                     postNode.appendChild(liElement);
                   });
@@ -487,7 +502,7 @@
                   spinner.current.style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:9080/admin/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
+              xhr.open("GET", `http://localhost:9080/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchresultsSimple.current.addEventListener("click", function(){
@@ -574,9 +589,9 @@
                 <div className="simple-container">
                     <h2>Collection:</h2>
                     <select className="form_select" name="collection" id="collection" defaultValue={props.state[0][0].collection} ref={selectForm}>
-                      <option value="programs">Program</option>
-                      <option value="seasons">Season</option>
-                      <option value="episodes">Episode</option>
+                      <option value="categories">Category</option>
+                      <option value="models">Model</option>
+                      <option value="videos">Video</option>
                     </select>
                     <h2>Titolo:</h2>
                     <div className="spinned-input">
@@ -594,48 +609,14 @@
                     <button onClick={(e) => saveForm(e)}>Salva</button>
                   </div>
                 </>,
-              'news': 
-                <>
-                  <div className="simple-container">
-                  <h2>Limit:</h2>
-                    <input onChange={(e) => saveForm(e)} className="form_input" type="number" id="limit" name="limit" defaultValue={props.state[0][0].limit} ref={limitForm} />
-                    <h2>Order By:</h2>
-                    <select onChange={(e) => saveForm(e)} className="form_select" name="order_by" id="order_by" defaultValue={props.state[0][0].order_by} ref={orderbyForm} >
-                      <option value="published_date">Data di Pubblicazione</option>
-                    </select>
-                    <h2>Asc or Desc:</h2>
-                    <select onChange={(e) => saveForm(e)} className="form_select" name="asc_desc" id="asc_desc" defaultValue={props.state[0][0].asc_desc} ref={ascDesc}>
-                      <option value="asc">Asc</option>
-                      <option value="desc">Desc</option>
-                    </select>
-                    <input type="hidden" id={"jsonResponse"+props.index} name={"jsonResponse"+props.index} value="" ref={jsonElement} />
-                  </div>
-                </>,
-              'keep_watching': 
-                <>
-                  <div className="simple-container">
-                    <h2>Limit:</h2>
-                    <input onChange={(e) => saveForm(e)} className="form_input" type="number" id="limit" name="limit" defaultValue={props.state[0][0].limit} ref={limitForm} />
-                    <h2>Order By:</h2>
-                    <select onChange={(e) => saveForm(e)} className="form_select" name="order_by" id="order_by" defaultValue={props.state[0][0].order_by} ref={orderbyForm}>
-                      <option value="most_recent_action_date">Ultima azione svolta</option>
-                    </select>
-                    <h2>Asc or Desc:</h2>
-                    <select onChange={(e) => saveForm(e)} className="form_select" name="asc_desc" id="asc_desc" defaultValue={props.state[0][0].asc_desc} ref={ascDesc}>
-                      <option value="asc">Asc</option>
-                      <option value="desc">Desc</option>
-                    </select>
-                    <input type="hidden" id={"jsonResponse"+props.index} name={"jsonResponse"+props.index} value="" ref={jsonElement} />
-                  </div>
-                </>,
               'rule': 
                 <>
                   <div className="simple-container">
                   <h2>Collection:</h2>
                     <select onChange={(e) => saveForm(e)} className="form_select" name="collection" id="collection" defaultValue={props.state[0][0].collection} ref={selectForm}>
-                      <option value="programs">Program</option>
-                      <option value="seasons">Season</option>
-                      <option value="episodes">Episode</option>
+                    <option value="categories">Category</option>
+                    <option value="models">Model</option>
+                    <option value="videos">Video</option>
                   </select>
                   <h2>Limit:</h2>
                     <input onChange={(e) => saveForm(e)} className="form_input" type="number" id="limit" name="limit" defaultValue={props.state[0][0].limit} ref={limitForm} />
@@ -656,8 +637,8 @@
                             <div className="rule-grid">
                               <select onChange={(e) => saveForm(e)} className="form_select" name="field_1" id="field_1" defaultValue={item.field_1} ref={(element) => field_1.current[i] = element}>
                                 <option value="category_id">Category ID</option>
-                                <option value="program_id">Program ID</option>
-                                <option value="season_id">Season ID</option>
+                                <option value="model_id">Model ID</option>
+                                <option value="video_id">Video ID</option>
                                 <option value="podcast">Podcast</option>
                               </select>
                               <select onChange={(e) => saveForm(e)} className="form_select" name="operator" id="operator" defaultValue={item.operator} ref={(element) => operator.current[i] = element}>
@@ -677,8 +658,8 @@
                           <div className="rule-grid">
                             <select onChange={(e) => saveForm(e)} className="form_select" name="field_1" id="field_1" ref={field_1}>
                               <option value="category_id">Category ID</option>
-                              <option value="program_id">Program ID</option>
-                              <option value="season_id">Season ID</option>
+                              <option value="model_id">Model ID</option>
+                              <option value="video_id">Video ID</option>
                               <option value="podcast">Podcast</option>
                             </select>
                             <select onChange={(e) => saveForm(e)} className="form_select" name="operator" id="operator" ref={operator}>
@@ -711,14 +692,15 @@
                         <div className="form">
                           {/*<h2>ID: {slide.ref}</h2>*/}
                           <select name="select" id="select" disabled={true} ref={(element) => selectElements.current[index] = element}>
-                            <option value="programs">Program</option>
-                            <option value="seasons">Season</option>
-                            <option value="episodes">Episode</option>
+                          <option value="categories">Category</option>
+                          <option value="models">Model</option>
+                          <option value="videos">Video</option>
                           </select>
                           <div className="spinned-input-slide">
                             <input name="search_string" id="search_string" type="text" readOnly={true} ref={(element) => textElements.current[index] = element} defaultValue={slide.search_string} />
                             <img className="spinner w-20 h-20" src="{{ asset('assets/imgs/spinner.gif') }}" ref={(element) => spinnerSlide.current[index] = element} />
                           </div>
+                          <input type="hidden" ref={IDRef} defaultValue={slide.id} />
                           <input type="hidden" ref={(element) => idElements.current[index] = element} defaultValue={slide.id} />
                           <input type="hidden" ref={(element) => backgroundImages.current[index] = element} defaultValue={(slide.image_poster)?slide.image_poster[0].url:""} />
                           <div ref={(element) => searchResults.current[index] = element} />

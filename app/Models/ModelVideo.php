@@ -11,6 +11,8 @@ use App\Models\Image;
 use App\Models\Video;
 use Meride\Api;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
+
 
 class ModelVideo extends Model
 {
@@ -119,6 +121,43 @@ class ModelVideo extends Model
     public function videosAreReady()
     {
         return $this->video?->isReady() AND $this->videoPreview?->isReady();
+    }
+    public static function searchByTitle(string $title): Collection
+    {
+        $video = ModelVideo::select('id', 'title');
+        foreach( explode(' ', $title) as $word){
+            $video->where('title', 'like' , '%'.$word.'%');
+        }
+        return $video->where("status", "=", VideosStatus::PUBLISHED->value)
+                        ->whereNotNull('published_at')
+                        ->get();
+    }
+
+    /**
+     * Search programs by their search_string
+     * @param string The search string
+     * @return Illuminate\Support\Collection
+     */
+    public static function searchByString(string $title)
+    {
+        $video = ModelVideo::with('image');
+        foreach( explode(' ', $title) as $word){
+            $video->where('title', 'like' , '%'.$word.'%');
+        }
+        $result = $video->where("status", "=", VideosStatus::PUBLISHED->value)
+                        ->whereNotNull('published_at')
+                        ->get();
+
+        return $result->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'search_string' => $item->search_string,
+                'image_poster' => [
+                    'url' => $item->imagePoster->url ?? null
+                ]
+            ];
+        });
     }
     public function get_meride_video()
     {

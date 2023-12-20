@@ -262,4 +262,27 @@ class CarModelController extends Controller
                 ->with('error', $error_message);
         }
     }
+     /**
+     * Search videos by their title
+     * @param Request The request where must be present the `title` query string attribute
+     * @return \Illuminate\Http\Response
+     */
+    public function searchByTitle(Request $request)
+    {
+        $title = $request->query("title");
+        if (strlen(trim($title)) === 0) return response()->json([]);
+        return response()->json(CarModel::searchByTitle($title));
+    }
+
+    /**
+     * Search videos by their search_string
+     * @param Request The request where must be present the `search_string` query string attribute
+     * @return \Illuminate\Http\Response
+     */
+    public function searchByString(Request $request)
+    {
+        $string = $request->query("string");
+        if (strlen(trim($string)) === 0) return response()->json([]);
+        return response()->json(CarModel::searchByString($string));
+    }
 }

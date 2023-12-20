@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CarModel;
 use App\Models\Category;
 use App\Models\Episode;
 use App\Models\Page;
 use App\Models\PageSection;
 use App\Models\Program;
 use App\Models\Season;
+use App\Models\ModelVideo;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -43,23 +45,14 @@ class PageController extends Controller
         if(!session()->getOldInput('sections')){
             foreach($sections as $s){
                 if($s->type == 'main'){
-                    $obj = $s->list[0]->collection == 'programs' ? Program::find($s->list[0]->collection_id) : ($s->list[0]->collection == 'seasons' ?  Season::find($s->list[0]->collection_id) : ($s->list[0]->collection == 'episodes' ?  Episode::find($s->list[0]->collection_id) : null));
+                    $obj = $s->list[0]->collection == 'categories' ? Category::find($s->list[0]->collection_id) : ($s->list[0]->collection == 'models' ?  CarModel::find($s->list[0]->collection_id) : ($s->list[0]->collection == 'videos' ?  ModelVideo::find($s->list[0]->collection_id) : null));
                     array_push($editor_data['sections'], [
                         'label' => $s->title,
                         'type' => $s->type, 
                         //'collection' => substr($s->list[0]->collection, 0, strlen($s->list[0]->collection) - 1),
                         'collection' => $s->list[0]->collection,
                         'ref' => $s->list[0]->collection_id,
-                        'search_string' => $obj->search_string
-                    ]);
-                }
-                if($s->type == 'keep_watching' or $s->type == 'news'){
-                    array_push($editor_data['sections'], [
-                        'label' => $s->title,
-                        'type' => $s->type, 
-                        'limit' => $s->rule->limit,
-                        'order_by' => $s->rule->order->field,
-                        'asc_desc' => $s->rule->order->asc_desc
+                        'search_string' => $obj?->title
                     ]);
                 }
                 if($s->type == 'rule'){
@@ -85,7 +78,7 @@ class PageController extends Controller
                         'label' => $s->title,
                         'type' => $s->type, 
                         'list' => array_map(function ($item) {
-                            $obj = $item->collection == 'programs' ? Program::find($item->collection_id) : ($item->collection == 'seasons' ?  Season::find($item->collection_id) : ($item->collection == 'episodes' ?  Episode::find($item->collection_id) : null));
+                            $obj = $item->collection == 'categories' ? Category::find($item->collection_id) : ($item->collection == 'models' ?  CarModel::find($item->collection_id) : ($item->collection == 'videos' ?  ModelVideo::find($item->collection_id) : null));
                             return [
                                 //'collection' => substr($item->collection, 0, strlen($item->collection) - 1),
                                 'collection' => $item->collection,
@@ -118,22 +111,17 @@ class PageController extends Controller
                 $section = json_decode($request['jsonResponse' . $i], true);
                 $section = isset($section['type']) ? $section : $section[0];
                 if($section['type'] == 'main'){
-                    $obj = $section['collection'] == 'programs' ? Program::find($section['ref']) : ($section['collection'] == 'seasons' ?  Season::find($section['ref']) : ($section['collection'] == 'episodes' ?  Episode::find($section['ref']) : null));
+                    $obj = $section['collection'] == 'categories' ? Category::find($section['ref']) : ($section['collection'] == 'models' ?  CarModel::find($section['ref']) : ($section['collection'] == 'videos' ?  ModelVideo::find($section['ref']) : null));
                     if($obj === null or !$obj->id){
                         return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Oggetto per sezione main non valido. Numero sezione: '. $i + 1);
                     }
                 }
                 if($section['type'] == 'custom'){
                     foreach($section['list'] as $k => $item){
-                        $obj = $item['collection'] == 'programs' ? Program::find($item['ref']) : ($item['collection'] == 'seasons' ?  Season::find($item['ref']) : ($item['collection'] == 'episodes' ?  Episode::find($item['ref']) : null));
+                        $obj = $item['collection'] == 'categories' ? Category::find($item['ref']) : ($item['collection'] == 'models' ?  CarModel::find($item['ref']) : ($item['collection'] == 'videos' ?  ModelVideo::find($item['ref']) : null));
                         if($obj === null or !$obj->id){
                             return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Oggetto per sezione custom non valido. Numero sezione: '.($i + 1).' - Numero item: '.$k);
                         }
-                    }
-                }
-                if($section['type'] == 'news' or $section['type'] == 'keep_watching'){
-                    if($section['limit'] < 0){
-                        return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Limit non valido per sezione '.$section['type'].'. Numero sezione: '. $i + 1);
                     }
                 }
                 if($section['type'] == 'rule'){
@@ -151,8 +139,8 @@ class PageController extends Controller
                                     return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Condizione rule non valida per sezione '.$section['type'].'. Numero sezione: '.($i + 1).'. Condizione con "Category ID" specificabile solo per collection "Program"');
                                 }
                             }
-                            if($where['field_1'] == 'program_id'){
-                                $obj = Program::find($where['field_value']);
+                            if($where['field_1'] == 'model_id'){
+                                $obj = CarModel::find($where['field_value']);
                                 if($obj === null or !$obj->id){
                                     return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Condizione rule non valida per sezione '.$section['type'].'. Numero sezione: '.($i + 1).'. Programma con id '.$where['field_value'].' non trovato');
                                 }
@@ -160,8 +148,8 @@ class PageController extends Controller
                                     return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Condizione rule non valida per sezione '.$section['type'].'. Numero sezione: '.($i + 1).'. Condizione con "Program ID" specificabile solo per collection "Season"');
                                 }
                             }
-                            if($where['field_1'] == 'season_id'){
-                                $obj = Season::find($where['field_value']);
+                            if($where['field_1'] == 'video_id'){
+                                $obj = ModelVideo::find($where['field_value']);
                                 if($obj === null or !$obj->id){
                                     return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Condizione rule non valida per sezione '.$section['type'].'. Numero sezione: '.($i + 1).'. Stagione con id '.$where['field_value'].' non trovata');
                                 }
@@ -196,7 +184,9 @@ class PageController extends Controller
                             'type' => $section['type'], 
                             'list' => [['collection' => $section['collection'], 'collection_id' => intval($section['ref']) ]],
                             'title' => $section['label'],
-                            'rule' => null
+                            'search_string'=>$section['search_string'],
+                            'rule' => null,
+                           
                         ]
                    );
                 }
@@ -213,23 +203,6 @@ class PageController extends Controller
                             }, $section['list']),
                             'title' => $section['label'],
                             'rule' => null
-                        ]
-                   );
-                }
-                if($section['type'] == 'news' or $section['type'] == 'keep_watching'){
-                    $s = PageSection::updateOrCreate(
-                        ['page_id' => $page->id, 'order_number' => $i + 1],
-                        [
-                            'type' => $section['type'], 
-                            'list' => null,
-                            'title' => $section['label'],
-                            'rule' => [
-                                'limit' => intval($section['limit']),
-                                'order' => [
-                                    'field' => $section['order_by'],
-                                    'asc_desc' => $section['asc_desc']
-                                ]
-                            ]
                         ]
                    );
                 }

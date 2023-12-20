@@ -7,11 +7,11 @@
         </div>
         <div class="grow">
             <div class="text-sm lg:flex-grow">
-                <!-- <ul>
+                <ul>
                     <li>
                         <x-navigation.page></x-navigation.page>
                     </li>
-                </ul> -->
+                </ul>
                 <ul>
                     <li>
                         <x-navigation.vod></x-navigation.vod>

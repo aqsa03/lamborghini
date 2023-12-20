@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModelStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,7 @@ use App\Enums\VideosStatus;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Meride\Api;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
 
 class CarModel extends Model
 {
@@ -52,6 +54,43 @@ class CarModel extends Model
     public function isPublished()
     {
         return $this->status == VideosStatus::PUBLISHED->value;
+    }
+    public static function searchByTitle(string $title): Collection
+    {
+        $model = CarModel::select('id', 'title');
+        foreach( explode(' ', $title) as $word){
+            $model->where('title', 'like' , '%'.$word.'%');
+        }
+        return $model->where("status", "=", ModelStatus::PUBLISHED->value)
+                        ->whereNotNull('published_at')
+                        ->get();
+    }
+
+    /**
+     * Search programs by their search_string
+     * @param string The search string
+     * @return Illuminate\Support\Collection
+     */
+    public static function searchByString(string $title)
+    {
+        $model = CarModel::with('imagePoster');
+        foreach( explode(' ', $title) as $word){
+            $model->where('title', 'like' , '%'.$word.'%');
+        }
+        $result = $model->where("status", "=", ModelStatus::PUBLISHED->value)
+                        ->whereNotNull('published_at')
+                        ->get();
+
+        return $result->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'title' => $item->title,
+                'search_string' => $item->search_string,
+                'image_poster' => [
+                    'url' => $item->imagePoster->url ?? null
+                ]
+            ];
+        });
     }
     public function get_meride_video()
     {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Collection;
 
 class Category extends Model
 {
@@ -45,4 +46,21 @@ class Category extends Model
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
+    public static function searchByTitle(string $title): Collection
+    {
+        $category = Category::select('id', 'title');
+        foreach( explode(' ', $title) as $word){
+            $category->where('title', 'like' , '%'.$word.'%');
+        }
+        return $category->get();
+    }
+    public static function searchByString(string $title)
+    {
+        $category = Category::select('id', 'title');
+        foreach( explode(' ', $title) as $word){
+            $category->where('title', 'like' , '%'.$word.'%');
+        }
+        return $category->get();
+    }
+
 }

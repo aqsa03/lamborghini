@@ -34,6 +34,10 @@ use App\Http\Controllers\PalimpsestTemplateItemsController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/categories/search_by_string', [CategoryController::class, 'searchByString'])->name('categories.search_by_string');
+Route::get('/models/search_by_string', [CarModelController::class, 'searchByString'])->name('models.search_by_string');
+Route::get('/categories/search_by_string', [CategoryController::class, 'searchByString'])->name('categories.search_by_string');
+Route::get('/videos/search_by_string', [ModelVideoController::class, 'searchByString'])->name('videos.search_by_string');
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin');
@@ -50,6 +54,9 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/lives/search_by_title', [LiveController::class, 'searchByTitle'])->name('lives.search_by_title');
     Route::get('/news/search_by_title', [NewsController::class, 'searchByTitle'])->name('news.search_by_title');
 
+    Route::get('/models/search_by_string', [CarModelController::class, 'searchByString'])->name('models.search_by_string');
+    Route::get('/categories/search_by_string', [CategoryController::class, 'searchByString'])->name('categories.search_by_string');
+    Route::get('/videos/search_by_string', [ModelVideoController::class, 'searchByString'])->name('videos.search_by_string');
     Route::get('/programs/search_by_string', [ProgramsController::class, 'searchByString'])->name('programs.search_by_string');
     Route::get('/seasons/search_by_string', [SeasonsController::class, 'searchByString'])->name('seasons.search_by_string');
     Route::get('/episodes/search_by_string', [EpisodesController::class, 'searchByString'])->name('episodes.search_by_string');

@@ -21,11 +21,11 @@
     <div class="p-6 flex flex-col justify-start w-full h-full">
         <div class="grow">
             <div class="text-sm lg:flex-grow">
-                <!-- <ul>
+                <ul>
                     <li>
                         <x-navigation.page></x-navigation.page>
                     </li>
-                </ul> -->
+                </ul>
                 <ul>
                     <li>
                         <x-navigation.vod></x-navigation.vod>
