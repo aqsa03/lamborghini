@@ -19,10 +19,10 @@ class CorsMiddleware
         $response = $next($request);
 
         // Add CORS headers
-        $response->headers->set('Access-Control-Allow-Origin', 'http://127.0.0.1:8000');
+        $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN');
 
         return $response;
     }
