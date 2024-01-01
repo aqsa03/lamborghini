@@ -1,25 +1,24 @@
 <x-layouts.panel_layout>
 
   <x-form_errors :errors="$errors"></x-form_errors>
-  <?php //dump($sections) 
+  <?php //dump($sections)
   ?>
-  <?php //dump($page_id) 
+  <?php //dump($page_id)
   ?>
 
 
   <div className="body_section">
-    <form action="{{ route('pages.update', $page_id) }}" method="POST">
+    <form id="pageForm" action="{{ route('pages.update', $page_id) }}" method="POST">
       @csrf
       {{ method_field('PUT') }}
-
       <x-page_title>Page editor</x-page_title>
-
+      <script>
+        window.csrfToken = @json(csrf_token())
+      </script>
       <div class="save-btn-container">
         <input type="hidden" id="index" name="index" value="0" />
         <input class="btn_new_entity" type="submit" value="Salva tutto" />
       </div>
-
-
       <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
       <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
       <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -184,6 +183,16 @@
           align-items: center;
         }
 
+        .special-container {
+          display: grid;
+          /*grid-template-columns: 2fr 5fr;*/
+          grid-template-columns: 1fr;
+          gap: 8px;
+          width: 50%;
+          margin-top: 20px;
+          align-items: center;
+        }
+
         .simple-container .search-results {
           margin-top: -32px;
           border: 1px solid #e0e0e0;
@@ -237,7 +246,6 @@
           position: relative;
         }
 
-
         .spinned-input-slide img {
           position: absolute;
           top: 50%;
@@ -264,17 +272,13 @@
 
       const ObjPHP = <?php echo json_encode($sections) . ";"; ?>
       const pageId = <?php echo json_encode($page_id) . ";"; ?>
-
-      function CustomSlider(props) {
-        document.getElementById('index').value = props.index;
-        /*
-          * Declaration of Constants
-        */
-
-        /* @ToDo: forEach Slide SetState ID */
+      function CustomSlider(props)
+      {
+        const state=[[{collection:" ",ref:0 ,search_string:" "}]]
+        const [main,setmain]=useState(state);
+        document.getElementById('index').value = props?.index;
         const [slides, setSlides] = useState(props.state[0]);
         const [forceEffect, setForceEffect] = useState(0);
-       
         const slidesElement = JSON.stringify(slides);
         const jsonElement = useRef();
         const selectElements = useRef({});
@@ -302,7 +306,8 @@
         const spinner = useRef();
 
         const options = ["main", "custom", "rule"];
-        const [myValue, setMyValue] = useState(props.type);
+        const [myValue, setMyValue] = useState(props?.type);
+        
 
         /*
           * Slides Management
@@ -372,7 +377,7 @@
                   spinnerSlide.current[index].style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:9080/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
+              xhr.open("GET", `http://localhost:8000/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchResults.current[index].addEventListener("click", function(){
@@ -419,6 +424,24 @@
         */
         const saveForm = (e) => {
           e.preventDefault();
+          
+//           setmain((prevMain) => {
+//           const updatedMain = prevMain.map((m) =>
+//             m.map((v) => {
+//               if (v.ref.toString() === IDSimple.current.value) {
+//                 return {
+//                   ...v,
+//                   collection: selectForm.current.value,
+//                   search_string: numberForm.current.value,
+//                 };
+//               }
+//               return v;
+//             })
+//           );
+//   return updatedMain;
+// });
+
+   
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
             /* Main Section custom rule */
@@ -430,37 +453,37 @@
             }
             /* End of Main Section custom rule */
             if(typeof sectionLabel.current !== 'undefined'){
-              updatedSlides[0].label = sectionLabel.current.value;
+              updatedSlides[0].label = sectionLabel?.current?.value;
             }
             if(typeof sectionType.current !== 'undefined' && sectionType.current != null){
-              updatedSlides[0].type = sectionType.current.value;
+              updatedSlides[0].type = sectionType?.current?.value;
             }
             if(typeof IDSimple.current !== 'undefined' && IDSimple.current != null){
-              updatedSlides[0].ref = IDSimple.current.value;
+              updatedSlides[0].ref = IDSimple?.current?.value;
             }
             if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
-              updatedSlides[0].ref = IDRef.current.value;
+              updatedSlides[0].ref = IDRef?.current?.value;
             }
             if(typeof selectForm.current !== 'undefined' && selectForm.current != null){
-              updatedSlides[0].collection = selectForm.current.value;
+              updatedSlides[0].collection = selectForm?.current?.value;
             }
             if(typeof limitForm.current !== 'undefined' && limitForm.current != null){
-              updatedSlides[0].limit = limitForm  .current.value;
+              updatedSlides[0].limit = limitForm  ?.current?.value;
             }
             if(typeof numberForm.current !== 'undefined' && numberForm.current != null){
-              updatedSlides[0].search_string = numberForm.current.value;
+              updatedSlides[0].search_string = numberForm?.current?.value;
             }
             if(typeof orderbyForm.current !== 'undefined' && orderbyForm.current != null){
-              updatedSlides[0].order_by = orderbyForm.current.value;
+              updatedSlides[0].order_by = orderbyForm?.current?.value;
             }
             if(typeof ascDesc.current !== 'undefined' && ascDesc.current != null){
-              updatedSlides[0].asc_desc = ascDesc.current.value;
+              updatedSlides[0].asc_desc = ascDesc?.current?.value;
             }
             if(typeof updatedSlides[0].rules == 'object'){
               updatedSlides[0].rules.forEach((item, index) => {
-                item.field_1 = field_1.current[index].value;
-                item.operator = operator.current[index].value;
-                item.field_value = fieldValue.current[index].value;
+                item.field_1 = field_1?.current[index]?.value;
+                item.operator = operator?.current[index]?.value;
+                item.field_value = fieldValue?.current[index]?.value;
               });
             }
             setForceEffect((prev) => prev + 1);
@@ -502,7 +525,7 @@
                   spinner.current.style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:9080/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
+              xhr.open("GET", `http://localhost:8000/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchresultsSimple.current.addEventListener("click", function(){
@@ -520,19 +543,20 @@
         /*
           * JSON Management
         */
-        useEffect(() => {
-          if(sectionType.current.value == 'custom'){
-            //console.log('found custom')
+        useEffect(() => { 
+          if(sectionType?.current!==null)
+          {
+           
+          if(sectionType?.current?.value == 'custom'){
+            console.log('found custom')
             jsonElement.current.value = JSON.stringify({
-              type: sectionType.current.value,
-              label: sectionLabel.current.value,
+              type: sectionType?.current?.value,
+              label: sectionLabel?.current?.value,
               list: JSON.parse(slidesElement)
             });
-          } else {
+          } }else {
             jsonElement.current.value = slidesElement;
           }
-          console.log(jsonElement.current.value);
-          //console.log("ciao");
         }, [slidesElement, forceEffect]);
 
         /*const submitJsons = (index) => {
@@ -546,11 +570,9 @@
         const handleDragStart = (e, index) => {
           e.dataTransfer.setData("text/plain", index.toString());
         };
-
         const handleDragOver = (e) => {
           e.preventDefault(jsonElement.current);
         };
-
         const handleDrop = (e, dropIndex) => {
           const dragIndex = parseInt(e.dataTransfer.getData("text/plain"));
           const updatedSlides = [...slides];
@@ -558,25 +580,40 @@
           updatedSlides.splice(dropIndex, 0, draggedSlide);
           setSlides(updatedSlides);
         };
-
         const handleDragEnd = (e) => {
           e.preventDefault();
         };
-
+        const addCard=(e)=>{
+          e.preventDefault();
+          const newRef = main.length > 0 ? main[main.length - 1][0].ref + 1 : 1;
+          setmain((prevMain) => {
+          const newRef = prevMain.length > 0 ? prevMain[prevMain.length - 1][0].ref + 1 : 1;
+          return [
+            ...prevMain,
+            [
+              {
+                collection: " ",
+                ref: newRef,
+                search_string: " ",
+              },
+            ],
+          ];
+        });
+        }
+        
         /*
         * HTML Generation
         */
         return (
           <div className="App">
-          {/*<h1 className="section-title">Sezione</h1>*/}
-          {/*<div>
-            <button className="btn_new_entity" onClick={() => submitJsons()}>SALVA TUTTO</button>
-          </div>*/}
+          <div className="controllers">
+          <button onClick={props.removeSection}>X</button>
+        </div>
           <div className="section-heading">
             <h2>Titolo Sezione:</h2>
             <input onChange={(e) => saveForm(e)} className="form_input" type="text" id="section-label" name="section-label" defaultValue={props.label} ref={sectionLabel}/>
             <h2>Tipologia Sezione:</h2>
-            <select className="form_select" id="section-type" name="section-type" onChange={(e) => {setMyValue(e.target.value); saveForm(e)}} defaultValue={props.type} ref={sectionType}>
+            <select className="form_select" id="section-type" name="section-type" onChange={(e) => {setMyValue(e?.target?.value); saveForm(e)}} defaultValue={props.type} ref={sectionType}>
             {options.map((option, idx) => (
               <option key={idx}>{option}</option>
             ))}
@@ -585,20 +622,23 @@
           {
             {
               'main': 
-                <>
-                <div className="simple-container">
+              <div>
+    {main.map((m, index) => (
+      m.map((v, i) => (
+        <React.Fragment key={`${index}-${i}`}>
+        <div className="simple-container">
                     <h2>Collection:</h2>
-                    <select className="form_select" name="collection" id="collection" defaultValue={props.state[0][0].collection} ref={selectForm}>
+                    <select className="form_select" name="collection" id="collection" defaultValue={v.collection} ref={selectForm}>
                       <option value="categories">Category</option>
                       <option value="models">Model</option>
                       <option value="videos">Video</option>
                     </select>
                     <h2>Titolo:</h2>
                     <div className="spinned-input">
-                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={true} defaultValue={props.state[0][0].search_string} ref={numberForm} />
+                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={true} defaultValue={v.search_string} ref={numberForm} />
                       <img className="spinner w-20 h-20" src="{{ asset('assets/imgs/spinner.gif') }}" ref={spinner} />
                     </div>
-                    <input type="hidden" ref={IDSimple} defaultValue={props.state[0][0].ref} />
+                    <input type="hidden" ref={IDSimple} defaultValue={v.ref} />
                     <div></div>
                     <div ref={searchresultsSimple} />
                     {/*<input type="number" id="id" name="id" defaultValue={props.state[0][0].inputID} ref={numberForm} />*/}
@@ -608,7 +648,13 @@
                     <button ref={updateButton} onClick={(e) => changeTitle(e)}>Modifica</button>
                     <button onClick={(e) => saveForm(e)}>Salva</button>
                   </div>
-                </>,
+                  <div className="controllers">
+                    <button onClick={addCard}>Aggiungi</button>
+                  </div>
+                  </React.Fragment>
+                ))
+              ))}
+            </div>,
               'rule': 
                 <>
                   <div className="simple-container">
@@ -630,7 +676,7 @@
                       <option value="desc">Desc</option>
                     </select>
                     {(Array.isArray(props.state[0][0].rules)) ?
-                        props.state[0][0].rules.map((item, i) => {  
+                        props?.state[0][0].rules.map((item, i) => {  
                         return (
                           <>
                             <h2>Rule:</h2>
@@ -731,38 +777,99 @@
           </div>
         );
       }
-
+      
       function App() {
+        const [sections, setSections]=useState(ObjPHP);
+       
+        const handleSectionChange = (newSections) => {
+          setSections(newSections);
+          setRenderedSections((prevRenderedSections) => {
+          const updatedRenderedSections = newSections.map((section, index) => {
+            if (section.type === 'custom') {
+              return (
+                <CustomSlider
+                  key={index}
+                  state={[section.list]}
+                  label={section.label}
+                  type={section.type}
+                  index={index}
+                  removeSection={(e) => removeSection(e, index)}
+                />
+              );
+            } else {
+              return (
+                <CustomSlider
+                  key={index}
+                  state={[[section]]}
+                  label={section.label}
+                  type={section.type}
+                  index={index}
+                  removeSection={(e) => removeSection(e, index)}
+                />
+              );
+            }
+          });
+          setComponentsToRender(updatedRenderedSections);
+          return updatedRenderedSections;
+          });
+          };
+        const removeSection = async (e, index) => 
+        {
+        e.preventDefault();
+        const csrfToken = window.csrfToken;
+        const updatedSections = [...sections];
+        const newSections = sections.filter((_, i) => i !== index);
+        ObjPHP.splice(index,1);
+        const removedSection = updatedSections.splice(index, 1)[0];
+        const requestData =encodeURIComponent(JSON.stringify({ page: removedSection.label }));
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET',`http://localhost:8000/page/destroy?page=${removedSection.label}`);
+        xhr.setRequestHeader("Content-Type", "text/plain");
+        xhr.setRequestHeader("X-CSRF-TOKEN", window.csrfToken);
+        xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                  handleSectionChange(newSections);
+                } else {
+                    console.error(response.message);
+                }
+            } else {
+                console.error("Error:", xhr.status, xhr.statusText);
+                }
+              }
 
-        const sections = ObjPHP.map((section, index) => {
+                };
+            xhr.send();
+            };
+        const [renderedsections,setRenderedSections] = useState(sections.map((section, index) => {
           if(section.type == 'custom'){
             return(
-              <CustomSlider key={index} state={[section.list]} label={section.label} type={section.type} index={index} />
+              <CustomSlider key={index} state={[section.list]} label={section.label} type={section.type} index={index} removeSection={(e) => removeSection(e,index)} />
             );
           } else {
             return(
-              <CustomSlider key={index} state={[[section]]} label={section.label} type={section.type} index={index} />
+              <CustomSlider key={index} state={[[section]]} label={section.label} type={section.type} index={index} removeSection={(e) => removeSection(e,index)} />
             );
           }
-        });
-
+        }));
         const placeholderSection = useState([{ ref: 1 }]);
-
-        const [componentsToRender, setComponentsToRender] = useState(sections);
-
+        const [componentsToRender, setComponentsToRender] = useState(renderedsections);
         const handleRenderComponent = (e) => {
           e.preventDefault();
+          const s=[[{collection:" ",ref:1,search_string:" "}]]
+
           setComponentsToRender(
           [...componentsToRender, 
           <CustomSlider key={componentsToRender.length} 
             index={componentsToRender.length}
-            state={(typeof state !== 'undefined')?state:placeholderSection} 
+            state={(typeof state !== 'undefined')?state:s} 
             type={(typeof type !== 'undefined')?type:"main"} 
             label={(typeof label !== 'undefined')?label:"New Section"} 
           />
         ]);
         };
-
         return (
           <div>
             <div className="new-section">
@@ -773,11 +880,30 @@
           </div>
         );
       }
-
       const container = document.getElementById('div');
       const root = ReactDOM.createRoot(container);
       root.render(<App />)
     </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var categoryForm = document.getElementById('pageForm');
+
+          if (categoryForm) {
+            console.log("--------------------categoryForm------------", categoryForm);
+            // categoryForm.addEventListener('submit', function (event) {
+            //     event.preventDefault(); // Prevent the form from submitting
+
+            //     // Access form elements and their values
+            //     var titleValue = categoryForm.querySelector('input[name="title"]').value;
+            //     var descriptionValue = categoryForm.querySelector('textarea[name="description"]').value;
+            //     var parentIdValue = categoryForm.querySelector('select[name="parent_id"]').value;
+
+            //     // You can now use or display these values as needed
+            //     alert('Title: ' + titleValue + '\nDescription: ' + descriptionValue + '\nParent ID: ' + parentIdValue);
+            // });
+          }
+        });
+      </script>
     </form>
   </div>
 </x-layouts.panel_layout>
