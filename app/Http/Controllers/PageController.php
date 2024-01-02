@@ -124,15 +124,16 @@ class PageController extends Controller
      */
     public function update(Request $request, Page $page)
     {
-
         for ($i = 0; $i < 20; $i++) {
             if (isset($request['jsonResponse' . $i])) {
                 $section = json_decode($request['jsonResponse' . $i], true);
                 $section = isset($section['type']) ? $section : $section[0];
                 if ($section['type'] == 'main') {
-                    $obj = $section['collection'] == 'categories' ? Category::find($section['ref']) : ($section['collection'] == 'models' ?  CarModel::find($section['ref']) : ($section['collection'] == 'videos' ?  ModelVideo::find($section['ref']) : null));
-                    if ($obj === null or !$obj->id) {
-                        return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Oggetto per sezione main non valido. Numero sezione: ' . $i + 1);
+                    foreach ($section['list'] as $k => $item) {
+                        $obj = $item['collection'] == 'categories' ? Category::find($item['ref']) : ($item['collection'] == 'models' ?  CarModel::find($item['ref']) : ($item['collection'] == 'videos' ?  ModelVideo::find($item['ref']) : null));
+                        if ($obj === null or !$obj->id) {
+                            return back()->withInput(['sections' => PageController::getSectionsFromPostRequest($request)])->withErrors('Oggetto per sezione custom non valido. Numero sezione: ' . ($i + 1) . ' - Numero item: ' . $k);
+                        }
                     }
                 }
                 if ($section['type'] == 'custom') {
@@ -202,6 +203,12 @@ class PageController extends Controller
                         [
                             'type' => $section['type'],
                             'list' => [['collection' => $section['collection'], 'collection_id' => intval($section['ref'])]],
+                            'list' => array_map(function ($item) {
+                                return [
+                                    'collection' => $item['collection'],
+                                    'collection_id' => intval($item['ref'])
+                                ];
+                            }, $section['list']),
                             'title' => $section['label'],
                             'search_string' => $section['search_string'],
                             'rule' => null,

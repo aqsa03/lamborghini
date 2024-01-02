@@ -377,7 +377,7 @@
                   spinnerSlide.current[index].style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:8000/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
+              xhr.open("GET", `http://128.140.106.20:9080/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchResults.current[index].addEventListener("click", function(){
@@ -401,7 +401,6 @@
           e.preventDefault();
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
-            //updatedSlides[index].label = sectionLabel.current.value;
             //updatedSlides[index].type = sectionType.current.value;
             if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
               updatedSlides[0].ref = IDRef.current.value;
@@ -425,23 +424,6 @@
         const saveForm = (e) => {
           e.preventDefault();
           
-//           setmain((prevMain) => {
-//           const updatedMain = prevMain.map((m) =>
-//             m.map((v) => {
-//               if (v.ref.toString() === IDSimple.current.value) {
-//                 return {
-//                   ...v,
-//                   collection: selectForm.current.value,
-//                   search_string: numberForm.current.value,
-//                 };
-//               }
-//               return v;
-//             })
-//           );
-//   return updatedMain;
-// });
-
-   
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
             /* Main Section custom rule */
@@ -486,8 +468,30 @@
                 item.field_value = fieldValue?.current[index]?.value;
               });
             }
-            setForceEffect((prev) => prev + 1);
+            setmain((prevMain)=>{
+            let updatedMain=[...prevMain];
+            updatedMain[updatedMain.length-1]=[{collection:updatedSlides[0].collection,
+            search_string:updatedSlides[0].search_string,
+            ref:updatedSlides[0].ref
+            }]
+            updatedSlides.map((slide)=>{
+            if(slide['type']=='main'){
+            slide['list']=[]
+            updatedMain.map((m)=>{
+              m.map((v)=>{
+                slide['list'].push(v);
+              })
+              
+            })
+          }
+          })
+            return updatedMain;
+
+          })
+          setForceEffect((prev) => prev + 1);
             return updatedSlides;
+          
+           
           })
         }
 
@@ -525,7 +529,7 @@
                   spinner.current.style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:8000/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
+              xhr.open("GET", `http://128.140.106.20:9080/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchresultsSimple.current.addEventListener("click", function(){
@@ -544,20 +548,18 @@
           * JSON Management
         */
         useEffect(() => { 
-          if(sectionType?.current!==null)
-          {
-           
-          if(sectionType?.current?.value == 'custom'){
+          if(sectionType.current.value == 'custom'){
             console.log('found custom')
             jsonElement.current.value = JSON.stringify({
               type: sectionType?.current?.value,
               label: sectionLabel?.current?.value,
               list: JSON.parse(slidesElement)
             });
-          } }else {
+         }else {
             jsonElement.current.value = slidesElement;
           }
-        }, [slidesElement, forceEffect]);
+          console.log(jsonElement.current.value);
+               }, [slidesElement, forceEffect]);
 
         /*const submitJsons = (index) => {
           console.log(jsonElement);
@@ -585,15 +587,15 @@
         };
         const addCard=(e)=>{
           e.preventDefault();
-          const newRef = main.length > 0 ? main[main.length - 1][0].ref + 1 : 1;
+          // const newRef = main.length > 0 ? main[main.length - 1][0].ref + 1 : 1;
           setmain((prevMain) => {
-          const newRef = prevMain.length > 0 ? prevMain[prevMain.length - 1][0].ref + 1 : 1;
+          // const newRef = prevMain.length > 0 ? prevMain[prevMain.length - 1][0].ref + 1 : 1;
           return [
             ...prevMain,
             [
               {
                 collection: " ",
-                ref: newRef,
+                ref: 0,
                 search_string: " ",
               },
             ],
@@ -823,7 +825,7 @@
         const removedSection = updatedSections.splice(index, 1)[0];
         const requestData =encodeURIComponent(JSON.stringify({ page: removedSection.label }));
         let xhr = new XMLHttpRequest();
-        xhr.open('GET',`http://localhost:8000/page/destroy?page=${removedSection.label}`);
+        xhr.open('GET',`http://128.140.106.20:9080/page/destroy?page=${removedSection.label}`);
         xhr.setRequestHeader("Content-Type", "text/plain");
         xhr.setRequestHeader("X-CSRF-TOKEN", window.csrfToken);
         xhr.onreadystatechange = function () {
