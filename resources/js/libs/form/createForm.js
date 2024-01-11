@@ -16,7 +16,7 @@ class CreateForm {
     }) {
         this.form = form;
         this.editor = null;
-        this.editorHolderId = editorHolderId?editorHolderId:null;
+        this.editorHolderId = editorHolderId;
         this.editorPlaceholder = editorPlaceholder;
         this.editorData = editorData || {};
         this.tusConfig = tusConfig;
@@ -177,7 +177,6 @@ class CreateForm {
             placeholder: this.editorPlaceholder,
             data: this.editorData
         });
-        console.log(this.form);
         this.form.addEventListener("submit", this.submitForm.bind(this));
 
         if (this.publishButton !== null) {

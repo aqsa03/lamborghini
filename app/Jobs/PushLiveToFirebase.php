@@ -106,9 +106,7 @@ class PushLiveToFirebase implements ShouldQueue
                     'url' => $this->live->imagePoster->url.(($rule = config('image.imagePosterManagerResizingQueryString.xl', false)) ? '?'.$rule : '')
                 ]
             ] : null,
-            // 'sharing_link' => [
-            //     'url' => config('public_site.baseUrl').'live/'.($this->live->podcast ? 'radio' : 'tv'),
-            // ],
+            
         ];
 
         $db->collection('lives')->document($this->live->id)->set($data);

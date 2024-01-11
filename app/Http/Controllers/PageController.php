@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePageRequest;
 use App\Models\CarModel;
 use App\Models\Category;
-use App\Models\Episode;
 use App\Models\Page;
 use App\Models\PageSection;
-use App\Models\Program;
-use App\Models\Season;
+
 use App\Models\ModelVideo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;

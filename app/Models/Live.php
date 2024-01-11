@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 class Live extends Model
 {
     use HasFactory;
-    protected $table = 'lives';
 
+    protected $table = 'lives';
     protected $fillable = [
         'title',
         'short_description',
@@ -23,6 +23,7 @@ class Live extends Model
         'url_mobile',
         'image_id',
         'image_poster_id',
+        
     ];
 
     public function image()
@@ -48,53 +49,53 @@ class Live extends Model
         );
     }
 
-    // public function descriptionToHtml()
-    // {
-    //     if (empty($this->description)) return "";
-    //     $blocks = json_decode($this->description);
-    //     if (empty($blocks)) return "";
-    //     $html = '';
-    //     foreach ($blocks as $block) {
-    //         switch ($block->type) {
-    //             case 'paragraph':
-    //                 $html .= '<p>' . $block->data->text . '</p>';
-    //                 break;
+    public function descriptionToHtml()
+    {
+        if (empty($this->description)) return "";
+        $blocks = json_decode($this->description);
+        if (empty($blocks)) return "";
+        $html = '';
+        foreach ($blocks as $block) {
+            switch ($block->type) {
+                case 'paragraph':
+                    $html .= '<p>' . $block->data->text . '</p>';
+                    break;
 
-    //             case 'header':
-    //                 $html .= '<h'. $block->data->level .'>' . $block->data->text . '</h'. $block->data->level .'>';
-    //                 break;
+                case 'header':
+                    $html .= '<h'. $block->data->level .'>' . $block->data->text . '</h'. $block->data->level .'>';
+                    break;
 
-    //             case 'raw':
-    //                 $html .= $block->data->html;
-    //                 break;
+                case 'raw':
+                    $html .= $block->data->html;
+                    break;
 
-    //             case 'list':
-    //                 $lsType = ($block->data->style == 'ordered') ? 'ol' : 'ul';
-    //                 $html .= '<' . $lsType . '>';
-    //                 foreach($block->data->items as $item) {
-    //                     $html .= '<li>' . $item . '</li>';
-    //                 }
-    //                 $html .= '</' . $lsType . '>';
-    //                 break;
+                case 'list':
+                    $lsType = ($block->data->style == 'ordered') ? 'ol' : 'ul';
+                    $html .= '<' . $lsType . '>';
+                    foreach($block->data->items as $item) {
+                        $html .= '<li>' . $item . '</li>';
+                    }
+                    $html .= '</' . $lsType . '>';
+                    break;
 
-    //             case 'code':
-    //                 $html .= '<pre><code class="language-'. $block->data->lang .'">'. $block->data->code .'</code></pre>';
-    //                 break;
+                case 'code':
+                    $html .= '<pre><code class="language-'. $block->data->lang .'">'. $block->data->code .'</code></pre>';
+                    break;
 
-    //             case 'image':
-    //                 $html .= '<div><img src="'. $block->data->file->url .'" /></div>';
-    //                 break;
+                case 'image':
+                    $html .= '<div><img src="'. $block->data->file->url .'" /></div>';
+                    break;
 
-    //             case 'quote':
-    //                 $html .= '<div class="mn_quote_text">'.$block->data->text.'</div><div class="mn_quote_caption">'.$block->data->caption.'</div>';
-    //                 break;
+                case 'quote':
+                    $html .= '<div class="mn_quote_text">'.$block->data->text.'</div><div class="mn_quote_caption">'.$block->data->caption.'</div>';
+                    break;
 
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    //     return $html;
-    // }
+                default:
+                    break;
+            }
+        }
+        return $html;
+    }
 
     /**
      * Search lives by their title

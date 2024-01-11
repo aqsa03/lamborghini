@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-
 class DeleteCarModelFromFirebase implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -47,12 +46,11 @@ class DeleteCarModelFromFirebase implements ShouldQueue
      */
     public function handle()
     {
+        
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
         Log::info('Model to remove from Firestore:', ["model_id"=>$this->model_id]);
         $db->collection('models')->document($this->model_id)->delete();
         Log::info('Successfully removed Model from Firestore');
-
     }
 }
-

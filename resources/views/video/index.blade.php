@@ -56,7 +56,9 @@
                             </div>
                         </div>
                         <div class="table_list__row__cell">
-                            <x-badges.episode_status :status="$video->status">{{ $video->status }}</x-badges.episode_status>
+                            {{-- <x-badges.episode_status :status="$video->status"> --}}
+                                {{ $video->status }}
+                            {{-- </x-badges.episode_status> --}}
                         </div>
                         <div class="table_list__row__cell">
                             <a class="text-amber-700" href="{{ route('videos.edit', $video->id) }}" title="Edit {{ $video->title }}">

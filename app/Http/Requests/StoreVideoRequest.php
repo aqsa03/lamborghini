@@ -16,7 +16,7 @@ class StoreVideoRequest extends FormRequest
     {
         return true;
     }
-    
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -35,22 +35,30 @@ class StoreVideoRequest extends FormRequest
             'category_id' => 'nullable|numeric',
             'image' => 'nullable|image',
             'tags' => 'nullable|string',
-            'models' => 'nullable',
             'related' => 'nullable',
-            'product_video' => 'boolean',
-            'captions' => 'boolean',
-            'ext_view' => 'boolean', 
-            'ext_view_url'=>'nullable|string',
-            'thumb_num'=>'nullable|numeric',
-            'type'=>'nullable|string',
             'video_width' => 'nullable|numeric',
             'video_height' => 'nullable|numeric',
             'video_preview_width' => 'nullable|numeric',
             'video_preview_height' => 'nullable|numeric',
+            'type'=>'nullable|string',
             'meride_video_id'=>'nullable|numeric',
+            'ext_view' => 'boolean',
+            'ext_view_url'=>'nullable|string',
+            'thumb_num'=>'nullable|numeric',
+            'models' => 'nullable',
+            'product_video'=>'boolean',
+            'captions' => 'boolean',
+ 'subtitles'=>'nullable|json',
             'ce_text'=>'nullable|string',
             'published_at'=>'required|date',
-            'subtitles'=>'nullable|json',
+
         ];
     }
 }
+
+
+
+
+
+
+

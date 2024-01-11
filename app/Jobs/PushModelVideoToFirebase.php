@@ -62,6 +62,12 @@ class PushModelVideoToFirebase implements ShouldQueue
         //
         $firestore = app('firebase.firestore');
         $db = $firestore->database();
+        if(
+            $this->video->status != VideosStatus::PUBLISHED->value
+        ){
+            Log::info('Video not published yet');
+            throw new \Exception('unable to push unpublished video to firebase');
+        }
         $modelIds = $this->video->models;
         $ceModels = [];
 
@@ -73,12 +79,6 @@ class PushModelVideoToFirebase implements ShouldQueue
             if (isset($modelData['ce_model'])) {
                 $ceModels[] = $modelData['ce_model'];
             }
-        }
-        if(
-            $this->video->status != VideosStatus::PUBLISHED->value
-        ){
-            Log::info('Video not published yet');
-            throw new \Exception('unable to push unpublished video to firebase');
         }
         $data = [
             'ext_view' => $this->video->type=='EXT_VIEW' ?true:false,
@@ -129,8 +129,8 @@ class PushModelVideoToFirebase implements ShouldQueue
             ]:null,
             'product_video'=>$this->video->product_video?true:false,
             'captions'=>$this->video->captions?true:false,
-            'ce_text'=>$this->video->ce_text,
             'subtitles'=>json_decode($this->video->subtitles),
+            'ce_text'=>$this->video->ce_text,
 
         ];
         Log::info('Video to save in Firestore:', $data);
@@ -141,7 +141,7 @@ class PushModelVideoToFirebase implements ShouldQueue
     protected function getVideoUrl($url, $embedId = null)
     {
         // dd($url,$this->video->subtitles,$embedId);
-        if ($this->video->subtitles) {
+        if ($this->video->captions) {
             // Add the embed_id to the video URL if subtitles are true
             $embedIdSuffix = $embedId ? '_' . $embedId : null;
             // dd($embedIdSuffix);

@@ -4,7 +4,7 @@ namespace App\Observers;
 
 use App\Enums\ModelStatus;
 use App\Models\CarModel;
-use App\Jobs\PushcarModelToFirebase;
+use App\Jobs\PushCarModelToFirebase;
 use App\Jobs\DeleteCarModelFromFirebase;
 use Illuminate\Support\Facades\Log;
 
@@ -35,6 +35,8 @@ class CarModelFirebaseObserver
      */
     public function updated(CarModel $CarModel)
     {
+        Log::info('Model video is ready .Initiating a Firestore update job for Model synchronization.', ['status'=> $CarModel->status]);
+        
         if(
             $CarModel->status == ModelStatus::PUBLISHED->value 
             // and Carbon::parse($program->ordered_at) <= Carbon::now()

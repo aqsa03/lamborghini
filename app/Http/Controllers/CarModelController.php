@@ -218,13 +218,14 @@ class CarModelController extends Controller
             } else {
                 $validatedFields['video_preview_id'] = $video->id;
             }
+            $validatedFields['status'] == ModelStatus::PUBLISHED->value;
         }
         $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
         $validatedFields['parent_id'] = $request->parent_id === 'null' ? null : $request->parent_id;
         if ($validatedFields['status'] == ModelStatus::PUBLISHED->value) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');
         }
-        if ($model->ce_model!==$validatedFields['ce_model']&&isset($validatedFields['ce_model']) && !empty($validatedFields['ce_model'])) {
+        if ($model->ce_model !== $validatedFields['ce_model'] && isset($validatedFields['ce_model']) && !empty($validatedFields['ce_model'])) {
             $ce_model = $validatedFields['ce_model'];
             $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$ce_model}?_format=json&source=smart_tv";
             $response = Http::get($apiUrl);
@@ -262,7 +263,7 @@ class CarModelController extends Controller
                 ->with('error', $error_message);
         }
     }
-     /**
+    /**
      * Search videos by their title
      * @param Request The request where must be present the `title` query string attribute
      * @return \Illuminate\Http\Response

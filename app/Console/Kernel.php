@@ -16,7 +16,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('video:check')->everyTenMinutes();
-        $schedule->command('notification:schedule')->everyMinute();
         $schedule->command('palimpsestTV:sync')->everyTenMinutes();
         $schedule->command('palimpsestTV:clean')->weekly();
     }

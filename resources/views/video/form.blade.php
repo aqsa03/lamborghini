@@ -42,7 +42,7 @@
                 </label>
                 <div class="inline-block relative w-64">
                     <select id="category_id" name="category_id" class="form_select">
-                    <option disbaled value="">{{ trans("general.choose category") }}</option>
+                        <option disbaled value="">{{ trans("general.choose category") }}</option>
                         @foreach ($categories as $category)
                         <option {{ old("category_id", $video->category_id ?? '') == $category->id ? 'selected' : '' }} value="{{ $category->id }}">{{ $category->title }}</option>
                         @endforeach
@@ -55,7 +55,7 @@
                 </label>
                 <div class="inline-block relative w-64">
                     <select id="model_id" name="model_id" class="form_select">
-                    <option disbaled value="">{{ trans("general.choose model") }}</option>
+                        <option disbaled value="">{{ trans("general.choose model") }}</option>
                         @foreach ($models as $model)
                         <option {{ old("model_id", $video->model_id ?? '') == $model->id ? 'selected' : '' }} value="{{ $model->id }}">{{ $model->title }}</option>
                         @endforeach
@@ -97,7 +97,7 @@
                     {{ trans("videos.type") }}
                 </label>
                 <select name="type" class="form_select" id="type">
-                    <option value=""  {{ old("type", $video->type ?? '') == '' ? 'selected' : '' }}>
+                    <option value="" {{ old("type", $video->type ?? '') == '' ? 'selected' : '' }}>
                         {{ trans("general.select_video_type") }}
                     </option>
                     <option value="EXT_VIEW" {{ old("type", $video->type ?? '0') == 'EXT_VIEW' ? 'selected' : '' }}>ext_view</option>
@@ -108,13 +108,13 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ext_view_url">
                     {{ trans("videos.ext_view_url") }}
                 </label>
-                <input class="form_input" type="text" name="ext_view_url" id="ext_view_url" placeholder="{{ trans("videos.ext_view_url") }}"  value="{{ old("ext_view_url", $video->ext_view_url ?? '') }}" />
+                <input class="form_input" type="text" name="ext_view_url" id="ext_view_url" placeholder="{{ trans("videos.ext_view_url") }}" value="{{ old("ext_view_url", $video->ext_view_url ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="thumb_num_container" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="thumb_num">
                     {{ trans("videos.thumb_num") }}
                 </label>
-                <input class="form_input" type="number" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}"  value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
+                <input class="form_input" type="number" name="thumb_num" id="thumb_num" placeholder="{{ trans("videos.thumb_num") }}" value="{{ old("thumb_num", $video->thumb_num ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="pre-existing" style="display:none;">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="pre_existing_video_id">
@@ -142,7 +142,7 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
                     {{ trans("videos.ce_text") }}
                 </label>
-                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}"  value="{{ old("ce_text", $video->ce_text ?? '') }}" />
+                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}" value="{{ old("ce_text", $video->ce_text ?? '') }}" />
             </div>
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
@@ -166,8 +166,8 @@
                     </script>
                 </div>
             </div>
-           
-            
+
+
 
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="related">
@@ -225,15 +225,15 @@
             </div>
             @endif
             <div class="w-full px-3 mt-12">
-            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="scheduled_at">
-                {{ trans("general.published at") }}
-            </label>
-            <input class="form_input" type="datetime-local" name="published_at" placeholder="{{ trans("general.published at") }}" required value="{{ old("published_at", $video?->published_at ?? now()) }}" />
-        </div>
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="scheduled_at">
+                    {{ trans("general.published at") }}
+                </label>
+                <input class="form_input" type="datetime-local" name="published_at" placeholder="{{ trans("general.published at") }}" required value="{{ old("published_at", $video?->published_at ?? now()) }}" />
+            </div>
 
             <div class="w-full px-3 mt-12">
                 <div class="basis-1/2">
-                @if (!isset($video) or $video?->status != App\Enums\VideosStatus::PUBLISHED->value)
+                    @if (!isset($video) or $video?->status != App\Enums\VideosStatus::PUBLISHED->value)
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.Save draft") }}</button>
                     @elseif($video?->status==App\Enums\ModelStatus::PUBLISHED->value)
                     <button id="save-button" class="btn_save" type="submit">{{ trans("general.save") }}</button>
@@ -255,10 +255,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            
-            const pre_exist_value=sessionStorage.getItem('pre-existingValue');
-            console.log("-------------->", pre_exist_value);
-            const pre_type=sessionStorage.getItem('selectedType');
+
+            const pre_exist_value = sessionStorage.getItem('pre-existingValue');
+            const pre_type = sessionStorage.getItem('selectedType');
             const preExisting = document.getElementById('pre-existing');
             var preExistingVideoId = document.getElementById('meride_video_id').value;
             var preExistingSelect = document.getElementById("pre_existing_video_id");
@@ -275,15 +274,13 @@
             } else {
                 console.log("No matching option found");
             }
-            if(pre_exist_value)
-            {
+            if (pre_exist_value) {
                 sessionStorage.removeItem('pre-existingValue')
-                const id=pre_exist_value.split('-');
-                document.getElementById('meride_video_id').value=id[0];
+                const id = pre_exist_value.split('-');
+                document.getElementById('meride_video_id').value = id[0];
                 preExisting.style.display = 'block';
-               
-            }
-            else{
+
+            } else {
                 preExisting.style.display = 'none';
                 sessionStorage.removeItem('pre-existingValue')
             }
@@ -296,31 +293,31 @@
         const main_video = document.getElementById('main_video');
         const video360Input = document.getElementById('ext_view_url');
         const preExisting = document.getElementById('pre-existing');
-        const pre_value=document.getElementById("pre_existing_video_id");
+        const pre_value = document.getElementById("pre_existing_video_id");
         sessionStorage.setItem('selectedType', istypeSelect.value);
         pre_value.addEventListener('change', function() {
-        sessionStorage.setItem('pre-existingValue',pre_value.value);
+            sessionStorage.setItem('pre-existingValue', pre_value.value);
         });
-       
+
         if (istypeSelect.value === 'EXT_VIEW') {
             video360Field.style.display = 'block';
-            thumb_num_container.style.display='block';
+            thumb_num_container.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
             video360Input.setAttribute('required', 'required');
-            thumb_num.setAttribute('required','required');
+            thumb_num.setAttribute('required', 'required');
         } else if (istypeSelect.value === 'PRE_EXISTING') {
             document.getElementById("meride_video_id").value = video_id;
             preExisting.style.display = 'block';
             preview_video.style.display = 'none';
             main_video.style.display = 'none';
             video360Field.style.display = 'none';
-            thumb_num_container.style.display='none';
+            thumb_num_container.style.display = 'none';
             video360Input.removeAttribute('required');
             thumb_num.removeAttribute('required');
         } else {
             video360Field.style.display = 'none';
-            thumb_num_container.style.display='none';
+            thumb_num_container.style.display = 'none';
             video360Input.removeAttribute('required');
             thumb_num.removeAttribute('required');
         }
@@ -328,17 +325,17 @@
             sessionStorage.setItem('selectedType', istypeSelect.value);
             if (this.value === 'EXT_VIEW') {
                 video360Field.style.display = 'block';
-                thumb_num_container.style.display='block';
+                thumb_num_container.style.display = 'block';
                 preview_video.style.display = 'none';
                 main_video.style.display = 'none';
                 preExisting.style.display = 'none';
                 video360Input.setAttribute('required', 'required');
-                thumb_num.setAttribute('required','required');
+                thumb_num.setAttribute('required', 'required');
             } else if (istypeSelect.value === 'PRE_EXISTING') {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'block';
                 preview_video.style.display = 'none';
-                thumb_num_container.style.display='none';
+                thumb_num_container.style.display = 'none';
                 main_video.style.display = 'none';
                 video360Input.value = null;
                 video360Input.removeAttribute('required');
@@ -346,7 +343,7 @@
             } else {
                 video360Field.style.display = 'none';
                 preExisting.style.display = 'none';
-                thumb_num_container.style.display='none';
+                thumb_num_container.style.display = 'none';
                 preview_video.style.display = 'block';
                 main_video.style.display = 'block';
                 video360Input.value = null;

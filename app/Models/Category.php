@@ -12,15 +12,7 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title','description', 'image_id', 'parent_id',];
-
-    /**
-     * Get the seasons for the program.
-     */
-    public function programs(): HasMany
-    {
-        return $this->hasMany(Program::class);
-    }
+    protected $fillable = ['title', 'description', 'image_id', 'parent_id',];
     public function videos(): HasMany
     {
         return $this->hasMany(ModelVideo::class);
@@ -49,18 +41,17 @@ class Category extends Model
     public static function searchByTitle(string $title): Collection
     {
         $category = Category::select('id', 'title');
-        foreach( explode(' ', $title) as $word){
-            $category->where('title', 'like' , '%'.$word.'%');
+        foreach (explode(' ', $title) as $word) {
+            $category->where('title', 'like', '%' . $word . '%');
         }
         return $category->get();
     }
     public static function searchByString(string $title)
     {
         $category = Category::select('id', 'title');
-        foreach( explode(' ', $title) as $word){
-            $category->where('title', 'like' , '%'.$word.'%');
+        foreach (explode(' ', $title) as $word) {
+            $category->where('title', 'like', '%' . $word . '%');
         }
         return $category->get();
     }
-
 }

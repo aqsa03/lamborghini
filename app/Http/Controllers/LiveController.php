@@ -151,7 +151,8 @@ class LiveController extends Controller
         return redirect()->route('lives.index')->with('success','Live updated successfully.');
     }
 
-    /**
+     
+  /**
      * Remove the specified resource from storage.
      *
      * @param  int  $live_id

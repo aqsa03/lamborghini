@@ -16,7 +16,6 @@ return new class extends Migration
         //
         Schema::table('ModelVideo',function(Blueprint $table){
             $table->string('type')->nullable();
-            $table->dropColumn('is_360');
         });
     }
 

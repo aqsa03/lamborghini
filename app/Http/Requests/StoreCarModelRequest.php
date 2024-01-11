@@ -25,20 +25,24 @@ class StoreCarModelRequest extends FormRequest
     public function rules()
     {
         return [
-                'title' => 'required|max:52',
-                'description' => 'nullable|string',          
-                'image' => 'nullable|image',
-                'status' => 'in:'.implode(',', array_map(function($item) {
-                    return $item->value;
-                }, ModelStatus::cases())),
-                'video_width' => 'nullable|numeric',
-                'video_height' => 'nullable|numeric',
-                'video_preview_width' => 'nullable|numeric',
-                'video_preview_height' => 'nullable|numeric',
-                'meride_video_id'=>'nullable|numeric',
-                'type'=>'nullable|string',
-                'ce_model'=>'nullable|string',
-                'ce_text'=>'nullable|string',
+            'title' => 'required|max:52',
+            'description' => 'nullable|string',          
+            'image' => 'nullable|image',
+            'status' => 'in:'.implode(',', array_map(function($item) {
+                return $item->value;
+            }, ModelStatus::cases())),
+            'video_width' => 'nullable|numeric',
+            'video_height' => 'nullable|numeric',
+            'video_preview_width' => 'nullable|numeric',
+            'video_preview_height' => 'nullable|numeric',
+            'meride_video_id'=>'nullable|numeric',
+            'type'=>'nullable|string',
+            'ce_model'=>'nullable',
+            'ce_text'=>'nullable|string',
+            
         ];
     }
 }
+
+
+

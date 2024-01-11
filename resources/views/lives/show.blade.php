@@ -27,13 +27,13 @@
 <div class="md:flex">
     <div class="md:basis-2/3 px-8">
 
-        <!-- <div class="w-full mt-12">
+        {{-- <div class="w-full mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                 {{ trans('general.description') }}
             </label>
             <div id="description" class="editor_textarea"></div>
             <script type="text/plain" id="source_description">{!! $live->description !!}</script>
-        </div> -->
+        </div> --}}
 
         <div class="w-full mt-12">
             <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">

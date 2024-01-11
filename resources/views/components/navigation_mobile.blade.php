@@ -36,16 +36,8 @@
                         <x-navigation.live></x-navigation.live>
                     </li>
                 </ul>
-                <ul>
-                    <li>
-                        <x-navigation.news></x-navigation.news>
-                    </li>
-                </ul>
-                <ul>
-                    <li>
-                        <x-navigation.notifications></x-navigation.notifications>
-                    </li>
-                </ul>
+                
+              
 
                 @if (Auth::user()->is_admin())
                 <ul>

@@ -1,22 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use \App\Http\Controllers\ProgramsController;
-use \App\Http\Controllers\SeasonsController;
 use \App\Http\Controllers\LiveController;
 use \App\Http\Controllers\PageController;
 use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\AdminController;
 use App\Http\Controllers\MembersController;
 use \App\Http\Controllers\CategoryController;
-use \App\Http\Controllers\NotificationController;
-use \App\Http\Controllers\SettingController;
-use \App\Http\Controllers\associationMembershipController;
-use App\Http\Controllers\EpisodesController;
 use App\Http\Controllers\CarModelController;
 use App\Http\Controllers\ModelVideoController;
-use App\Http\Controllers\NewsCategoryController;
-use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PalimpsestItemsController;
 use App\Http\Controllers\PalimpsestTemplateItemsController;
 
@@ -34,7 +26,8 @@ use App\Http\Controllers\PalimpsestTemplateItemsController;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/page', [PageController::class, 'index'])->name('page.index');
+
+
 Route::get('/page/destroy', [PageController::class, 'destroy'])->name('page.destroy');
 Route::get('/categories/search_by_string', [CategoryController::class, 'searchByString'])->name('categories.search_by_string');
 Route::get('/models/search_by_string', [CarModelController::class, 'searchByString'])->name('models.search_by_string');
@@ -81,11 +74,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
         'news' => NewsController::class
     ]);
 
-    Route::group(['middleware' => 'role:editor'], function () {
-        Route::resources([
-            'notifications' => NotificationController::class,
-        ]);
-    });
+   
 
     Route::group(['middleware' => 'role:admin'], function () {
         Route::resources([

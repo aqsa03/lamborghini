@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Live;
 use App\Models\PalimpsestItem;
-use App\Models\Program;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;

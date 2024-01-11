@@ -90,14 +90,14 @@
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_model">
                     {{ trans("model.ce_model") }}
                 </label>
-                <input class="form_input" type="text" name="ce_model" id="ce_model_id" placeholder="{{ trans("model.ce_model") }}"  value="{{ old("ce_model", $model->ce_model ?? '') }}" />
+                <input class="form_input" type="text" name="ce_model" id="ce_model_id" placeholder="{{ trans("model.ce_model") }}" required value="{{ old("ce_model", $model->ce_model ?? '') }}" />
             </div>
             <div class="w-full px-3 mt-12" id="ce_text_container">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
                     {{ trans("model.ce_text") }}
                 </label>
                 <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("model.ce_text") }}"  value="{{ old("ce_text", $model->ce_text ?? '') }}" />
-            </div>
+            </div> 
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                     {{ trans("general.poster image") }}

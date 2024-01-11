@@ -28,31 +28,31 @@ class ModelVideoController extends Controller
      */
     public function index(Request $request)
     {
+    
+    $searchTerm = $request->input('search');
 
-        $searchTerm = $request->input('search');
+    $videos = ModelVideo::orderBy('model_id');
 
-        $videos = ModelVideo::orderBy('model_id');
+    if ($request->query('model_id')) {
+        $videos->where('model_id', '=', $request->query('model_id'));
+    }
 
-        if ($request->query('model_id')) {
-            $videos->where('model_id', '=', $request->query('model_id'));
+    if ($searchTerm) {
+        foreach (explode(' ', $searchTerm) as $word) {
+            $videos->where('title', 'like', '%' . $word . '%');
         }
+    }
 
-        if ($searchTerm) {
-            foreach (explode(' ', $searchTerm) as $word) {
-                $videos->where('title', 'like', '%' . $word . '%');
-            }
-        }
+    if ($request->query('status') and $request->query('status') != '-1') {
+        $videos->where('status', '=', $request->query('status'));
+    }
 
-        if ($request->query('status') and $request->query('status') != '-1') {
-            $videos->where('status', '=', $request->query('status'));
-        }
-
-        return view('video.index', [
-            'total' => $videos->count(),
-            'videos' => $videos->paginate(20),
-            'request' => $request,
-            'searchTerm' => $searchTerm,
-        ])->with('i', (request()->input('page', 1) - 1) * 20);
+    return view('video.index', [
+        'total' => $videos->count(),
+        'videos' => $videos->paginate(20),
+        'request' => $request,
+        'searchTerm' => $searchTerm,
+    ])->with('i', (request()->input('page', 1) - 1) * 20);
     }
 
     /**
@@ -86,10 +86,7 @@ class ModelVideoController extends Controller
             ]);
 
             foreach ($merideLives as $merideLive) {
-                if (!empty($merideLive->subtitles)) {
-                    $meridePreExisting[] = $merideLive;
-                }
-                // $meridePreExisting[] = $merideLive;
+                $meridePreExisting[] = $merideLive;
             }
         }
         $token = '';
@@ -137,7 +134,8 @@ class ModelVideoController extends Controller
             if (!$video) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
-                $subtitles = $videoResponse->subtitles ?? null;
+                $subtitles=$videoResponse->subtitles??null;
+                
                 $validatedFields['subtitles'] = $subtitles ? json_encode([
                     'it' => $subtitles?->it ?? null,
                     'de' => $subtitles?->de ?? null,
@@ -179,7 +177,7 @@ class ModelVideoController extends Controller
             } else {
                 $validatedFields['video_id'] = $video->id;
                 $validatedFields['video_preview_id'] = $video->id;
-                $validatedFields['subtitles'] = $video->subtitles;
+                $validatedFields['subtitles']=$video->subtitles;
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
@@ -299,18 +297,18 @@ class ModelVideoController extends Controller
             if (!$prevideo) {
                 $merideApi = new Api(config('meride.authCode'), config('meride.cmsUrl'), 'v2');
                 $videoResponse = $merideApi->get('embed', $validatedFields['meride_video_id']);
-                $subtitles = $videoResponse->subtitles ?? null;
+                $subtitles=$videoResponse->subtitles??null;
                 $validatedFields['subtitles'] = $subtitles ? json_encode([
-                    'it' => $subtitles->it,
-                    'de' => $subtitles->de,
-                    'en' => $subtitles->en,
-                    'es' => $subtitles->es,
-                    'fr' => $subtitles->fr,
-                    'zh' => $subtitles->zh,
-                    'ru' => $subtitles->ru,
-                    'ja' => $subtitles->ja,
+                    'it' => $subtitles?->it ?? null,
+                    'de' => $subtitles?->de ?? null,
+                    'en' => $subtitles?->en ?? null,
+                    'es' => $subtitles?->es ?? null,
+                    'fr' => $subtitles?->fr ?? null,
+                    'zh' => $subtitles?->zh ?? null,
+                    'ru' => $subtitles?->ru ?? null,
+                    'ja' => $subtitles?->ja ?? null,
                 ]) : null;
-                $created_video = Video::create([
+                    $created_video = Video::create([
                     'title' => $videoResponse->title,
                     'source_url' =>  $videoResponse->video->url_video,
                     'image_source_url' => $image ? $image->url : null,
@@ -326,14 +324,14 @@ class ModelVideoController extends Controller
                     'meride_video_id' => $videoResponse->video->id ?? null,
                     'meride_embed_id' => $videoResponse->public_id ?? $videoResponse->id,
                     'subtitles' => $subtitles ? json_encode([
-                        'it' => $subtitles->it,
-                        'de' => $subtitles->de,
-                        'en' => $subtitles->en,
-                        'es' => $subtitles->es,
-                        'fr' => $subtitles->fr,
-                        'zh' => $subtitles->zh,
-                        'ru' => $subtitles->ru,
-                        'ja' => $subtitles->ja,
+                        'it' => $subtitles->it ?? null,
+                        'de' => $subtitles->de ?? null,
+                        'en' => $subtitles->en ?? null,
+                        'es' => $subtitles->es ?? null,
+                        'fr' => $subtitles->fr ?? null,
+                        'zh' => $subtitles->zh ?? null,
+                        'ru' => $subtitles->ru ?? null,
+                        'ja' => $subtitles->ja ?? null,
                     ]) : null,
                 ]);
                 $validatedFields['video_id'] = $created_video->id;
@@ -341,14 +339,14 @@ class ModelVideoController extends Controller
             } else {
                 $validatedFields['video_id'] = $prevideo->id;
                 $validatedFields['video_preview_id'] = $prevideo->id;
-                $validatedFields['subtitles'] = $prevideo->subtitles;
+                $validatedFields['subtitles']=$prevideo->subtitles;
             }
             $validatedFields['pre_existing_video_id'] = $validatedFields['meride_video_id'];
             $validatedFields['ext_view'] = 0;
             $validatedFields['status'] = VideosStatus::PUBLISHED->value;
         } else if (!$validatedFields['type']) {
             $validatedFields['type'] = VideoType::NEW->value;
-
+            
             if ($main_video = Video::createFromRequest($request, $image, preview: true)) {
                 //TODO rimuovi vecchio video se c'è
                 $validatedFields['video_id'] = $main_video->id;
@@ -379,8 +377,8 @@ class ModelVideoController extends Controller
         } else {
             $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
         }
-        $savedVideo = Video::where('id', '=', $video->video_id)->first();
-        $validatedFields['subtitles'] = $savedVideo->subtitles;
+        $savedVideo=Video::where('id','=',$video->video_id)->first();
+        $validatedFields['subtitles']=$savedVideo->subtitles;
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

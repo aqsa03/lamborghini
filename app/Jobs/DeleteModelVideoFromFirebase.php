@@ -52,7 +52,11 @@ class DeleteModelVideoFromFirebase implements ShouldQueue
         Log::info('Video to delete from Firestore:', ["video_id",$this->video_id]);
         $db->collection('videos')->document($this->video_id)->delete();
         Log::info('Successfully removed Video from Firestore');
-
     }
 }
+
+
+
+
+
 

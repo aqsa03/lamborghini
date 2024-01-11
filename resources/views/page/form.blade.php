@@ -24,6 +24,15 @@
       <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
       <style>
+        .modalClass {
+          position: absolute;
+        }
+
+        .modaltextClass {
+          color: green;
+
+        }
+
         .App {
           display: grid;
           /*border-bottom: 1px solid #000;*/
@@ -276,6 +285,8 @@
       {
         const state=[[{collection:" ",ref:0 ,search_string:" "}]]
         const [main,setmain]=useState(state);
+        const [showModal,setShowModal]=useState(['dummy']);
+        //setshowmodal((prev)=>{...prev,id:true})
         document.getElementById('index').value = props?.index;
         const [slides, setSlides] = useState(props.state[0]);
         const [forceEffect, setForceEffect] = useState(0);
@@ -377,7 +388,7 @@
                   spinnerSlide.current[index].style.display = "none";
                 }
               });
-              xhr.open("GET", `http://128.140.106.20:9080/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
+              xhr.open("GET", `http://localhost:8001/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchResults.current[index].addEventListener("click", function(){
@@ -421,16 +432,16 @@
         /*
          * Form Management 
         */
-        const saveForm = (e) => {
+        const saveForm = (e,id) => {
           e.preventDefault();
-          
+          console.log("hsdmghsgfksgfskdfds",id)
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
             /* Main Section custom rule */
             if(typeof sectionType.current !== 'undefined' && sectionType.current != null){
               if(updatedSlides[0].type == 'main'){
                 numberForm.current.disabled = true;
-                updateButton.current.disabled = false;
+                // updateButton.current.disabled = false;
               }
             }
             /* End of Main Section custom rule */
@@ -441,7 +452,8 @@
               updatedSlides[0].type = sectionType?.current?.value;
             }
             if(typeof IDSimple.current !== 'undefined' && IDSimple.current != null){
-              updatedSlides[0].ref = IDSimple?.current?.value;
+              // updatedSlides[0].ref = IDSimple?.current?.value;
+              updatedSlides[0].ref = 10;
             }
             if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
               updatedSlides[0].ref = IDRef?.current?.value;
@@ -484,6 +496,12 @@
               
             })
           }
+          })
+          console.log("--------------->",updatedSlides[0].search_string)
+          setShowModal((prev)=>{
+            if(!prev?.includes(id)) 
+              return [...prev,updatedSlides[0].search_string]
+            else return prev
           })
             return updatedMain;
 
@@ -529,7 +547,7 @@
                   spinner.current.style.display = "none";
                 }
               });
-              xhr.open("GET", `http://128.140.106.20:9080/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
+              xhr.open("GET", `http://localhost:8001/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchresultsSimple.current.addEventListener("click", function(){
@@ -585,11 +603,9 @@
         const handleDragEnd = (e) => {
           e.preventDefault();
         };
-        const addCard=(e)=>{
+        const addCard=(e,id)=>{
           e.preventDefault();
-          // const newRef = main.length > 0 ? main[main.length - 1][0].ref + 1 : 1;
           setmain((prevMain) => {
-          // const newRef = prevMain.length > 0 ? prevMain[prevMain.length - 1][0].ref + 1 : 1;
           return [
             ...prevMain,
             [
@@ -601,13 +617,16 @@
             ],
           ];
         });
+        setShowModal([]);
         }
         
         /*
         * HTML Generation
         */
-        return (
+       
+               return (
           <div className="App">
+         
           <div className="controllers">
           <button onClick={props.removeSection}>X</button>
         </div>
@@ -627,8 +646,12 @@
               <div>
     {main.map((m, index) => (
       m.map((v, i) => (
+       
         <React.Fragment key={`${index}-${i}`}>
         <div className="simple-container">
+        <div>
+        {v.search_string}
+        </div>
                     <h2>Collection:</h2>
                     <select className="form_select" name="collection" id="collection" defaultValue={v.collection} ref={selectForm}>
                       <option value="categories">Category</option>
@@ -637,7 +660,7 @@
                     </select>
                     <h2>Titolo:</h2>
                     <div className="spinned-input">
-                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={true} defaultValue={v.search_string} ref={numberForm} />
+                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={false} defaultValue={v.search_string} ref={numberForm} />
                       <img className="spinner w-20 h-20" src="{{ asset('assets/imgs/spinner.gif') }}" ref={spinner} />
                     </div>
                     <input type="hidden" ref={IDSimple} defaultValue={v.ref} />
@@ -647,8 +670,17 @@
                     <input type="hidden" id={"jsonResponse"+props.index} name={"jsonResponse"+props.index} value="" ref={jsonElement} />
                   </div>
                   <div className="simple-container-buttons">
-                    <button ref={updateButton} onClick={(e) => changeTitle(e)}>Modifica</button>
-                    <button onClick={(e) => saveForm(e)}>Salva</button>
+                  {v.ref==0?
+                    null:<button ref={updateButton} onClick={(e) => changeTitle(e)}>Modifica</button>
+                  }
+                    <button onClick={(e) => saveForm(e,i)}>Salva</button>
+                    <div>
+                    {showModal.includes(v.search_string)&&<div className="modaltextClass">
+            <div >
+            Successfully added to Main.
+            </div>
+            </div>}
+                    </div>
                   </div>
                   <div className="controllers">
                     <button onClick={addCard}>Aggiungi</button>
@@ -825,7 +857,7 @@
         const removedSection = updatedSections.splice(index, 1)[0];
         const requestData =encodeURIComponent(JSON.stringify({ page: removedSection.label }));
         let xhr = new XMLHttpRequest();
-        xhr.open('GET',`http://128.140.106.20:9080/page/destroy?page=${removedSection.label}`);
+        xhr.open('GET',`http://localhost:8001/page/destroy?page=${removedSection.label}`);
         xhr.setRequestHeader("Content-Type", "text/plain");
         xhr.setRequestHeader("X-CSRF-TOKEN", window.csrfToken);
         xhr.onreadystatechange = function () {

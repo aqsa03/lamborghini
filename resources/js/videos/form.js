@@ -44,20 +44,20 @@ import TusConfig from "../libs/tus/tusConfig.js";
         form.querySelector("#publish-button").disabled = false;
       }
     });
-  preExistingSelect.addEventListener("input", async function () {
-    var enteredValue = preExistingSelect.value;
-    var options = document.querySelectorAll("#pre_existing_videos option");
-    var selectedOption = Array.from(options).find(function (option) {
-      return option.value === enteredValue;
+    preExistingSelect.addEventListener("input", async function () {
+      var enteredValue = preExistingSelect.value;
+      var options = document.querySelectorAll("#pre_existing_videos option");
+      var selectedOption = Array.from(options).find(function (option) {
+        return option.value === enteredValue;
+      });
+      if (selectedOption) {
+        var dataUrl = selectedOption.getAttribute("data-url");
+        var dataId = selectedOption.getAttribute("data-id");
+        await tusCreateForm.handlePreExistingVideoSelection(dataUrl, dataId);
+      } else {
+        console.log("No matching option found");
+      }
     });
-    if (selectedOption) {
-      var dataUrl = selectedOption.getAttribute("data-url");
-      var dataId = selectedOption.getAttribute("data-id");
-      await tusCreateForm.handlePreExistingVideoSelection(dataUrl, dataId);
-    } else {
-      console.log("No matching option found");
-    }
-  });
   tusCreateForm.setup();
   window.tusCreateForm = tusCreateForm;
 })();

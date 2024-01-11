@@ -73,3 +73,4 @@ class CategoryFirebaseObserver
         DeleteCategoryFromFirebase::dispatch($category);
     }
 }
+

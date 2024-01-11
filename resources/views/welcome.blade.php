@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>TV2000 CMS</title>
+        <title>Lamborghini CMS</title>
         @vite(['resources/css/welcome.css'])
     </head>
     <body class="min-h-screen flex flex-col place-items-center place-content-center p-12">
