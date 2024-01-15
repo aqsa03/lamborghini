@@ -18,11 +18,14 @@ class CorsMiddleware
     {
         $response = $next($request);
 
-        // Add CORS headers
-        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:8001');
-        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        // Get the origin of the incoming request
+        $origin = $request->header('Origin');
+
+        // Set CORS headers
+        $response->headers->set('Access-Control-Allow-Origin', $origin);
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-TOKEN');
+        $response->headers->set('Access-Control-Allow-Headers', 'Accept, Content-Type, Authorization, X-CSRF-TOKEN');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
 
         return $response;
     }

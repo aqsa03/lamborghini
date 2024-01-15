@@ -26,11 +26,19 @@
       <style>
         .modalClass {
           position: absolute;
+          display: 'flex';
         }
 
         .modaltextClass {
           color: green;
+          display: 'flex';
+          align-items: "center";
+        }
 
+        .modalerrorClass {
+          color: red;
+          display: 'flex';
+          align-items: "center";
         }
 
         .App {
@@ -166,7 +174,7 @@
           color: white;
           padding: 8px 16px;
           height: auto;
-          margin-top: 16px;
+
           border-radius: 5px;
         }
 
@@ -229,12 +237,8 @@
           grid-template-columns: 2fr 5fr;
           gap: 8px;
           width: 50%;
-          margin-top: -8px;
+          margin-top: 8px;
           align-items: center;
-        }
-
-        .simple-container-buttons {
-          margin-top: -24px;
         }
 
         .spinned-input {
@@ -283,9 +287,15 @@
       const pageId = <?php echo json_encode($page_id) . ";"; ?>
       function CustomSlider(props)
       {
-        const state=[[{collection:" ",ref:0 ,search_string:" "}]]
+        let state=[[{collection:"",ref:0 ,search_string:" "}]]
+
+        if(props.type=='main'){
+          state=props.state[0][0].list?[props.state[0][0].list]:[[{collection:"",ref:0 ,search_string:" "}]]
+
+        }
         const [main,setmain]=useState(state);
-        const [showModal,setShowModal]=useState(['dummy']);
+        const [showModal,setShowModal]=useState([]);
+        const [showError,setShowError]=useState(false);
         //setshowmodal((prev)=>{...prev,id:true})
         document.getElementById('index').value = props?.index;
         const [slides, setSlides] = useState(props.state[0]);
@@ -388,7 +398,7 @@
                   spinnerSlide.current[index].style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:8001/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
+              xhr.open("GET", `http://128.140.106.20:9080/${selectElements.current[index].value}/search_by_string?string=${textElements.current[index].value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchResults.current[index].addEventListener("click", function(){
@@ -414,7 +424,7 @@
             const updatedSlides = [...prevSlides];
             //updatedSlides[index].type = sectionType.current.value;
             if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
-              updatedSlides[0].ref = IDRef.current.value;
+              updatedSlides[index].ref = IDRef.current.value;
             }
             updatedSlides[index].search_string = textElements.current[index].value;
             updatedSlides[index].collection = selectElements.current[index].value;
@@ -434,14 +444,12 @@
         */
         const saveForm = (e,id) => {
           e.preventDefault();
-          console.log("hsdmghsgfksgfskdfds",id)
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
             /* Main Section custom rule */
             if(typeof sectionType.current !== 'undefined' && sectionType.current != null){
               if(updatedSlides[0].type == 'main'){
                 numberForm.current.disabled = true;
-                // updateButton.current.disabled = false;
               }
             }
             /* End of Main Section custom rule */
@@ -452,8 +460,8 @@
               updatedSlides[0].type = sectionType?.current?.value;
             }
             if(typeof IDSimple.current !== 'undefined' && IDSimple.current != null){
-              // updatedSlides[0].ref = IDSimple?.current?.value;
-              updatedSlides[0].ref = 10;
+              updatedSlides[0].ref = IDSimple?.current?.value;
+              // updatedSlides[0].ref = 10;
             }
             if(typeof IDRef.current !== 'undefined' && IDRef.current != null){
               updatedSlides[0].ref = IDRef?.current?.value;
@@ -473,13 +481,22 @@
             if(typeof ascDesc.current !== 'undefined' && ascDesc.current != null){
               updatedSlides[0].asc_desc = ascDesc?.current?.value;
             }
-            if(typeof updatedSlides[0].rules == 'object'){
+            if(updatedSlides[0].type=='rule'){
+              updatedSlides[0].rules=[{field_1:"",operator:"",field_value:""}]
               updatedSlides[0].rules.forEach((item, index) => {
                 item.field_1 = field_1?.current[index]?.value;
                 item.operator = operator?.current[index]?.value;
                 item.field_value = fieldValue?.current[index]?.value;
               });
+
             }
+            // if(typeof updatedSlides[0].rules == 'object'){
+            //   updatedSlides[0].rules.forEach((item, index) => {
+            //     item.field_1 = field_1?.current[index]?.value;
+            //     item.operator = operator?.current[index]?.value;
+            //     item.field_value = fieldValue?.current[index]?.value;
+            //   });
+            // }
             setmain((prevMain)=>{
             let updatedMain=[...prevMain];
             updatedMain[updatedMain.length-1]=[{collection:updatedSlides[0].collection,
@@ -497,9 +514,13 @@
             })
           }
           })
-          console.log("--------------->",updatedSlides[0].search_string)
+          if(updatedSlides[0].type == 'main'){
+                numberForm.current.disabled = false;
+                updatedSlides[0].search_string==" "?setShowError(true):setShowError(false);
+              }
+         
           setShowModal((prev)=>{
-            if(!prev?.includes(id)) 
+            if(!prev?.includes(id)&& updatedSlides[0].search_string!==' ') 
               return [...prev,updatedSlides[0].search_string]
             else return prev
           })
@@ -511,14 +532,16 @@
           
            
           })
+          
         }
 
         const changeTitle = (e) => {
           e.preventDefault();
+          setShowError(false);
           setSlides((prevSlides) => {
             const updatedSlides = [...prevSlides];
             numberForm.current.disabled = false;
-            updateButton.current.disabled = true;
+            // updateButton.current.disabled = true;
             numberForm.current.addEventListener("input", function(){
               let data = "";
               let xhr = new XMLHttpRequest();
@@ -547,7 +570,7 @@
                   spinner.current.style.display = "none";
                 }
               });
-              xhr.open("GET", `http://localhost:8001/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
+              xhr.open("GET", `http://128.140.106.20:9080/${selectForm.current.value}/search_by_string?string=${numberForm.current.value}`);
               xhr.setRequestHeader("Content-Type", "text/plain");
               xhr.send(data);
               searchresultsSimple.current.addEventListener("click", function(){
@@ -566,14 +589,24 @@
           * JSON Management
         */
         useEffect(() => { 
+          // const mainSection=JSON.parse(slidesElement)
+          // const outerArray = mainSection[0];
+          // const listArray = outerArray.list;
+          // console.log("---------hdfjsdf------->",outerArray);
           if(sectionType.current.value == 'custom'){
-            console.log('found custom')
             jsonElement.current.value = JSON.stringify({
               type: sectionType?.current?.value,
               label: sectionLabel?.current?.value,
               list: JSON.parse(slidesElement)
-            });
-         }else {
+            });}
+        //     if(sectionType.current.value == 'main'){
+        //      jsonElement.current.value = JSON.stringify({
+        //       type: sectionType?.current?.value,
+        //       label: sectionLabel?.current?.value,
+        //       list: listArray
+        //     });
+        //  }
+         else {
             jsonElement.current.value = slidesElement;
           }
           console.log(jsonElement.current.value);
@@ -618,12 +651,10 @@
           ];
         });
         setShowModal([]);
-        }
-        
+        } 
         /*
         * HTML Generation
         */
-       
                return (
           <div className="App">
          
@@ -649,9 +680,6 @@
        
         <React.Fragment key={`${index}-${i}`}>
         <div className="simple-container">
-        <div>
-        {v.search_string}
-        </div>
                     <h2>Collection:</h2>
                     <select className="form_select" name="collection" id="collection" defaultValue={v.collection} ref={selectForm}>
                       <option value="categories">Category</option>
@@ -660,13 +688,12 @@
                     </select>
                     <h2>Titolo:</h2>
                     <div className="spinned-input">
-                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={false} defaultValue={v.search_string} ref={numberForm} />
+                      <input className="form_input" type="text" id="search_string" name="search_string" disabled={v.search_string&&v.search_string!==" "?true:false} defaultValue={v.search_string} ref={numberForm}  onChange={(e) => changeTitle(e) }/>
                       <img className="spinner w-20 h-20" src="{{ asset('assets/imgs/spinner.gif') }}" ref={spinner} />
                     </div>
                     <input type="hidden" ref={IDSimple} defaultValue={v.ref} />
                     <div></div>
                     <div ref={searchresultsSimple} />
-                    {/*<input type="number" id="id" name="id" defaultValue={props.state[0][0].inputID} ref={numberForm} />*/}
                     <input type="hidden" id={"jsonResponse"+props.index} name={"jsonResponse"+props.index} value="" ref={jsonElement} />
                   </div>
                   <div className="simple-container-buttons">
@@ -709,7 +736,7 @@
                       <option value="asc">Asc</option>
                       <option value="desc">Desc</option>
                     </select>
-                    {(Array.isArray(props.state[0][0].rules)) ?
+                   {(Array.isArray(props.state[0][0].rules)) ?
                         props?.state[0][0].rules.map((item, i) => {  
                         return (
                           <>
@@ -719,7 +746,6 @@
                                 <option value="category_id">Category ID</option>
                                 <option value="model_id">Model ID</option>
                                 <option value="video_id">Video ID</option>
-                                <option value="podcast">Podcast</option>
                               </select>
                               <select onChange={(e) => saveForm(e)} className="form_select" name="operator" id="operator" defaultValue={item.operator} ref={(element) => operator.current[i] = element}>
                                 <option value="==">==</option>
@@ -767,7 +793,7 @@
                         onDragOver={handleDragOver}
                         onDrop={(e) => handleDrop(e, index)}
                         onDragEnd={handleDragEnd}
-                        style={slide.image_poster ? { backgroundImage: `url(${slide.image_poster[0].url})`, backgroundColor: 'transparent' } : null}
+                        style={slide.background_image ? { backgroundImage: `url(${slide.background_image})`, backgroundColor: 'transparent' } : slide.image_poster?{ backgroundImage: `url(${slide.image_poster[0].url})`, backgroundColor: 'transparent' }:null}
                       >
                         <div className="form">
                           {/*<h2>ID: {slide.ref}</h2>*/}
@@ -850,14 +876,15 @@
         const removeSection = async (e, index) => 
         {
         e.preventDefault();
+        var pageId = @json($page_id);
         const csrfToken = window.csrfToken;
         const updatedSections = [...sections];
         const newSections = sections.filter((_, i) => i !== index);
         ObjPHP.splice(index,1);
         const removedSection = updatedSections.splice(index, 1)[0];
-        const requestData =encodeURIComponent(JSON.stringify({ page: removedSection.label }));
+        const requestData =encodeURIComponent(JSON.stringify({ page: removedSection.label, type:removedSection.type }));
         let xhr = new XMLHttpRequest();
-        xhr.open('GET',`http://localhost:8001/page/destroy?page=${removedSection.label}`);
+        xhr.open('GET',`http://128.140.106.20:9080/page/destroy?page=${removedSection.label}&type=${removedSection.type}&page_id=${pageId}`);
         xhr.setRequestHeader("Content-Type", "text/plain");
         xhr.setRequestHeader("X-CSRF-TOKEN", window.csrfToken);
         xhr.onreadystatechange = function () {
@@ -923,7 +950,6 @@
           var categoryForm = document.getElementById('pageForm');
 
           if (categoryForm) {
-            console.log("--------------------categoryForm------------", categoryForm);
             // categoryForm.addEventListener('submit', function (event) {
             //     event.preventDefault(); // Prevent the form from submitting
 

@@ -84,9 +84,7 @@ class PushPageSectionToFirebase implements ShouldQueue
             }, $this->pageSection->list);
         }
         if (
-            $this->pageSection->type == PageSectionType::RULE->value or
-            $this->pageSection->type == PageSectionType::KEEP_WATCHING->value or
-            $this->pageSection->type == PageSectionType::NEWS->value
+            $this->pageSection->type == PageSectionType::RULE->value
         ) {
             $data['rule'] = $this->pageSection->rule;
         }
