@@ -32,14 +32,27 @@
                     <script type="text/plain" id="source_description">{{ $video->description }}</script>
                 </div>
                 @if(!empty($video->ce_text))
-                <div class="w-full mt-12" id="ce_text">
+                @foreach(['ca', 'ch', 'kr', 'tw', 'uk', 'us', 'eu'] as $key)
+                <div class="w-full px-3 mt-12" id="ce_text_{{ $key }}_container">
+                    <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text_{{ $key }}">
+                        {{ trans("videos.ce_text_$key") }}
+                    </label>
+                    @php
+                        $ceTextArray = json_decode($video?->ce_text, true);
+                        $ceTextValue = $ceTextArray[$key] ?? ''; // Get value from array or default to empty string
+                    @endphp
+                    <input class="form_input" type="text" name="ce_text_{{ $key }}" id="ce_text_{{ $key }}_id" placeholder="{{ trans("videos.ce_text_$key") }}" value="{{ old("ce_text_$key", $ceTextValue) }}" readonly />
+                </div>
+                @endforeach
+
+                <!-- <div class="w-full mt-12" id="ce_text">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
                         {{ trans("videos.ce_text") }}
                     </label>
                     <div style="border: 1px solid #ccc;padding: 8px;cursor: pointer;border-radius: 10px; width: 830px;">
                         {{ $video->ce_text }}
                     </div>
-                </div>
+                </div> -->
                 @endif
                 <div class="w-full mt-12">
                     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">

@@ -48,8 +48,8 @@ class StoreVideoRequest extends FormRequest
             'models' => 'nullable',
             'product_video'=>'boolean',
             'captions' => 'boolean',
- 'subtitles'=>'nullable|json',
-            'ce_text'=>'nullable|string',
+            'subtitles'=>'nullable|json',
+            'ce_text'=>'nullable|json',
             'published_at'=>'required|date',
 
         ];

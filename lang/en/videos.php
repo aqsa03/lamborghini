@@ -15,5 +15,11 @@ return [
     'Category'=>'Category',
 'product video'=>'product video',
     'subtitles'=>'subtitles',
-    'ce_text'=>'ce_text',
+    'ce_text_ca'=>'ce_text_ca',
+    'ce_text_ch'=>'ce_text_ch',
+    'ce_text_kr'=>'ce_text_kr',
+    'ce_text_tw'=>'ce_text_tw',
+    'ce_text_uk'=>'ce_text_uk',
+    'ce_text_us'=>'ce_text_us',
+    'ce_text_eu'=>'ce_text_eu',
 ];

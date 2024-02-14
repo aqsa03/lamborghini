@@ -130,7 +130,7 @@ class PushModelVideoToFirebase implements ShouldQueue
             'product_video'=>$this->video->product_video?true:false,
             'captions'=>$this->video->captions?true:false,
             'subtitles'=>json_decode($this->video->subtitles),
-            'ce_text'=>$this->video->ce_text,
+            'ce_text'=>json_decode($this->video->ce_text),
 
         ];
         Log::info('Video to save in Firestore:', $data);

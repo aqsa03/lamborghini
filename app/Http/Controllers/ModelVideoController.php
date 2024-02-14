@@ -121,6 +121,7 @@ class ModelVideoController extends Controller
     {
         Log::info('Inside Create Video Controller');
         $validatedFields = $request->validated();
+        
         if ($image = Image::createAndStoreFromRequest($request, 'image', 'video')) {
             $validatedFields['image_id'] = $image->id;
         }
@@ -196,24 +197,38 @@ class ModelVideoController extends Controller
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         $validatedFields['models'] = $validatedFields['models'] ?? [];
         if (isset($validatedFields['models']) && !empty($validatedFields['models'])) {
+            $ceText = [];
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
-            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
-            $response = Http::get($apiUrl);
-            if ($response->successful()) {
-                $apiData = $response->json();
-                if ($apiData['aggregated'] !== null) {
-                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+            $ceTextKeys = ['ca', 'ch', 'kr', 'tw', 'uk', 'us', 'eu'];
+            foreach ($ceTextKeys as $ceTextKey) {
+                $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/{$ceTextKey}/{$commaSeparatedString}?_format=json&source=smart_tv";
+                $response = Http::get($apiUrl);
+                if ($response->successful()) {
+                    $apiData = $response->json();
+                    if ($apiData['aggregated'] !== null) {
+                        $ceText[$ceTextKey] = $apiData['aggregated']['disclaimer'] ?? null;
+                    } else {
+                        $ceText[$ceTextKey] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
+                    }
                 } else {
-                    $validatedFields['ce_text'] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
+                    $ceText[$ceTextKey] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
                 }
-            } else {
-                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
+            $validatedFields['ce_text'] = $ceText;
         } else {
-            $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
-        }
+            $validatedFields['ce_text'] = [
+                'ca' => 'Default ce_text for ca',
+                'ch' => 'Default ce_text for ch',
+                'kr' => 'Default ce_text for kr',
+                'tw' => 'Default ce_text for tw',
+                'uk' => 'Default ce_text for uk',
+                'us' => 'Default ce_text for us',
+                'eu' => 'Default ce_text for eu',
+            ];
+                }
+        $validatedFields['ce_text'] = json_encode($validatedFields['ce_text']);
         Log::info('Video to create:', $validatedFields);
         ModelVideo::create($validatedFields);
         Log::info('Video created successfully in database, redirecting to list view');
@@ -359,26 +374,40 @@ class ModelVideoController extends Controller
         $validatedFields['tags'] = array_filter(array_map('trim', explode(',', $validatedFields['tags'])));
         $validatedFields['models'] = $validatedFields['models'] ?? [];
         if (isset($validatedFields['models']) && !empty($validatedFields['models'])) {
+            $ceText = [];
             $modelIds = $validatedFields['models'];
             $modelTitles = CarModel::whereIn('id', $modelIds)->pluck('ce_model');
             $commaSeparatedString = implode(',', $modelTitles->toArray());
-            $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/de/{$commaSeparatedString}?_format=json&source=smart_tv";
-            $response = Http::get($apiUrl);
-            if ($response->successful()) {
-                $apiData = $response->json();
-                if ($apiData['aggregated'] !== null) {
-                    $validatedFields['ce_text'] = $apiData['aggregated']['disclaimer'] ?? null;
+            $ceTextKeys = ['ca', 'ch', 'kr', 'tw', 'uk', 'us', 'eu'];
+            foreach ($ceTextKeys as $ceTextKey) {
+                $apiUrl = "https://ce.lamborghini.com/api/v2/consumption_emissions/en/{$ceTextKey}/{$commaSeparatedString}?_format=json&source=smart_tv";
+                $response = Http::get($apiUrl);
+                if ($response->successful()) {
+                    $apiData = $response->json();
+                    if ($apiData['aggregated'] !== null) {
+                        $ceText[$ceTextKey] = $apiData['aggregated']['disclaimer'] ?? null;
+                    } else {
+                        $ceText[$ceTextKey] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
+                    }
                 } else {
-                    $validatedFields['ce_text'] = $apiData['models'][$commaSeparatedString]['disclaimer'] ?? null;
+                    $ceText[$ceTextKey] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
                 }
-            } else {
-                $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
             }
+            $validatedFields['ce_text'] = $ceText;
         } else {
-            $validatedFields['ce_text'] = 'Fuel consumption and emission values of all vehicles promoted on this page*: Fuel consumption combined: 14,1-12,7 l/100km (WLTP); CO2-emissions combined: 325-442 g/km (WLTP); Under approval, not available for sale: Revuelto; Concept car, not available for sale: Asterion, Estoque';
-        }
+            $validatedFields['ce_text'] = [
+                'ca' => null,
+                'ch' => null,
+                'kr' => null,
+                'tw' => null,
+                'uk' => null,
+                'us' => null,
+                'eu' => null,
+            ];
+                }
+        $validatedFields['ce_text'] = json_encode($validatedFields['ce_text']);
         $savedVideo=Video::where('id','=',$video->video_id)->first();
-        $validatedFields['subtitles']=$savedVideo->subtitles;
+        $validatedFields['subtitles']=$savedVideo?->subtitles;
         $validatedFields['related'] = $validatedFields['related'] ?? [];
         if ($validatedFields['status'] == VideosStatus::PUBLISHED->value and !$video->published_at) {
             $validatedFields['published_at'] = date('Y-m-d H:i:s');

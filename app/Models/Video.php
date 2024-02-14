@@ -21,22 +21,7 @@ class Video extends Model
 
     public function get_associated_entity()
     {
-        $program = Program::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
-        if ($program !== null) {
-            return $program;
-        }
-
-        $season = Season::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
-        if ($season !== null) {
-            return $season;
-        }
-
-        $episode = Episode::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
-        if ($episode !== null) {
-            return $episode;
-        }
-
-        $news = News::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
+        $news = ModelVideo::where('video_id', $this->id)->orWhere('video_preview_id', $this->id)->first();
         if ($news !== null) {
             return $news;
         }

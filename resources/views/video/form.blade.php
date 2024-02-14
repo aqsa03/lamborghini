@@ -138,12 +138,18 @@
                 </label>
                 <input class="form_input" value="{{ old("tags", (isset($video) && !empty($video->tags)) ? implode(', ', $video->tags) : '') }}" type="text" name="tags" placeholder="{{ trans("general.comma separated tags") }}" />
             </div>
-            <div class="w-full px-3 mt-12" id="ce_text_container">
-                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text">
-                    {{ trans("videos.ce_text") }}
-                </label>
-                <input class="form_input" type="text" name="ce_text" id="ce_text_id" placeholder="{{ trans("videos.ce_text") }}" value="{{ old("ce_text", $video->ce_text ?? '') }}" />
-            </div>
+            @foreach(['ca', 'ch', 'kr', 'tw', 'uk', 'us', 'eu'] as $key)
+            <div class="w-full px-3 mt-12" id="ce_text_{{ $key }}_container">
+            <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="ce_text_{{ $key }}">
+                    {{ trans("videos.ce_text_$key") }}
+            </label>
+            @php
+                $ceTextArray = json_decode($video?->ce_text, true);
+                $ceTextValue = $ceTextArray[$key] ?? ''; // Get value from array or default to empty string
+            @endphp
+            <input class="form_input" type="text" name="ce_text_{{ $key }}" id="ce_text_{{ $key }}_id" placeholder="{{ trans("videos.ce_text_$key") }}" value="{{ old("ce_text_$key", $ceTextValue) }}" />
+             </div>
+            @endforeach
             <div class="w-full md:w-1/2 px-3 mt-12">
                 <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="models">
                     {{ trans("general.models") }}
